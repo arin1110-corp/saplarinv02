@@ -2,15 +2,8 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Beranda</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <title>SAPLARIN - Sistem Admininstrasi Pelaporan Internal</title>
+    @include('partials.header');
 </head>
 
 <body class="bg-light">
@@ -19,44 +12,57 @@
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="container text-center">
 
-            <h4 class="mb-4"><img src="{{asset('image/pemprov.png')}}"></h4>
-            <h1 class="mb-2">SAPLARIN</h1>
+            <h4 class="mb-3"><img src="{{asset('image/pemprov.png')}}"></h4>
+            <h1 class="display-1 fw-bold text-secondary">
+                SAPLAR<span class="text-danger">IN</span>
+            </h1>
+            <p class="display-7 fw-bold text-secondary">
+                Sistem Admininstrasi Pelaporan Internal
+            </p>
 
-            <div class="menu-slider-wrapper">
-                <div class="menu-slider">
+            <div class="container mt-5">
+                <div class="d-flex flex-column gap-4 align-items-center">
 
-                    <a href="{{ url('/kopi') }}">
-                        <div class="menu-card">
-                            <i class="bi bi-cup-hot-fill"></i>
-                            <div>Kopi</div>
+                    <!-- MENU 1 -->
+                    <a href="{{ url('/input-spj') }}"
+                        class="menu-row animate-fade delay-0 text-decoration-none text-dark">
+                        <div class="d-flex align-items-center">
+
+                            <!-- KIRI: Icon + Judul -->
+                            <div class="menu-left text-center px-3">
+                                <i class="bi bi-pencil-square icon-top"></i>
+                                <h6 class="mt-2 fw-bold">INPUT SPJ</h6>
+                            </div>
+
+                            <!-- GARIS PEMBATAS -->
+                            <div class="divider-vert"></div>
+
+                            <!-- KANAN: Deskripsi -->
+                            <div class="menu-right ps-3">
+                                <p class="text-muted mb-0 big">Unggah dan Kelola Laporan SPJ Kegiatan dengan Cepat dan
+                                    Aman.</p>
+                            </div>
+
                         </div>
                     </a>
 
-                    <a href="{{ url('/lokasi') }}">
-                        <div class="menu-card">
-                            <i class="bi bi-geo-alt-fill"></i>
-                            <div>Lokasi</div>
-                        </div>
-                    </a>
+                    <!-- MENU 2 -->
+                    <a href="{{ url('/verifikator') }}"
+                        class="menu-row animate-fade delay-1 text-decoration-none text-dark">
+                        <div class="d-flex align-items-center">
 
-                    <a href="{{ url('/kontak') }}">
-                        <div class="menu-card">
-                            <i class="bi bi-telephone-fill"></i>
-                            <div>Kontak</div>
-                        </div>
-                    </a>
+                            <div class="menu-left text-center px-3">
+                                <i class="bi bi-person-check-fill icon-top"></i>
+                                <h6 class="mt-2 fw-bold">VERIFIKATOR</h6>
+                            </div>
 
-                    <a href="{{ url('/produk') }}">
-                        <div class="menu-card">
-                            <i class="bi bi-bag-fill"></i>
-                            <div>Produk</div>
-                        </div>
-                    </a>
+                            <div class="divider-vert"></div>
 
-                    <a href="{{ url('/tentang') }}">
-                        <div class="menu-card">
-                            <i class="bi bi-people-fill"></i>
-                            <div>Tentang</div>
+                            <div class="menu-right ps-3">
+                                <p class="text-muted mb-0 big">Verifikator Melakukan Verifikasi Inputan yang
+                                    Sudah dilakukan.</p>
+                            </div>
+
                         </div>
                     </a>
 
@@ -69,5 +75,11 @@
     <!-- Script -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+<footer class="text-center py-3 small text-muted">
+    &copy; {{ date('Y') }} Dinas Kebudayaan Provinsi Bali — <strong>SAPLARIN</strong>. All rights reserved.
+    <span class="text-danger">|</span>
+    <span class="text-dark">Crafted by <strong>ARIN</strong></span>
+    <span class="text-muted">with <i class="bi bi-heart-fill text-danger"></i></span>
+</footer>
 
 </html>
