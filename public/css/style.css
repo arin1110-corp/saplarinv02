@@ -14,6 +14,11 @@ a {
     text-decoration: none;
     color: inherit;
 }
+footer {
+    padding: 2rem 1rem;
+    background-color: #f8f9fa;
+    font-size: 0.875rem;
+}
 
 /* ========= LOGIN PAGE ========= */
 .login-card {
@@ -97,4 +102,54 @@ a {
 }
 .container {
     flex: 1;
+}
+/* ========= LOGIN VERIFIKATOR PAGE (FIXED SPLIT) ========= */
+.login-verifikator-page {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: #f4f6f9;
+}
+
+.auth-split-container {
+    display: flex;
+    height: 100%;
+}
+
+.auth-split-container .left-pane,
+.auth-split-container .right-pane {
+    flex: 1;
+    width: 50%;
+}
+
+.auth-split-container .left-pane {
+    background-color: #dc3545;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.auth-split-container .left-pane i {
+    font-size: 100px;
+    opacity: 0.8;
+}
+
+.auth-split-container .right-pane {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    padding: 2rem;
+}
+
+.auth-split-container .login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 400px;
 }

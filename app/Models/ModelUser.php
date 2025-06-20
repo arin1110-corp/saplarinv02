@@ -1,13 +1,19 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-class ModelUser extends Model
+class ModelUser extends Authenticatable
 {
+
+    use Notifiable;
     use HasApiTokens, HasFactory;
+
 
     // Tentukan tabel yang digunakan oleh model
     protected $table = 'saplarin_user';
@@ -31,12 +37,9 @@ class ModelUser extends Model
         'user_status',
     ];
     // Cek apakah login menggunakan NIP atau email
-    public function findForPassport($identifier)
-    {
-        return $this->where('user_nip', $identifier)
-            ->orWhere('user_email', $identifier)
-            ->first();
-    }
 
-     
+    public function getAuthPassword()
+    {
+        return $this->user_password;
+    }
 }

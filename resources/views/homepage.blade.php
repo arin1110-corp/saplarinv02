@@ -6,10 +6,10 @@
     @include('partials.header');
 </head>
 
-<body class="bg-light">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
     <!-- Fullscreen Tengah -->
-    <div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="flex-grow-1 d-flex justify-content-center align-items-center">
         <div class="container text-center">
 
             <h4 class="mb-3"><img src="{{asset('image/pemprov.png')}}"></h4>
@@ -24,7 +24,7 @@
                 <div class="d-flex flex-column gap-4 align-items-center">
 
                     <!-- MENU 1 -->
-                    <a href="{{ url('/input-spj') }}"
+                    <a href="{{ url('/login-user') }}"
                         class="menu-row animate-fade delay-0 text-decoration-none text-dark">
                         <div class="d-flex align-items-center">
 
@@ -47,7 +47,7 @@
                     </a>
 
                     <!-- MENU 2 -->
-                    <a href="{{ url('/verifikator') }}"
+                    <a href="{{ url('/login-verifikator') }}"
                         class="menu-row animate-fade delay-1 text-decoration-none text-dark">
                         <div class="d-flex align-items-center">
 
@@ -72,14 +72,15 @@
         </div>
     </div>
 
+    <footer class="text-center py-4 px-3 bg-light small text-muted">
+        &copy; {{ date('Y') }} Dinas Kebudayaan Provinsi Bali — <strong>SAPLARIN</strong>. All rights reserved.
+        <span class="text-danger">|</span>
+        <span class="text-dark">Crafted by <strong>ARIN</strong></span>
+        <span class="text-muted">with <i class="bi bi-heart-fill text-danger"></i></span>
+    </footer>
     <!-- Script -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
-<footer class="text-center py-3 small text-muted">
-    &copy; {{ date('Y') }} Dinas Kebudayaan Provinsi Bali — <strong>SAPLARIN</strong>. All rights reserved.
-    <span class="text-danger">|</span>
-    <span class="text-dark">Crafted by <strong>ARIN</strong></span>
-    <span class="text-muted">with <i class="bi bi-heart-fill text-danger"></i></span>
-</footer>
 
 </html>

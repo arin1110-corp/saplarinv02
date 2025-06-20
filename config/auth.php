@@ -36,11 +36,27 @@ return [
     */
 
     'guards' => [
+        // default Laravel
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // tambahan kamu
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+        'verifikator' => [
+            'driver' => 'session',
+            'provider' => 'verifikators',
+        ],
+        'user' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -60,16 +76,24 @@ return [
     */
 
     'providers' => [
+        // default Laravel
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\ModelUser::class, // ganti sesuai model kamu
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // tambahan kamu
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ModelAdmin::class,
+        ],
+
+        'verifikators' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ModelVerificator::class,
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------

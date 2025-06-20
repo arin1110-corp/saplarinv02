@@ -1,28 +1,46 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('homepage');
-});
-Route::get('/input-spj', function () {
-    return view('loginuser');
-});
-Route::get('/loginuser', function () {
-    return view('loginuser');
-});
+})->name('homepage');
+
+// ========== LOGIN USER ==========
+Route::get('/login-user', [AuthController::class, 'formUser'])->name('login.user');
+Route::post('/login-user', [AuthController::class, 'loginUser']);
+
 Route::get('/daftarakunuser', function () {
     return view('daftaruser');
+})->name('user.register');
+
+// ========== LOGIN VERIFIKATOR ==========
+Route::get('/login-verifikator', [AuthController::class, 'formVerifikator'])->name('login.verifikator');
+Route::post('/login-verifikator', [AuthController::class, 'loginVerifikator']);
+
+// ========== LOGIN ADMIN ==========
+Route::get('/login-admin', [AuthController::class, 'formAdmin'])->name('login.admin');
+Route::post('/login-admin', [AuthController::class, 'loginAdmin']);
+
+// ========== LOGOUT ==========
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ========== DASHBOARD ==========
+Route::middleware('auth:user')->group(function () {
+    Route::get('/user/dashboard', function () {
+        return view('user.dashboard');
+    })->name('user.dashboard');
+});
+
+Route::middleware('auth:verifikator')->group(function () {
+    Route::get('/verifikator/dashboard', function () {
+        return view('verifikator.dashboard');
+    })->name('verifikator.dashboard');
+});
+
+Route::middleware('auth:admin')->group(function () {
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 });

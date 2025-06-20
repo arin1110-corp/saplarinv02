@@ -46,7 +46,7 @@
         </form>
 
         <div class="text-center mt-3">
-            <small class="text-muted">Sudah punya akun? <a href="loginuser" style="color: #c0392b;">Daftar
+            <small class="text-muted">Sudah punya akun? <a href="formloginuser" style="color: #c0392b;">Daftar
                     Disini.</a></small>
         </div>
     </div>

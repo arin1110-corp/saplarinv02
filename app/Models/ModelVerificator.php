@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class ModelVerificator extends Model
+class ModelVerificator extends Authenticatable
 {
+    use Notifiable;
     use HasApiTokens, HasFactory;
 
     // Tentukan tabel yang digunakan oleh model
@@ -31,10 +34,8 @@ class ModelVerificator extends Model
         'verificator_status',
     ];
     // Cek apakah login menggunakan NIP atau email
-    public function findForPassport($identifier)
+    public function getAuthPassword()
     {
-        return $this->where('verifikator_nip', $identifier)
-            ->orWhere('verifikator_email', $identifier)
-            ->first();
+        return $this->verificator_password;
     }
 }

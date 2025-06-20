@@ -1,75 +1,130 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\ModelUser;
+use App\Models\ModelAdmin;
+use App\Models\ModelVerificator;
 
 class AuthController extends Controller
 {
-    // Login untuk User
+    // ===================== USER =====================
+    public function formUser()
+    {
+        return view('auth.loginuser');
+    }
+
     public function loginUser(Request $request)
     {
-        $credentials = $request->only('user_email', 'user_password');
-        
-        // Cek menggunakan user_email atau user_nip
-        $user = Auth::guard('web')->attempt($credentials);
+        $request->validate([
+            'nip' => 'required',
+            'password' => 'required',
+        ]);
+
+        $user = ModelUser::where('user_nip', $request->nip)
+            ->orWhere('user_email', $request->nip)
+            ->first();
+
+        // Step 1: NIP/Email tidak ditemukan
         if (!$user) {
-            $user = Auth::guard('web')->attempt(['user_nip' => $request->user_nip, 'user_password' => $request->user_password]);
+            return back()->withErrors(['nip' => 'NIP atau Email tidak ditemukan'])->withInput();
         }
 
-        if ($user) {
-            return response()->json(['user' => $user, 'message' => 'Login sukses!'], 200);
+        // Step 2: Password salah
+        if (!Hash::check($request->password, $user->user_password)) {
+            return back()->withErrors(['password' => 'Password salah'])->withInput();
         }
 
-        return response()->json(['message' => 'Login gagal!'], 401);
+        // Step 3: Akun tidak aktif
+        if ($user->user_status != 1) {
+            return back()->withErrors(['nip' => 'Akun tidak aktif'])->withInput();
+        }
+
+        // Berhasil login
+        Auth::guard('user')->login($user);
+        $request->session()->regenerate();
+
+        return redirect('/user/dashboard');
     }
 
-    // Login untuk verificator
-    public function loginVerificator(Request $request)
+    // ===================== VERIFIKATOR =====================
+    public function formVerifikator()
     {
-        $credentials = $request->only('verifikator_email', 'verifikator_password');
-
-        // Cek menggunakan verifikator_email atau verifikator_nip
-        $verifikator = Auth::guard('verifikator')->attempt($credentials);
-        if (!$verifikator) {
-            $verifikator = Auth::guard('verifikator')->attempt(['verifikator_nip' => $request->verifikator_nip, 'verifikator_password' => $request->verifikator_password]);
-        }
-
-        if ($verifikator) {
-            return response()->json(['user' => $verifikator, 'message' => 'Login sukses!'], 200);
-        }
-
-        return response()->json(['message' => 'Login gagal!'], 401);
+        return view('auth.loginverifikator');
     }
 
-    // Login untuk Admin
+    public function loginVerifikator(Request $request)
+    {
+        $request->validate([
+            'nip' => 'required',
+            'password' => 'required',
+        ]);
+
+        $verifikator = ModelVerificator::where('verificator_nip', $request->nip)
+            ->orWhere('verificator_email', $request->nip)
+            ->first();
+
+        // Step 1: NIP/Email tidak ditemukan
+        if (!$verifikator) {
+            return back()->withErrors(['nip' => 'NIP atau Email tidak ditemukan'])->withInput();
+        }
+
+        // Step 2: Password salah
+        if (!Hash::check($request->password, $verifikator->verificator_password)) {
+            return back()->withErrors(['password' => 'Password salah'])->withInput();
+        }
+
+        // Step 3: Akun tidak aktif
+        if ($verifikator->verificator_status != 1) {
+            return back()->withErrors(['nip' => 'Akun tidak aktif'])->withInput();
+        }
+
+        Auth::guard('verifikator')->login($verifikator);
+        $request->session()->regenerate();
+
+        return redirect('/verifikator/dashboard');
+    }
+
+    // ===================== ADMIN =====================
+    public function formAdmin()
+    {
+        return view('auth.login-admin');
+    }
+
     public function loginAdmin(Request $request)
     {
-        $credentials = $request->only('admin_username', 'admin_password');
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
 
-        // Cek menggunakan admin_username atau admin_email
-        $admin = Auth::guard('admin')->attempt($credentials);
-        if (!$admin) {
-            $admin = Auth::guard('admin')->attempt(['admin_username' => $request->admin_username, 'admin_password' => $request->admin_password]);
+        $admin = ModelAdmin::where('username', $request->username)->first();
+
+        if (!$admin || !Hash::check($request->password, $admin->password) || $admin->status != 1) {
+            return back()->withErrors(['username' => 'Login Admin Gagal!']);
         }
 
-        if ($admin) {
-            return response()->json(['user' => $admin, 'message' => 'Login sukses!'], 200);
-        }
+        Auth::guard('admin')->login($admin);
+        $request->session()->regenerate();
 
-        return response()->json(['message' => 'Login gagal!'], 401);
+        return redirect('/admin/dashboard');
     }
 
-    // Logout
-    public function logout()
+    // ===================== LOGOUT SEMUA GUARD =====================
+    public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
-        Auth::guard('verificator')->logout();
-        Auth::guard('admin')->logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-        return response()->json(['message' => 'Logout sukses']);
+        foreach (['admin', 'verifikator', 'user'] as $guard) {
+            if (Auth::guard($guard)->check()) {
+                Auth::guard($guard)->logout();
+            }
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login-user'); // arahkan ke login user default
     }
 }

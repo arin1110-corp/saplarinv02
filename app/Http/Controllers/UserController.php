@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class UserController extends Controller
 {
     //
-    public function login(Request $request)
+    public function loginuser(Request $request)
     {
         $request->validate([
             'user_nip' => 'required',
@@ -23,32 +23,22 @@ class UserController extends Controller
             ->orWhere('user_email', $request->user_nip)
             ->first();
 
-        // Jika user tidak ditemukan
         if (!$user) {
-            return response()->json(['error' => 'NIP atau email tidak ditemukan'], 401);
+            return back()->withErrors(['user_nip' => 'NIP atau Email tidak ditemukan']);
         }
 
-        // Cek apakah password benar
         if (!Hash::check($request->user_password, $user->user_password)) {
-            return response()->json(['error' => 'Password salah'], 401);
+            return back()->withErrors(['user_password' => 'Password salah']);
         }
 
-        // Cek status user
         if ($user->user_status != 1) {
-            return response()->json(['error' => 'Akun tidak aktif'], 401);
+            return back()->withErrors(['user_nip' => 'Akun tidak aktif']);
         }
 
-        $token = $user->createToken('user-token')->plainTextToken;
+        // Login manual
+        Auth::login($user);
+        $request->session()->regenerate(); // Security: anti session fixation
 
-        // Ambil token yang baru saja dibuat dan update expired_at-nya
-        $tokenModel = $user->tokens()->latest()->first();
-        $tokenModel->expires_at = Carbon::now()->addHours(2);
-        $tokenModel->save();
-
-        return response()->json([
-            'token' => $token,
-            'role' => 'user',
-            'expires_at' => $tokenModel->expires_at->setTimezone('Asia/Jakarta')->toDateTimeString() // Convert to Jakarta timezone
-        ]);
+        return redirect()->intended('/dashboard');
     }
 }
