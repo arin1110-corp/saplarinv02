@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class ModelAdmin extends Model
+class ModelAdmin extends Authenticatable
 {
     //
+    use Notifiable;
     use HasFactory, HasApiTokens;
     protected $table = 'saplarin_admin';
     protected $primaryKey = 'admin_id';
@@ -20,9 +23,8 @@ class ModelAdmin extends Model
     ];
 
     // Cek apakah login menggunakan username atau email
-    public function findForPassport($identifier)
+    public function getAuthPassword()
     {
-        return $this->where('admin_username', $identifier)
-            ->first();
+        return $this->admin_password;
     }
 }

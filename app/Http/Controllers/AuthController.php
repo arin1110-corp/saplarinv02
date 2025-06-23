@@ -91,20 +91,20 @@ class AuthController extends Controller
     // ===================== ADMIN =====================
     public function formAdmin()
     {
-        return view('auth.login-admin');
+        return view('auth.loginadmin');
     }
 
     public function loginAdmin(Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            'password' => 'required',
+            'admin_username' => 'required',
+            'admin_password' => 'required',
         ]);
 
-        $admin = ModelAdmin::where('username', $request->username)->first();
+        $admin = ModelAdmin::where('admin_username', $request->admin_username)->first();
 
-        if (!$admin || !Hash::check($request->password, $admin->password) || $admin->status != 1) {
-            return back()->withErrors(['username' => 'Login Admin Gagal!']);
+        if (!$admin || !Hash::check($request->admin_password, $admin->admin_password) || $admin->admin_status != 1) {
+            return back()->withErrors(['admin_username' => 'Login Admin Gagal!']);
         }
 
         Auth::guard('admin')->login($admin);
@@ -125,6 +125,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login-user'); // arahkan ke login user default
+        return redirect('/'); // arahkan ke login user default
     }
 }

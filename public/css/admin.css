@@ -1,0 +1,141 @@
+/* ========= GLOBAL RESET ========= */
+body,
+html {
+    height: 100%;
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+/* === Atur warna link sidebar agar tidak biru saat hover === */
+/* USER  */
+.sidebar .navuser {
+    color: #ffffff; /* Warna teks normal */
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar .navuser:hover,
+.sidebar .navuser:focus {
+    background-color: #103d60; /* Hover background */
+    color: #240342; /* Hover text color */
+}
+
+/* Aktif link */
+.sidebar .navuser.active {
+    background-color: #103d60;
+    color: #240342;
+}
+/* ADMIN  */
+.sidebar .navadmin {
+    color: #ffffff; /* Warna teks normal */
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar .navadmin:hover,
+.sidebar .navadmin:focus {
+    background-color: #103d60; /* Hover background */
+    color: #ffcc00; /* Hover text color */
+}
+
+/* Aktif link */
+.sidebar .navadmin.active {
+    background-color: #103d60;
+    color: #ffcc00;
+}
+/* SELESAI LINK */
+
+/* ========= SIDEBAR STYLE ========= */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transition: background-color 0.3s;
+}
+
+.sidebar .brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.sidebar ul.nav {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    color: white;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: bold;
+}
+
+/* ========= PAGE CONTENT ========= */
+.page-content {
+    margin-left: 250px;
+    padding: 2rem;
+    min-height: 100vh;
+    background-color: #f4f6f9;
+}
+
+/* ========= CARD ========= */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* ========= BUTTON LOGOUT ========= */
+.btn-logout {
+    background-color: #ffffff;
+    color: rgb(202, 37, 37);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    background-color: #cc0000;
+}
+
+/* ========= FOOTER ========= */
+footer {
+    font-size: 0.85rem;
+    margin-top: 4rem;
+    color: #666;
+}

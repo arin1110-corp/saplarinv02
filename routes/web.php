@@ -29,7 +29,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ========== DASHBOARD ==========
 Route::middleware('auth:user')->group(function () {
     Route::get('/user/dashboard', function () {
-        return view('user.dashboard');
+        return view('user.dashboarduser');
     })->name('user.dashboard');
 });
 
@@ -41,6 +41,6 @@ Route::middleware('auth:verifikator')->group(function () {
 
 Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
+        return view('administrator.dashboardadmin');
     })->name('admin.dashboard');
 });

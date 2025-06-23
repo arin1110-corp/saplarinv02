@@ -34,15 +34,15 @@
                             <!-- KIRI: Icon + Judul -->
                             <div class="menu-left text-center px-3">
                                 <i class="bi bi-pencil-square icon-top"></i>
-                                <h6 class="mt-2 fw-bold">INPUT SPJ</h6>
+                                <h6 class="mt-2 fw-bold">INPUT LAPORAN</h6>
                             </div>
-
+                            &nbsp&nbsp&nbsp
                             <!-- GARIS PEMBATAS -->
                             <div class="divider-vert"></div>
 
                             <!-- KANAN: Deskripsi -->
                             <div class="menu-right ps-3">
-                                <p class="text-muted mb-0 big">Unggah dan Kelola Laporan SPJ Kegiatan dengan Cepat dan
+                                <p class="text-muted mb-0 big">Unggah dan Kelola Laporan Kegiatan dengan Cepat dan
                                     Aman.</p>
                             </div>
 
@@ -56,14 +56,32 @@
 
                             <div class="menu-left text-center px-3">
                                 <i class="bi bi-person-check-fill icon-top"></i>
-                                <h6 class="mt-2 fw-bold">VERIFIKATOR</h6>
+                                <h6 class="mt-2 fw-bold">VERIFIKATOR </h6>
                             </div>
-
+                            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
                             <div class="divider-vert"></div>
 
                             <div class="menu-right ps-3">
                                 <p class="text-muted mb-0 big">Verifikator Melakukan Verifikasi Inputan yang
                                     Sudah dilakukan.</p>
+                            </div>
+
+                        </div>
+                    </a>
+                    <!-- MENU 3 -->
+                    <a href="{{ url('/login-admin') }}"
+                        class="menu-row animate-fade delay-1 text-decoration-none text-dark">
+                        <div class="d-flex align-items-center">
+
+                            <div class="menu-left text-center px-3">
+                                <i class="bi bi-person-bounding-box icon-top"></i>
+                                <h6 class="mt-2 fw-bold">ADMINISTRATOR</h6>
+                            </div>
+                            &nbsp
+                            <div class="divider-vert"></div>
+
+                            <div class="menu-right ps-3">
+                                <p class="text-muted mb-0 big">Administrator melakukan pengelolaan Data.</p>
                             </div>
 
                         </div>
@@ -79,7 +97,7 @@
         &copy; {{ date('Y') }} Dinas Kebudayaan Provinsi Bali — <strong>SAPLARIN</strong>. All rights reserved.
         <span class="text-danger">|</span>
         <span class="text-dark">Crafted by <strong>ARIN</strong></span>
-        <span class="text-muted">with <i class="bi bi-heart-fill text-danger"></i></span>
+        <span class="text-muted">with Pranata Komputer Ahli Pertama <i class="bi bi-heart-fill text-danger"></i></span>
     </footer>
     <!-- Script -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
