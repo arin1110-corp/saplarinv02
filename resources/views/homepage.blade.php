@@ -3,7 +3,7 @@
 
 <head>
     <title>SAPLARIN - Sistem Admininstrasi Pelaporan Internal</title>
-    @include('partials.header');
+    @include('partials.header')
 </head>
 
 <body class="d-flex flex-column min-vh-100 bg-light">
@@ -17,7 +17,10 @@
                 SAPLAR<span class="text-danger">IN</span>
             </h1>
             <p class="display-7 fw-bold text-secondary">
-                Sistem Admininstrasi Pelaporan Internal
+                Sistem Admininstrasi Pengelolaan Laporan Internal
+            </p>
+            <p class="display-7 fw-bold text-secondary">
+                Dinas Kebudayaan Provinsi Bali
             </p>
 
             <div class="container mt-5">
