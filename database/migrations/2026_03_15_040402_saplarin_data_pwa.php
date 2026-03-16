@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('saplarin_laporan_pwa', function (Blueprint $table) {
             $table->increments('laporan_pwa_id');
-            $table->string('laporan_pwa_subkegiatan', 100);
+            $table->string('laporan_pwa_data_pwa', 100);
             $table->text('laporan_pwa_keterangan')->nullable();
             $table->bigInteger('laporan_pwa_nominal');
             $table->string('laporan_pwa_file', 255)->nullable(); // link file

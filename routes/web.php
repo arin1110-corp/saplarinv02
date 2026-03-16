@@ -52,3 +52,4 @@ Route::get('/import-pwa', function () {
 })->name('import.pwa.form');
 Route::get('/data-pwa', [LaporanPWAController::class, 'inputDataPWA'])->name('data.pwa.form');
 Route::post('/data-pwa', [LaporanPWAController::class, 'simpanDataPWA'])->name('data.pwa.store');
+Route::get('/laporan-pwa', [LaporanPWAController::class, 'laporanPWA'])->name('laporan.pwa');

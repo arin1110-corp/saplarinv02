@@ -43,6 +43,7 @@ class LaporanPWAImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        set_time_limit(0);
         try {
             $subId = $row['laporan_pwa_subkegiatan'] ?? null;
             $tahun = $row['laporan_pwa_tahun'] ?? null;
