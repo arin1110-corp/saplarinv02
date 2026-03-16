@@ -2,6 +2,8 @@
 /public/build
 /public/hot
 /public/storage
+/public/vendor
+/public/assets/laporanpwa
 /storage/*.key
 /vendor
 .env
