@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LaporanPWAController;
 
 Route::get('/', function () {
     return view('homepage');
@@ -44,3 +45,10 @@ Route::middleware('auth:admin')->group(function () {
         return view('administrator.dashboardadmin');
     })->name('admin.dashboard');
 });
+
+Route::post('/import-laporan-pwa', [LaporanPWAController::class, 'importPWA'])->name('import.pwa');
+Route::get('/import-pwa', function () {
+    return view('homepage_import_pwa');
+})->name('import.pwa.form');
+Route::get('/data-pwa', [LaporanPWAController::class, 'inputDataPWA'])->name('data.pwa.form');
+Route::post('/data-pwa', [LaporanPWAController::class, 'simpanDataPWA'])->name('data.pwa.store');
