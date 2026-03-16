@@ -28,7 +28,7 @@
         }
 
         .logo {
-            width: 80px;
+            width: 200px;
         }
 
         .judul {
@@ -119,10 +119,10 @@
 
         <div class="header">
 
-            <img src="{{ asset('logo.png') }}" class="logo">
+            <img src="{{ asset('image/pemprov.png') }}" class="logo" alt="Logo Pemprov Bali">
 
             <div class="judul">
-                LAPORAN PWA
+                LAPORAN PENGGUNAAN PUNGUTAN WISATAWAN ASING (PWA)
             </div>
 
             <div class="subjudul">
