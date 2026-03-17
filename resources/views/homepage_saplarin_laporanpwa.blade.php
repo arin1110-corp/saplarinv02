@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Laporan PWA</title>
+    <title>Laporan Penerimaan Wisatawan Asing</title>
 
     <style>
         body {
@@ -110,6 +110,7 @@
             background: #2980b9;
         }
     </style>
+    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
 </head>
 
