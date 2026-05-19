@@ -9,8 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class ModelUser extends Authenticatable
 {
 
-    use Notifiable;
-    use HasApiTokens, HasFactory;
+    use HasFactory;
 
     // Tentukan tabel yang digunakan oleh model
     protected $table = 'saplarin_user';
