@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use App\Models\ModelUser;
 use App\Models\ModelAdmin;
@@ -17,114 +18,62 @@ class AuthController extends Controller
         return view('auth.loginuser');
     }
 
-    public function loginUser(Request $request)
+    public function loginSubmit(Request $request)
     {
         $request->validate([
             'nip' => 'required',
             'password' => 'required',
         ]);
 
-        $user = ModelUser::where('user_nip', $request->nip)
-            ->orWhere('user_email', $request->nip)
-            ->first();
-
-        // Step 1: NIP/Email tidak ditemukan
-        if (!$user) {
-            return back()->withErrors(['nip' => 'NIP atau Email tidak ditemukan'])->withInput();
-        }
-
-        // Step 2: Password salah
-        if (!Hash::check($request->password, $user->user_password)) {
-            return back()->withErrors(['password' => 'Password salah'])->withInput();
-        }
-
-        // Step 3: Akun tidak aktif
-        if ($user->user_status != 1) {
-            return back()->withErrors(['nip' => 'Akun tidak aktif'])->withInput();
-        }
-
-        // Berhasil login
-        Auth::guard('user')->login($user);
-        $request->session()->regenerate();
-
-        return redirect('/user/dashboard');
-    }
-
-    // ===================== VERIFIKATOR =====================
-    public function formVerifikator()
-    {
-        return view('auth.loginverifikator');
-    }
-
-    public function loginVerifikator(Request $request)
-    {
-        $request->validate([
-            'nip' => 'required',
-            'password' => 'required',
+        $response = Http::post(env('SADARIN_API') . '/login', [
+            'nip' => $request->nip,
+            'password' => $request->password,
         ]);
 
-        $verifikator = ModelVerificator::where('verificator_nip', $request->nip)
-            ->orWhere('verificator_email', $request->nip)
-            ->first();
-
-        // Step 1: NIP/Email tidak ditemukan
-        if (!$verifikator) {
-            return back()->withErrors(['nip' => 'NIP atau Email tidak ditemukan'])->withInput();
+        if (!$response->ok()) {
+            return back()->with('error', 'API tidak bisa diakses');
         }
 
-        // Step 2: Password salah
-        if (!Hash::check($request->password, $verifikator->verificator_password)) {
-            return back()->withErrors(['password' => 'Password salah'])->withInput();
+        $data = $response->json();
+
+        if (!($data['status'] ?? false)) {
+            return back()->with('error', $data['message'] ?? 'Login gagal');
         }
 
-        // Step 3: Akun tidak aktif
-        if ($verifikator->verificator_status != 1) {
-            return back()->withErrors(['nip' => 'Akun tidak aktif'])->withInput();
+        $pegawai = $data['data'] ?? null;
+
+        if (!$pegawai) {
+            return back()->with('error', 'Data pegawai tidak ditemukan');
         }
 
-        Auth::guard('verifikator')->login($verifikator);
-        $request->session()->regenerate();
+        $roles = ModelUser::where('user_uid', $pegawai['id'])->get();
 
-        return redirect('/verifikator/dashboard');
-    }
+        if ($roles->isEmpty()) {
+            return back()->with('error', 'Role tidak ditemukan');
+        }
 
-    // ===================== ADMIN =====================
-    public function formAdmin()
-    {
-        return view('auth.loginadmin');
-    }
+        $role = $roles->firstWhere('user_role', 'Admin') ?? $roles->firstWhere('user_role', 'Pegawai');
 
-    public function loginAdmin(Request $request)
-    {
-        $request->validate([
-            'admin_username' => 'required',
-            'admin_password' => 'required',
+        if (!$role) {
+            return back()->with('error', 'Role tidak valid');
+        }
+
+        session([
+            'pegawai_id' => $pegawai['id'],
+            'pegawai_nama' => $pegawai['nama'],
+            'pegawai_nip' => $pegawai['nip'],
+            'active_role' => $role->user_role,
+            'logged_in' => true,
         ]);
 
-        $admin = ModelAdmin::where('admin_username', $request->admin_username)->first();
-
-        if (!$admin || !Hash::check($request->admin_password, $admin->admin_password) || $admin->admin_status != 1) {
-            return back()->withErrors(['admin_username' => 'Login Admin Gagal!']);
-        }
-
-        Auth::guard('admin')->login($admin);
-        $request->session()->regenerate();
-
-        return redirect('/admin/dashboard');
+        return redirect($role->user_role === 'Admin' ? '/login-admin' : '/login-user');
     }
 
-    // ===================== LOGOUT SEMUA GUARD =====================
-    public function logout(Request $request)
+    public function logoutSubmit()
     {
-        foreach (['admin', 'verifikator', 'user'] as $guard) {
-            if (Auth::guard($guard)->check()) {
-                Auth::guard($guard)->logout();
-            }
-        }
+        Auth::logout();
+        session()->flush();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/'); // arahkan ke login user default
+        return redirect('/');
     }
 }
