@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\ModelUser;
 use App\Models\ModelAdmin;
 use App\Models\ModelVerificator;
+use App\Models\ModelPegawai;
 
 class AuthController extends Controller
 {
@@ -75,5 +76,14 @@ class AuthController extends Controller
         session()->flush();
 
         return redirect('/');
+    }
+    // ===================== ADMIN =====================
+    public function loginAdmin()
+    {
+        if (!session('logged_in') || session('active_role') !== 'Admin') {
+            return redirect('/login-admin')->with('error', 'Anda harus login sebagai Admin untuk mengakses halaman ini');
+        }
+
+        return view('administrator.admin');
     }
 }
