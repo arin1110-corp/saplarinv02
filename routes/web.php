@@ -11,3 +11,5 @@ Route::get('/', function () {
 Route::post('/login-submit', [AuthController::class, 'loginSubmit'])->name('login.submit');
 Route::get('/login-admin', [AuthController::class, 'loginAdmin'])->name('login.admin');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/laporan-pwa', [LaporanPWAController::class, 'laporanPWA'])->name('laporan.pwa');
