@@ -7,6 +7,7 @@
     <title>Admin Dashboard</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
     <style>
         body {
@@ -94,7 +95,7 @@
                         <button onclick="openRolePopup()"
                             class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl transition duration-300 text-sm text-slate-200 shadow-lg">
 
-                            Halo, Admin 👋
+                            {{ session('active_role') }}
                         </button>
 
                     </div>
@@ -181,109 +182,69 @@
     </div>
 
     <!-- POPUP ROLE -->
-    <div id="rolePopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="modal fade" id="roleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="POST" action="/set-role">
+                @csrf
 
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-fadeIn">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Pilih Role</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
 
-            <!-- HEADER -->
-            <div class="flex items-center justify-between mb-6">
+                    <div class="modal-body">
+                        <label class="form-label">Role yang tersedia</label>
 
-                <div>
-                    <h2 class="text-xl font-bold text-white">
-                        Pilih Role
-                    </h2>
+                        <select name="role" class="form-control" required>
+                            <option value="">-- Pilih Role --</option>
 
-                    <p class="text-sm text-slate-400 mt-1">
-                        Role yang tersedia untuk akun ini
-                    </p>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role }}"
+                                    {{ session('active_role') == $role ? 'selected' : '' }}>
+                                    {{ ucfirst($role) }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Ganti Role</button>
+                    </div>
                 </div>
 
-                <button onclick="closeRolePopup()" class="text-slate-400 hover:text-white text-2xl leading-none">
-
-                    &times;
-                </button>
-            </div>
-
-            <!-- ROLE LIST -->
-            <div class="space-y-3">
-
-                <!-- ACTIVE ROLE -->
-                <button
-                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 p-4 rounded-2xl text-left transition duration-300">
-
-                    <p class="font-semibold text-white">
-                        Admin
-                    </p>
-
-                    <p class="text-sm text-blue-100 mt-1">
-                        Role aktif saat ini
-                    </p>
-                </button>
-
-                <!-- OTHER ROLE -->
-                <button
-                    class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-2xl text-left transition duration-300">
-
-                    <p class="font-semibold text-white">
-                        Pegawai
-                    </p>
-
-                    <p class="text-sm text-slate-400 mt-1">
-                        Akses halaman pegawai
-                    </p>
-                </button>
-
-                <button
-                    class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-2xl text-left transition duration-300">
-
-                    <p class="font-semibold text-white">
-                        Verifikator
-                    </p>
-
-                    <p class="text-sm text-slate-400 mt-1">
-                        Akses halaman verifikator
-                    </p>
-                </button>
-
-            </div>
-
-            <!-- FOOTER -->
-            <div class="mt-6 border-t border-slate-800 pt-4">
-
-                <a href="/logout"
-                    class="w-full block text-center bg-red-500/20 hover:bg-red-500/30 text-red-400 py-3 rounded-2xl transition duration-300">
-
-                    Logout
-                </a>
-
-            </div>
-
+            </form>
         </div>
     </div>
 
     <script>
-        function openRolePopup() {
-            const popup = document.getElementById('rolePopup');
+        $(document).ready(function() {
+            $('#inventarisTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthChange": true,
+                "deferRender": true,
+                "autoWidth": false,
+                "language": {
+                    "emptyTable": "Belum ada data inventaris"
+                }
+            });
 
-            popup.classList.remove('hidden');
-            popup.classList.add('flex');
-        }
-
-        function closeRolePopup() {
-            const popup = document.getElementById('rolePopup');
-
-            popup.classList.add('hidden');
-            popup.classList.remove('flex');
-        }
-
-        // close saat klik backdrop
-        window.addEventListener('click', function(e) {
-
-            const popup = document.getElementById('rolePopup');
-
-            if (e.target === popup) {
-                closeRolePopup();
-            }
+            $('#perbaikanTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthChange": true,
+                "deferRender": true,
+                "autoWidth": false,
+                "language": {
+                    "emptyTable": "Tidak ada perbaikan aktif"
+                }
+            });
         });
     </script>
 </body>
