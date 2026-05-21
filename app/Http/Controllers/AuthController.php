@@ -67,7 +67,7 @@ class AuthController extends Controller
             'logged_in' => true,
         ]);
 
-        return redirect($role->user_role === 'Admin' ? '/login-admin' : '/login-user');
+        return redirect($role->user_role === 'Admin' ? '/admin/dashboard' : '/login-user');
     }
 
     public function logoutSubmit()
@@ -78,12 +78,5 @@ class AuthController extends Controller
         return redirect('/');
     }
     // ===================== ADMIN =====================
-    public function loginAdmin()
-    {
-        if (!session('logged_in') || session('active_role') !== 'Admin') {
-            return redirect('/login-admin')->with('error', 'Anda harus login sebagai Admin untuk mengakses halaman ini');
-        }
 
-        return view('administrator.admin');
-    }
 }
