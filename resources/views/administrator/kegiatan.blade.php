@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Kegiatan</title>
+    <title>Admin Saplarin - Kelola Kegiatan</title>
+    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- DATATABLE -->
-    <link rel="stylesheet"
-        href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -85,8 +85,7 @@
                     </p>
                 </div>
 
-                <button onclick="openModal()"
-                    class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-medium">
+                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-medium">
 
                     + Tambah Kegiatan
                 </button>
@@ -133,8 +132,7 @@
 
                                 <td>
 
-                                    <button
-                                        onclick='openEditModal(@json($kegiatan))'
+                                    <button onclick='openEditModal(@json($kegiatan))'
                                         class="bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-lg text-xs">
 
                                         Edit
@@ -155,11 +153,9 @@
     </div>
 
     <!-- MODAL TAMBAH -->
-    <div id="kegiatanModal"
-        class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div id="kegiatanModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
 
-        <div
-            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6">
 
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold">
@@ -171,8 +167,7 @@
                 </button>
             </div>
 
-            <form method="POST"
-                action="{{ route('admin.kegiatan.store') }}">
+            <form method="POST" action="{{ route('admin.kegiatan.store') }}">
 
                 @csrf
 
@@ -183,17 +178,14 @@
                         Program
                     </label>
 
-                    <select name="kegiatan_program"
-                        class="w-full rounded-xl px-4 py-3"
-                        required>
+                    <select name="kegiatan_program" class="w-full rounded-xl px-4 py-3" required>
 
                         <option value="">
                             Pilih Program
                         </option>
 
                         @foreach ($programs as $program)
-                            <option
-                                value="{{ $program->program_id }}">
+                            <option value="{{ $program->program_id }}">
                                 {{ $program->program_nama }}
                             </option>
                         @endforeach
@@ -209,10 +201,7 @@
                         Nama Kegiatan
                     </label>
 
-                    <input type="text"
-                        name="kegiatan_nama"
-                        class="w-full rounded-xl px-4 py-3"
-                        required>
+                    <input type="text" name="kegiatan_nama" class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -223,10 +212,7 @@
                         Status
                     </label>
 
-                    <select
-                        name="kegiatan_status"
-                        class="w-full rounded-xl px-4 py-3"
-                        required>
+                    <select name="kegiatan_status" class="w-full rounded-xl px-4 py-3" required>
 
                         <option value="">
                             Pilih Status
@@ -246,15 +232,12 @@
 
                 <div class="flex justify-end gap-2 mt-6">
 
-                    <button type="button"
-                        onclick="closeModal()"
-                        class="bg-slate-700 px-4 py-2 rounded-xl">
+                    <button type="button" onclick="closeModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
 
                         Batal
                     </button>
 
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
 
                         Simpan
                     </button>
@@ -267,11 +250,9 @@
     </div>
 
     <!-- MODAL EDIT -->
-    <div id="editKegiatanModal"
-        class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div id="editKegiatanModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
 
-        <div
-            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6">
 
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold">
@@ -283,14 +264,11 @@
                 </button>
             </div>
 
-            <form method="POST"
-                action="{{ route('admin.kegiatan.update') }}">
+            <form method="POST" action="{{ route('admin.kegiatan.update') }}">
 
                 @csrf
 
-                <input type="hidden"
-                    id="edit_kegiatan_id"
-                    name="kegiatan_id">
+                <input type="hidden" id="edit_kegiatan_id" name="kegiatan_id">
 
                 <div class="mb-4">
 
@@ -298,15 +276,11 @@
                         Program
                     </label>
 
-                    <select
-                        id="edit_kegiatan_program"
-                        name="kegiatan_program"
-                        class="w-full rounded-xl px-4 py-3"
+                    <select id="edit_kegiatan_program" name="kegiatan_program" class="w-full rounded-xl px-4 py-3"
                         required>
 
                         @foreach ($programs as $program)
-                            <option
-                                value="{{ $program->program_id }}">
+                            <option value="{{ $program->program_id }}">
                                 {{ $program->program_nama }}
                             </option>
                         @endforeach
@@ -321,11 +295,8 @@
                         Nama Kegiatan
                     </label>
 
-                    <input type="text"
-                        id="edit_kegiatan_nama"
-                        name="kegiatan_nama"
-                        class="w-full rounded-xl px-4 py-3"
-                        required>
+                    <input type="text" id="edit_kegiatan_nama" name="kegiatan_nama"
+                        class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -335,10 +306,7 @@
                         Status
                     </label>
 
-                    <select
-                        id="edit_kegiatan_status"
-                        name="kegiatan_status"
-                        class="w-full rounded-xl px-4 py-3"
+                    <select id="edit_kegiatan_status" name="kegiatan_status" class="w-full rounded-xl px-4 py-3"
                         required>
 
                         <option value="1">
@@ -355,14 +323,11 @@
 
                 <div class="flex justify-end gap-2 mt-6">
 
-                    <button type="button"
-                        onclick="closeEditModal()"
-                        class="bg-slate-700 px-4 py-2 rounded-xl">
+                    <button type="button" onclick="closeEditModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
                         Batal
                     </button>
 
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
                         Update
                     </button>
 

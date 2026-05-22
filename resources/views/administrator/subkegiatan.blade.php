@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Kegiatan</title>
+    
+    <title>Admin Saplarin - Kelola Sub Kegiatan</title>
+    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
