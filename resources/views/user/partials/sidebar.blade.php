@@ -1,6 +1,19 @@
 @php
-    $permissions = session('permissions', []);
+    $roles = session('roles', []);
     $activeRole = session('active_role', 'Pegawai');
+
+    if (is_string($roles)) {
+        $roles = [$roles];
+    }
+
+    /*
+        Pegawai default selalu punya menu BBM.
+        SPJ/KAK/PWA muncul kalau user punya role itu dan sedang masuk sebagai Pegawai.
+    */
+    $canBBM = $activeRole === 'Pegawai';
+    $canSPJ = $activeRole === 'Pegawai' && in_array('SPJ', $roles);
+    $canKAK = $activeRole === 'Pegawai' && in_array('KAK', $roles);
+    $canPWA = $activeRole === 'Pegawai' && in_array('PWA', $roles);
 @endphp
 
 <aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
@@ -50,8 +63,7 @@
             <span>Dashboard</span>
         </a>
 
-        {{-- DEFAULT PEGAWAI / AKSES BBM --}}
-        @if (in_array('BBM', $permissions))
+        @if ($canBBM)
             <a href="{{ route('user.bbm.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.bbm*')
@@ -62,8 +74,7 @@
             </a>
         @endif
 
-        {{-- AKSES SPJ --}}
-        @if (in_array('SPJ', $permissions))
+        @if ($canSPJ)
             <a href="{{ route('user.spj.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.spj*')
@@ -74,8 +85,7 @@
             </a>
         @endif
 
-        {{-- AKSES KAK --}}
-        @if (in_array('KAK', $permissions))
+        @if ($canKAK)
             <a href="{{ route('user.kak.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.kak*')
@@ -86,8 +96,7 @@
             </a>
         @endif
 
-        {{-- AKSES PWA --}}
-        @if (in_array('PWA', $permissions))
+        @if ($canPWA)
             <a href="{{ route('user.pwa.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.pwa*')

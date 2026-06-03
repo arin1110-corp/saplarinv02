@@ -2,21 +2,17 @@
     $role = session('active_role');
 
     $isAdminFull = $role === 'Admin Full';
-    $isAdminSPJ  = $role === 'Admin SPJ';
-    $isAdminKAK  = $role === 'Admin KAK';
-    $isAdminPWA  = $role === 'Admin PWA';
-    $isAdminBBM  = $role === 'Admin BBM';
 
-    $canSPJ = $isAdminFull || $isAdminSPJ;
-    $canKAK = $isAdminFull || $isAdminKAK;
-    $canPWA = $isAdminFull || $isAdminPWA;
-    $canBBM = $isAdminFull || $isAdminBBM;
+    $canSPJ = in_array($role, ['Admin Full', 'Admin SPJ']);
+    $canKAK = in_array($role, ['Admin Full', 'Admin KAK']);
+    $canPWA = in_array($role, ['Admin Full', 'Admin PWA']);
+    $canBBM = in_array($role, ['Admin Full', 'Admin BBM']);
 
     $showDataPermintaan = $canSPJ || $canKAK || $canBBM;
     $showLaporan = $canSPJ || $canKAK || $canPWA || $canBBM;
 @endphp
 
-<aside class="w-64 bg-slate-900 border-r border-slate-800 hidden md:block min-h-screen fixed left-0 top-0">
+<aside class="w-64 bg-slate-900 border-r border-slate-800 hidden md:block">
 
     <div class="p-6 border-b border-slate-800">
 
@@ -52,7 +48,7 @@
 
     </div>
 
-    <nav class="mt-6 px-4 text-sm flex flex-col gap-2 pb-6">
+    <nav class="mt-6 px-4 text-sm flex flex-col gap-2">
 
         <a href="{{ route('admin.dashboard') }}"
             class="block px-4 py-2 rounded-lg transition duration-200
@@ -72,7 +68,7 @@
             </a>
 
             <div>
-                <button type="button" onclick="toggleMasterMenu()"
+                <button onclick="toggleMasterMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
                     {{ request()->routeIs('admin.program') ||
                     request()->routeIs('admin.kegiatan') ||
@@ -92,7 +88,6 @@
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
-
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
@@ -146,7 +141,7 @@
 
         @if ($showDataPermintaan)
             <div>
-                <button type="button" onclick="togglePermintaanMenu()"
+                <button onclick="togglePermintaanMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
                     {{ request()->routeIs('admin.permintaan*')
                         ? 'bg-blue-600 text-white shadow-lg'
@@ -162,7 +157,6 @@
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
-
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
@@ -209,7 +203,7 @@
 
         @if ($showLaporan)
             <div>
-                <button type="button" onclick="toggleLaporanMenu()"
+                <button onclick="toggleLaporanMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
                     {{ request()->routeIs('admin.laporan*')
                         ? 'bg-blue-600 text-white shadow-lg'
@@ -225,7 +219,6 @@
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
-
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"

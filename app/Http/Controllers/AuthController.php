@@ -48,11 +48,30 @@ class AuthController extends Controller
             return back()->with('error', 'Role tidak ditemukan');
         }
 
+        /*
+            Ambil role dari database.
+            Kalau masih ada role lama "Admin", otomatis dianggap "Admin Full".
+        */
         $roles = $rolesData->pluck('user_role')->toArray();
 
+        $roles = collect($roles)
+            ->map(function ($role) {
+                return $role === 'Admin' ? 'Admin Full' : $role;
+            })
+            ->unique()
+            ->values()
+            ->toArray();
+
+        /*
+            Prioritas role saat login:
+            1. Admin Full
+            2. Admin SPJ
+            3. Admin KAK
+            4. Admin PWA
+            5. Admin BBM
+            6. Pegawai
+        */
         if (in_array('Admin Full', $roles)) {
-            $activeRole = 'Admin Full';
-        } elseif (in_array('Admin', $roles)) {
             $activeRole = 'Admin Full';
         } elseif (in_array('Admin SPJ', $roles)) {
             $activeRole = 'Admin SPJ';
@@ -88,22 +107,24 @@ class AuthController extends Controller
 
         $roles = session('roles', []);
 
+        if (is_string($roles)) {
+            $roles = [$roles];
+        }
+
         if (!in_array($request->role, $roles)) {
             return back()->with('error', 'Role tidak valid');
         }
 
-        $activeRole = $request->role === 'Admin' ? 'Admin Full' : $request->role;
-
         session([
-            'active_role' => $activeRole,
+            'active_role' => $request->role,
         ]);
 
-        return $this->redirectByRole($activeRole);
+        return $this->redirectByRole($request->role);
     }
 
     private function redirectByRole($role)
     {
-        if ($role === 'Admin' || str_starts_with($role, 'Admin')) {
+        if ($role && str_starts_with($role, 'Admin')) {
             return redirect('/admin/dashboard');
         }
 
