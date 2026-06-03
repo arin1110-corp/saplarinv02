@@ -12,6 +12,7 @@ Route::get('/', function () {
 Route::post('/login-submit', [AuthController::class, 'loginSubmit'])->name('login.submit');
 Route::get('/login-admin', [AuthController::class, 'loginAdmin'])->name('login.admin');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/set-role', [AuthController::class, 'setRole'])->name('set.role');
 
 // Route::get('/laporan-pwa', [LaporanPWAController::class, 'laporanPWA'])->name('laporan.pwa');
 
@@ -52,4 +53,17 @@ Route::middleware(['admin'])
 
         Route::get('/permintaan/permintaan-spj', [AdminController::class, 'permintaanSPJ'])->name('admin.permintaan.spj');
         Route::get('/permintaan/permintaan-kak', [AdminController::class, 'permintaanKAK'])->name('admin.permintaan.kak');
+    });
+
+Route::prefix('user')
+    ->name('user.')
+    ->group(function () {
+        Route::get('/dashboard', [AuthController::class, 'dashboardUser'])->name('dashboard');
+
+        Route::get('/bbm', [AuthController::class, 'bbm'])->name('bbm.index');
+        Route::get('/spj', [AuthController::class, 'spj'])->name('spj.index');
+        Route::get('/kak', [AuthController::class, 'kak'])->name('kak.index');
+        Route::get('/pwa', [AuthController::class, 'pwa'])->name('pwa.index');
+
+        Route::get('/riwayat', [AuthController::class, 'riwayat'])->name('riwayat');
     });

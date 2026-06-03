@@ -15,13 +15,12 @@ class AdminMiddleware
 
         if (!session('logged_in')) {
             return redirect('/')
-                ->with(
-                    'error',
-                    'Silakan login terlebih dahulu'
-                );
+                ->with('error', 'Silakan login terlebih dahulu');
         }
 
-        if (session('active_role') !== 'Admin') {
+        $role = session('active_role');
+
+        if (!$role || !str_starts_with($role, 'Admin')) {
             abort(403, 'Akses ditolak');
         }
 

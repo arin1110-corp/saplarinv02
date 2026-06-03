@@ -5,15 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Hash;
 use App\Models\ModelUser;
-use App\Models\ModelAdmin;
-use App\Models\ModelVerificator;
-use App\Models\ModelPegawai;
 
 class AuthController extends Controller
 {
-    // ===================== USER =====================
     public function formUser()
     {
         return view('auth.loginuser');
@@ -47,36 +42,109 @@ class AuthController extends Controller
             return back()->with('error', 'Data pegawai tidak ditemukan');
         }
 
-        $roles = ModelUser::where('user_uid', $pegawai['id'])->get();
+        $rolesData = ModelUser::where('user_uid', $pegawai['id'])->get();
 
-        if ($roles->isEmpty()) {
+        if ($rolesData->isEmpty()) {
             return back()->with('error', 'Role tidak ditemukan');
         }
 
-        $role = $roles->firstWhere('user_role', 'Admin') ?? $roles->firstWhere('user_role', 'Pegawai');
+        $roles = $rolesData->pluck('user_role')->toArray();
 
-        if (!$role) {
-            return back()->with('error', 'Role tidak valid');
+        if (in_array('Admin Full', $roles)) {
+            $activeRole = 'Admin Full';
+        } elseif (in_array('Admin', $roles)) {
+            $activeRole = 'Admin Full';
+        } elseif (in_array('Admin SPJ', $roles)) {
+            $activeRole = 'Admin SPJ';
+        } elseif (in_array('Admin KAK', $roles)) {
+            $activeRole = 'Admin KAK';
+        } elseif (in_array('Admin PWA', $roles)) {
+            $activeRole = 'Admin PWA';
+        } elseif (in_array('Admin BBM', $roles)) {
+            $activeRole = 'Admin BBM';
+        } elseif (in_array('Pegawai', $roles)) {
+            $activeRole = 'Pegawai';
+        } else {
+            $activeRole = $roles[0];
         }
 
         session([
             'pegawai_id' => $pegawai['id'],
             'pegawai_nama' => $pegawai['nama'],
             'pegawai_nip' => $pegawai['nip'],
-            'active_role' => $role->user_role,
+            'roles' => $roles,
+            'active_role' => $activeRole,
             'logged_in' => true,
         ]);
 
-        return redirect($role->user_role === 'Admin' ? '/admin/dashboard' : '/login-user');
+        return $this->redirectByRole($activeRole);
     }
 
-    public function logoutSubmit()
+    public function setRole(Request $request)
+    {
+        $request->validate([
+            'role' => 'required',
+        ]);
+
+        $roles = session('roles', []);
+
+        if (!in_array($request->role, $roles)) {
+            return back()->with('error', 'Role tidak valid');
+        }
+
+        $activeRole = $request->role === 'Admin' ? 'Admin Full' : $request->role;
+
+        session([
+            'active_role' => $activeRole,
+        ]);
+
+        return $this->redirectByRole($activeRole);
+    }
+
+    private function redirectByRole($role)
+    {
+        if ($role === 'Admin' || str_starts_with($role, 'Admin')) {
+            return redirect('/admin/dashboard');
+        }
+
+        return redirect('/user/dashboard');
+    }
+
+    public function dashboardUser()
+    {
+        return view('user.dashboard');
+    }
+
+    public function bbm()
+    {
+        return view('user.bbm.index');
+    }
+
+    public function spj()
+    {
+        return view('user.spj.index');
+    }
+
+    public function kak()
+    {
+        return view('user.kak.index');
+    }
+
+    public function pwa()
+    {
+        return view('user.pwa.index');
+    }
+
+    public function riwayat()
+    {
+        return view('user.riwayat');
+    }
+
+    public function logout()
     {
         Auth::logout();
         session()->flush();
 
         return redirect('/');
     }
-    // ===================== ADMIN =====================
-
 }

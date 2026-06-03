@@ -18,12 +18,13 @@ class AdminController extends Controller
     //
     public function index()
     {
-        if (!session('logged_in') || session('active_role') !== 'Admin') {
+        if (!session('logged_in') || !str_starts_with(session('active_role'), 'Admin')) {
             return redirect('/')->with('error', 'Anda harus login sebagai Admin');
         }
 
-        // ambil semua role user login
-        $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
+        $roles = ModelUser::where('user_uid', session('pegawai_id'))
+            ->pluck('user_role')
+            ->toArray();
 
         return view('administrator.admin', compact('roles'));
     }
@@ -74,33 +75,34 @@ class AdminController extends Controller
     }
     public function manageUser()
     {
-        // cek login admin
-        if (!session('logged_in') || session('active_role') !== 'Admin') {
-            return redirect('/')->with('error', 'Anda harus login sebagai Admin');
+        if (!session('logged_in') || session('active_role') !== 'Admin Full') {
+            abort(403, 'Hanya Admin Full yang dapat mengakses Data User');
         }
 
-        // role user login (popup switch role)
-        $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
+        $roles = ModelUser::where('user_uid', session('pegawai_id'))
+            ->pluck('user_role')
+            ->toArray();
 
-        // daftar role sistem
-        $availableRoles = ['Admin', 'Penginput SPJ', 'Pegawai', 'Verificator', 'Arsiparis', 'UP Arsiparis', 'Pimpinan'];
+        $availableRoles = [
+            'Admin Full',
+            'Admin SPJ',
+            'Admin KAK',
+            'Admin PWA',
+            'Admin BBM',
+            'Pegawai',
+        ];
 
-        // ambil semua role user SAPLARIN
         $users = ModelUser::select('user_uid', 'user_role')->get()->groupBy('user_uid');
 
-        // ambil semua pegawai dari SADARIN
         $response = Http::get(env('SADARIN_API') . '/pegawai');
 
         $pegawai = [];
         $result = [];
 
         if ($response->ok()) {
-            // semua pegawai untuk modal
             $pegawai = $response->json()['data'] ?? [];
-
             $pegawaiCollection = collect($pegawai);
 
-            // mapping user existing
             foreach ($users as $uid => $userRoles) {
                 $pegawaiData = $pegawaiCollection->firstWhere('id', (int) $uid);
 
@@ -113,8 +115,6 @@ class AdminController extends Controller
                         'jabatan' => $pegawaiData['jabatan'] ?? '-',
                         'bidang' => $pegawaiData['bidang'] ?? '-',
                         'jeniskerja' => $pegawaiData['jeniskerja'] ?? '-',
-
-                        // multi role
                         'roles' => $userRoles->pluck('user_role')->unique()->values()->toArray(),
                     ];
                 }
@@ -123,14 +123,8 @@ class AdminController extends Controller
 
         return view('administrator.users', [
             'users' => $result,
-
-            // untuk popup role login
             'roles' => $roles,
-
-            // untuk modal tambah user
             'pegawai' => $pegawai,
-
-            // checkbox role
             'availableRoles' => $availableRoles,
         ]);
     }
