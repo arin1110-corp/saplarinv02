@@ -17,9 +17,7 @@
     <div class="p-6 border-b border-slate-800">
 
         <div class="flex items-center gap-3">
-            <img src="{{ asset('image/pemprov.png') }}"
-                alt="Logo"
-                class="w-12 h-12 object-contain">
+            <img src="{{ asset('image/pemprov.png') }}" alt="Logo" class="w-12 h-12 object-contain">
 
             <div>
                 <h1 class="text-2xl font-bold tracking-wide leading-tight text-white">
@@ -50,6 +48,7 @@
 
     <nav class="mt-6 px-4 text-sm flex flex-col gap-2">
 
+        {{-- DASHBOARD --}}
         <a href="{{ route('admin.dashboard') }}"
             class="block px-4 py-2 rounded-lg transition duration-200
             {{ request()->routeIs('admin.dashboard')
@@ -58,7 +57,10 @@
             Dashboard
         </a>
 
+        {{-- ADMIN FULL ONLY --}}
         @if ($isAdminFull)
+
+            {{-- DATA USER --}}
             <a href="{{ route('admin.users') }}"
                 class="block px-4 py-2 rounded-lg transition duration-200
                 {{ request()->routeIs('admin.users')
@@ -67,6 +69,50 @@
                 Data User
             </a>
 
+            {{-- DRIVE MANAGEMENT --}}
+            <div>
+                <button onclick="toggleDriveMenu()"
+                    class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
+                    {{ request()->routeIs('admin.drive*')
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'hover:bg-slate-800 text-slate-300' }}">
+
+                    <span>Drive Management</span>
+
+                    <svg id="driveArrow"
+                        class="w-4 h-4 transition-transform duration-300
+                        {{ request()->routeIs('admin.drive*') ? 'rotate-180' : '' }}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <div id="driveMenu"
+                    class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
+                    {{ request()->routeIs('admin.drive*') ? 'max-h-40' : 'max-h-0' }}">
+
+                    <a href="{{ route('admin.drive.json') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.drive.json')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        JSON Credential
+                    </a>
+
+                    <a href="{{ route('admin.drive.folder') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.drive.folder')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Folder Drive
+                    </a>
+
+                </div>
+            </div>
+
+            {{-- DATA MASTER --}}
             <div>
                 <button onclick="toggleMasterMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
@@ -85,12 +131,9 @@
                         request()->routeIs('admin.subkegiatan')
                             ? 'rotate-180'
                             : '' }}"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
@@ -130,6 +173,7 @@
                 </div>
             </div>
 
+            {{-- INVENTARIS --}}
             <a href="#"
                 class="block px-4 py-2 rounded-lg transition duration-200
                 {{ request()->routeIs('admin.inventaris')
@@ -137,13 +181,15 @@
                     : 'hover:bg-slate-800 text-slate-300' }}">
                 Inventaris
             </a>
+
         @endif
 
+        {{-- DATA PERMINTAAN --}}
         @if ($showDataPermintaan)
             <div>
                 <button onclick="togglePermintaanMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
-                    {{ request()->routeIs('admin.permintaan*')
+                    {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'hover:bg-slate-800 text-slate-300' }}">
 
@@ -151,23 +197,20 @@
 
                     <svg id="permintaanArrow"
                         class="w-4 h-4 transition-transform duration-300
-                        {{ request()->routeIs('admin.permintaan*')
+                        {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
                             ? 'rotate-180'
                             : '' }}"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
                 <div id="permintaanMenu"
                     class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
-                    {{ request()->routeIs('admin.permintaan*')
-                        ? 'max-h-40'
+                    {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
+                        ? 'max-h-60'
                         : 'max-h-0' }}">
 
                     @if ($canSPJ)
@@ -191,8 +234,11 @@
                     @endif
 
                     @if ($canBBM)
-                        <a href="#"
-                            class="block px-4 py-2 rounded-lg text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <a href="{{ route('admin.bbm.index') }}"
+                            class="block px-4 py-2 rounded-lg text-sm transition
+                            {{ request()->routeIs('admin.bbm*')
+                                ? 'bg-slate-700 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             Permintaan BBM
                         </a>
                     @endif
@@ -201,6 +247,7 @@
             </div>
         @endif
 
+        {{-- LAPORAN --}}
         @if ($showLaporan)
             <div>
                 <button onclick="toggleLaporanMenu()"
@@ -213,24 +260,17 @@
 
                     <svg id="laporanArrow"
                         class="w-4 h-4 transition-transform duration-300
-                        {{ request()->routeIs('admin.laporan*')
-                            ? 'rotate-180'
-                            : '' }}"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                        {{ request()->routeIs('admin.laporan*') ? 'rotate-180' : '' }}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
                 <div id="laporanMenu"
                     class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
-                    {{ request()->routeIs('admin.laporan*')
-                        ? 'max-h-96'
-                        : 'max-h-0' }}">
+                    {{ request()->routeIs('admin.laporan*') ? 'max-h-96' : 'max-h-0' }}">
 
                     @if ($canSPJ)
                         <a href="{{ route('admin.laporan.spj') }}"
@@ -282,7 +322,8 @@
 
                     @if ($canBBM)
                         <a href="#"
-                            class="block px-4 py-2 rounded-lg text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                            class="block px-4 py-2 rounded-lg text-sm transition
+                            text-slate-400 hover:bg-slate-800 hover:text-white">
                             Laporan BBM
                         </a>
                     @endif
@@ -298,6 +339,12 @@
 </aside>
 
 <script>
+    function toggleDriveMenu() {
+        document.getElementById('driveMenu')?.classList.toggle('max-h-0');
+        document.getElementById('driveMenu')?.classList.toggle('max-h-40');
+        document.getElementById('driveArrow')?.classList.toggle('rotate-180');
+    }
+
     function toggleMasterMenu() {
         document.getElementById('masterMenu')?.classList.toggle('max-h-0');
         document.getElementById('masterMenu')?.classList.toggle('max-h-40');
@@ -306,7 +353,7 @@
 
     function togglePermintaanMenu() {
         document.getElementById('permintaanMenu')?.classList.toggle('max-h-0');
-        document.getElementById('permintaanMenu')?.classList.toggle('max-h-40');
+        document.getElementById('permintaanMenu')?.classList.toggle('max-h-60');
         document.getElementById('permintaanArrow')?.classList.toggle('rotate-180');
     }
 

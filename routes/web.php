@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LaporanPWAController;
+use App\Http\Controllers\UserBBMController;
+use App\Http\Controllers\AdminBBMController;
+use App\Http\Controllers\AdminDriveController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -53,6 +56,21 @@ Route::middleware(['admin'])
 
         Route::get('/permintaan/permintaan-spj', [AdminController::class, 'permintaanSPJ'])->name('admin.permintaan.spj');
         Route::get('/permintaan/permintaan-kak', [AdminController::class, 'permintaanKAK'])->name('admin.permintaan.kak');
+    Route::get('/bbm', [AdminBBMController::class, 'index'])->name('admin.bbm.index');
+    Route::post('/bbm/{uid}/terima-pengajuan', [AdminBBMController::class, 'terimaPengajuan'])->name('admin.bbm.terimaPengajuan');
+    Route::post('/bbm/{uid}/tolak-pengajuan', [AdminBBMController::class, 'tolakPengajuan'])->name('admin.bbm.tolakPengajuan');
+    Route::post('/bbm/{uid}/terima-laporan', [AdminBBMController::class, 'terimaLaporan'])->name('admin.bbm.terimaLaporan');
+    Route::post('/bbm/{uid}/tolak-laporan', [AdminBBMController::class, 'tolakLaporan'])->name('admin.bbm.tolakLaporan');
+    Route::post('/bbm/{uid}/sinkron', [AdminBBMController::class, 'sinkron'])->name('admin.bbm.sinkron');
+
+
+    Route::get('/drive/json', [AdminDriveController::class, 'json'])->name('admin.drive.json');
+    Route::post('/drive/json/store', [AdminDriveController::class, 'storeJson'])->name('admin.drive.json.store');
+    Route::post('/drive/json/update', [AdminDriveController::class, 'updateJson'])->name('admin.drive.json.update');
+
+    Route::get('/drive/folder', [AdminDriveController::class, 'folder'])->name('admin.drive.folder');
+    Route::post('/drive/folder/store', [AdminDriveController::class, 'storeFolder'])->name('admin.drive.folder.store');
+    Route::post('/drive/folder/update', [AdminDriveController::class, 'updateFolder'])->name('admin.drive.folder.update');
     });
 
 Route::prefix('user')
@@ -65,5 +83,15 @@ Route::prefix('user')
         Route::get('/kak', [AuthController::class, 'kak'])->name('kak.index');
         Route::get('/pwa', [AuthController::class, 'pwa'])->name('pwa.index');
 
-        Route::get('/riwayat', [AuthController::class, 'riwayat'])->name('riwayat');
+    Route::get('/dashboard', [AuthController::class, 'dashboardUser'])->name('dashboard');
+
+    Route::get('/bbm', [UserBBMController::class, 'index'])->name('bbm.index');
+    Route::get('/bbm/create', [UserBBMController::class, 'create'])->name('bbm.create');
+    Route::post('/bbm/store', [UserBBMController::class, 'store'])->name('bbm.store');
+    Route::get('/bbm/{uid}', [UserBBMController::class, 'show'])->name('bbm.show');
+    Route::post('/bbm/{uid}/laporan', [UserBBMController::class, 'uploadLaporan'])->name('bbm.laporan');
+
+    Route::get('/riwayat', [AuthController::class, 'riwayat'])->name('riwayat');
+
+    Route::get('/riwayat', [AuthController::class, 'riwayat'])->name('riwayat');
     });

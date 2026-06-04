@@ -1,8 +1,8 @@
 @php
-    $baseRoles = session('base_roles', []);
+    $roles = session('roles', []);
 
-    if (is_string($baseRoles)) {
-        $baseRoles = [$baseRoles];
+    if (is_string($roles)) {
+        $roles = [$roles];
     }
 @endphp
 
@@ -13,14 +13,14 @@
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-xl font-bold text-slate-900">
-                    Ganti Tampilan
+                    Ganti Role
                 </h2>
                 <p class="text-sm text-slate-500">
-                    Pilih tampilan Admin atau Pegawai.
+                    Pilih role kerja yang ingin digunakan.
                 </p>
             </div>
 
-            <button onclick="closeRoleModal()" class="text-slate-400 hover:text-slate-800 text-xl">
+            <button type="button" onclick="closeRoleModal()" class="text-slate-400 hover:text-slate-800 text-xl">
                 ✕
             </button>
         </div>
@@ -30,13 +30,13 @@
 
             <div class="space-y-3">
 
-                @foreach ($baseRoles as $role)
+                @forelse ($roles as $role)
                     <label class="block cursor-pointer">
                         <input type="radio"
-                               name="role"
-                               value="{{ $role }}"
-                               class="hidden peer"
-                               {{ session('active_role') == $role ? 'checked' : '' }}>
+                            name="role"
+                            value="{{ $role }}"
+                            class="hidden peer"
+                            {{ session('active_role') == $role ? 'checked' : '' }}>
 
                         <div class="border rounded-2xl p-4 transition peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50">
                             <div class="font-semibold text-slate-800">
@@ -44,27 +44,33 @@
                             </div>
 
                             <div class="text-xs text-slate-500">
-                                @if ($role === 'Admin')
+                                @if (str_starts_with($role, 'Admin'))
                                     Masuk ke tampilan admin.
-                                @else
+                                @elseif ($role === 'Pegawai')
                                     Masuk ke tampilan pegawai.
+                                @else
+                                    Hak akses modul tambahan.
                                 @endif
                             </div>
                         </div>
                     </label>
-                @endforeach
+                @empty
+                    <div class="border border-red-200 bg-red-50 text-red-700 rounded-2xl p-4 text-sm">
+                        Role tidak ditemukan. Silakan logout lalu login ulang.
+                    </div>
+                @endforelse
 
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button"
-                        onclick="closeRoleModal()"
-                        class="px-5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    onclick="closeRoleModal()"
+                    class="px-5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
                     Batal
                 </button>
 
                 <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+                    class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold">
                     Simpan
                 </button>
             </div>
