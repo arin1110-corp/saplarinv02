@@ -43,8 +43,8 @@
                 <thead>
                     <tr class="border-b text-left text-slate-500">
                         <th class="py-3 px-3">No</th>
-                        <th class="py-3 px-3">Sub Kegiatan</th>
-                        <th class="py-3 px-3">Uraian</th>
+                        <th class="py-3 px-3">No Plat</th>
+                        <th class="py-3 px-3">Liter</th>
                         <th class="py-3 px-3">Status Pengajuan</th>
                         <th class="py-3 px-3">Status Nota</th>
                         <th class="py-3 px-3 text-right">Aksi</th>
@@ -54,35 +54,22 @@
                 <tbody>
                     @forelse ($bbms as $item)
                         <tr class="border-b hover:bg-slate-50">
-                            <td class="py-4 px-3">
-                                {{ $loop->iteration }}
-                            </td>
+                            <td class="py-4 px-3">{{ $loop->iteration }}</td>
 
                             <td class="py-4 px-3 font-semibold text-slate-800">
-                                {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
-                            </td>
-
-                            <td class="py-4 px-3 text-slate-600 max-w-xs">
-                                {{ Str::limit($item->bbm_uraian_kegiatan, 70) }}
+                                {{ $item->bbm_no_plat }}
                             </td>
 
                             <td class="py-4 px-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                    {{ $item->bbm_status_pengajuan === 'Pengajuan Diterima' ? 'bg-green-50 text-green-700' : '' }}
-                                    {{ $item->bbm_status_pengajuan === 'Pengajuan Ditolak' ? 'bg-red-50 text-red-700' : '' }}
-                                    {{ $item->bbm_status_pengajuan === 'Menunggu Verifikasi' ? 'bg-yellow-50 text-yellow-700' : '' }}">
-                                    {{ $item->bbm_status_pengajuan }}
-                                </span>
+                                {{ number_format($item->bbm_liter, 2, ',', '.') }} L
                             </td>
 
                             <td class="py-4 px-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                    {{ $item->bbm_status_laporan === 'Laporan Nota Diterima' ? 'bg-green-50 text-green-700' : '' }}
-                                    {{ $item->bbm_status_laporan === 'Laporan Nota Ditolak' ? 'bg-red-50 text-red-700' : '' }}
-                                    {{ $item->bbm_status_laporan === 'Menunggu Verifikasi' ? 'bg-yellow-50 text-yellow-700' : '' }}
-                                    {{ $item->bbm_status_laporan === 'Belum Upload' ? 'bg-slate-100 text-slate-600' : '' }}">
-                                    {{ $item->bbm_status_laporan }}
-                                </span>
+                                {{ $item->bbm_status_pengajuan }}
+                            </td>
+
+                            <td class="py-4 px-3">
+                                {{ $item->bbm_status_laporan }}
                             </td>
 
                             <td class="py-4 px-3 text-right">

@@ -90,6 +90,11 @@ class AdminController extends Controller
             'Admin PWA',
             'Admin BBM',
             'Pegawai',
+            'Pegawai KAK',
+            'Pegawai SPJ',
+            'Pegawai PWA',
+            'Pegawai BBM Rutin',
+            'Pegawai Progress Kinerja',
         ];
 
         $users = ModelUser::select('user_uid', 'user_role')->get()->groupBy('user_uid');

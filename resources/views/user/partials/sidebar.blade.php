@@ -6,14 +6,36 @@
         $roles = [$roles];
     }
 
+    $isPegawai = $activeRole === 'Pegawai';
+    $isPegawaiKAK = $activeRole === 'Pegawai KAK';
+    $isPegawaiSPJ = $activeRole === 'Pegawai SPJ';
+    $isPegawaiPWA = $activeRole === 'Pegawai PWA';
+    $isPegawaiBBMRutin = $activeRole === 'Pegawai BBM Rutin';
+    $isPegawaiProgress = $activeRole === 'Pegawai Progress Kinerja Bidang';
+    $isPegawaiLaporanSubKegiatan = $activeRole === 'Pegawai Laporan Sub Kegiatan';
+
     /*
-        Pegawai default selalu punya menu BBM.
-        SPJ/KAK/PWA muncul kalau user punya role itu dan sedang masuk sebagai Pegawai.
+        Semua role pegawai tetap bisa BBM Kegiatan.
     */
-    $canBBM = $activeRole === 'Pegawai';
-    $canSPJ = $activeRole === 'Pegawai' && in_array('SPJ', $roles);
-    $canKAK = $activeRole === 'Pegawai' && in_array('KAK', $roles);
-    $canPWA = $activeRole === 'Pegawai' && in_array('PWA', $roles);
+    $canBBMKegiatan = in_array($activeRole, [
+        'Pegawai',
+        'Pegawai KAK',
+        'Pegawai SPJ',
+        'Pegawai PWA',
+        'Pegawai BBM Rutin',
+        'Pegawai Progress Kinerja Bidang',
+        'Pegawai Laporan Sub Kegiatan',
+    ]);
+
+    /*
+        Masing-masing role hanya buka menu masing-masing.
+    */
+    $canKAK = $isPegawaiKAK;
+    $canProgressKinerjaBidang = $isPegawaiProgress;
+    $canPermintaanSPJ = $isPegawaiSPJ;
+    $canPermintaanBBMRutin = $isPegawaiBBMRutin;
+    $canLaporanSubKegiatan = $isPegawaiLaporanSubKegiatan;
+    $canPWA = $isPegawaiPWA;
 @endphp
 
 <aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
@@ -29,6 +51,7 @@
                 <h1 class="text-xl font-extrabold tracking-tight text-slate-900">
                     SAPLARIN
                 </h1>
+
                 <p class="text-xs text-slate-500">
                     Pelaporan Internal
                 </p>
@@ -43,6 +66,7 @@
                     <span class="font-semibold">
                         {{ $activeRole }}
                     </span>
+
                     <span class="text-xs bg-white/20 px-2 py-1 rounded-lg">
                         Ganti
                     </span>
@@ -52,7 +76,7 @@
 
     </div>
 
-    <nav class="flex-1 px-4 space-y-1">
+    <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-4">
 
         <a href="{{ route('user.dashboard') }}"
             class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
@@ -63,25 +87,14 @@
             <span>Dashboard</span>
         </a>
 
-        @if ($canBBM)
+        @if ($canBBMKegiatan)
             <a href="{{ route('user.bbm.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.bbm*')
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>⛽</span>
-                <span>Pengajuan BBM</span>
-            </a>
-        @endif
-
-        @if ($canSPJ)
-            <a href="{{ route('user.spj.index') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.spj*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📄</span>
-                <span>SPJ</span>
+                <span>BBM Kegiatan</span>
             </a>
         @endif
 
@@ -92,7 +105,51 @@
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>📝</span>
-                <span>KAK</span>
+                <span>Permintaan KAK</span>
+            </a>
+        @endif
+
+        @if ($canProgressKinerjaBidang)
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+                {{ request()->routeIs('user.progress*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📈</span>
+                <span>Progress Kinerja Bidang</span>
+            </a>
+        @endif
+
+        @if ($canPermintaanSPJ)
+            <a href="{{ route('user.spj.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+                {{ request()->routeIs('user.spj*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📄</span>
+                <span>Permintaan SPJ</span>
+            </a>
+        @endif
+
+        @if ($canPermintaanBBMRutin)
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+                {{ request()->routeIs('user.bbm-rutin*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>🛢️</span>
+                <span>Permintaan BBM Rutin</span>
+            </a>
+        @endif
+
+        @if ($canLaporanSubKegiatan)
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+                {{ request()->routeIs('user.laporan-subkegiatan*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📊</span>
+                <span>Laporan Sub Kegiatan</span>
             </a>
         @endif
 

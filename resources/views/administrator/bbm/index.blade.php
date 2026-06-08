@@ -114,18 +114,25 @@
                         <tr>
                             <th>No</th>
                             <th>Pengaju</th>
-                            <th>Sub Kegiatan</th>
+                            <th>No Plat</th>
                             <th>Liter</th>
                             <th>Uraian</th>
                             <th>Status Pengajuan</th>
                             <th>Status Nota</th>
                             <th>File</th>
-                            <th width="220">Aksi</th>
+                            <th width="260">Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @forelse ($bbms as $item)
+                            @php
+                                $perluSinkron =
+                                    !$item->bbm_spt_sync ||
+                                    !$item->bbm_acc_pimpinan_sync ||
+                                    ($item->bbm_laporan_nota_file && !$item->bbm_laporan_nota_sync);
+                            @endphp
+
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
 
@@ -144,8 +151,11 @@
                                 </td>
 
                                 <td>
-                                    {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
+                                    <span class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold">
+                                        {{ $item->bbm_no_plat ?? '-' }}
+                                    </span>
                                 </td>
+
                                 <td>
                                     {{ number_format($item->bbm_liter, 2, ',', '.') }} L
                                 </td>
@@ -196,51 +206,63 @@
                                     <div class="flex flex-col gap-2">
 
                                         @if ($item->bbm_spt_file)
-                                            <a href="{{ $item->bbm_spt_sync ? $item->bbm_spt_file : asset($item->bbm_spt_file) }}"
-                                                target="_blank"
-                                                class="{{ $item->bbm_spt_sync ? 'text-green-400' : 'text-blue-400' }} hover:underline">
-                                                {{ $item->bbm_spt_sync ? 'SPT Drive' : 'SPT Lokal' }}
-                                            </a>
+                                            <div>
+                                                <a href="{{ $item->bbm_spt_sync ? $item->bbm_spt_file : asset($item->bbm_spt_file) }}"
+                                                    target="_blank"
+                                                    class="{{ $item->bbm_spt_sync ? 'text-green-400' : 'text-blue-400' }} hover:underline">
+                                                    {{ $item->bbm_spt_sync ? 'SPT Drive' : 'SPT Lokal' }}
+                                                </a>
 
-                                            @if (!$item->bbm_spt_sync)
-                                                <button type="button"
-                                                    onclick="openSinkronModal('{{ $item->bbm_uid }}', 'spt', 'SPT')"
-                                                    class="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded-lg w-fit">
-                                                    Sinkron SPT
-                                                </button>
-                                            @endif
+                                                @if ($item->bbm_spt_sync)
+                                                    <div class="text-[10px] text-green-400">
+                                                        Sudah Sinkron
+                                                    </div>
+                                                @else
+                                                    <div class="text-[10px] text-yellow-400">
+                                                        Belum Sinkron
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endif
 
                                         @if ($item->bbm_acc_pimpinan_file)
-                                            <a href="{{ $item->bbm_acc_pimpinan_sync ? $item->bbm_acc_pimpinan_file : asset($item->bbm_acc_pimpinan_file) }}"
-                                                target="_blank"
-                                                class="{{ $item->bbm_acc_pimpinan_sync ? 'text-green-400' : 'text-purple-400' }} hover:underline">
-                                                {{ $item->bbm_acc_pimpinan_sync ? 'ACC Drive' : 'ACC Lokal' }}
-                                            </a>
+                                            <div>
+                                                <a href="{{ $item->bbm_acc_pimpinan_sync ? $item->bbm_acc_pimpinan_file : asset($item->bbm_acc_pimpinan_file) }}"
+                                                    target="_blank"
+                                                    class="{{ $item->bbm_acc_pimpinan_sync ? 'text-green-400' : 'text-purple-400' }} hover:underline">
+                                                    {{ $item->bbm_acc_pimpinan_sync ? 'ACC Drive' : 'ACC Lokal' }}
+                                                </a>
 
-                                            @if (!$item->bbm_acc_pimpinan_sync)
-                                                <button type="button"
-                                                    onclick="openSinkronModal('{{ $item->bbm_uid }}', 'acc_pimpinan', 'ACC Pimpinan')"
-                                                    class="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded-lg w-fit">
-                                                    Sinkron ACC
-                                                </button>
-                                            @endif
+                                                @if ($item->bbm_acc_pimpinan_sync)
+                                                    <div class="text-[10px] text-green-400">
+                                                        Sudah Sinkron
+                                                    </div>
+                                                @else
+                                                    <div class="text-[10px] text-yellow-400">
+                                                        Belum Sinkron
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endif
 
                                         @if ($item->bbm_laporan_nota_file)
-                                            <a href="{{ $item->bbm_laporan_nota_sync ? $item->bbm_laporan_nota_file : asset($item->bbm_laporan_nota_file) }}"
-                                                target="_blank"
-                                                class="{{ $item->bbm_laporan_nota_sync ? 'text-green-400' : 'text-yellow-400' }} hover:underline">
-                                                {{ $item->bbm_laporan_nota_sync ? 'Nota Drive' : 'Nota Lokal' }}
-                                            </a>
+                                            <div>
+                                                <a href="{{ $item->bbm_laporan_nota_sync ? $item->bbm_laporan_nota_file : asset($item->bbm_laporan_nota_file) }}"
+                                                    target="_blank"
+                                                    class="{{ $item->bbm_laporan_nota_sync ? 'text-green-400' : 'text-yellow-400' }} hover:underline">
+                                                    {{ $item->bbm_laporan_nota_sync ? 'Nota Drive' : 'Nota Lokal' }}
+                                                </a>
 
-                                            @if (!$item->bbm_laporan_nota_sync)
-                                                <button type="button"
-                                                    onclick="openSinkronModal('{{ $item->bbm_uid }}', 'nota', 'Laporan Nota')"
-                                                    class="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded-lg w-fit">
-                                                    Sinkron Nota
-                                                </button>
-                                            @endif
+                                                @if ($item->bbm_laporan_nota_sync)
+                                                    <div class="text-[10px] text-green-400">
+                                                        Sudah Sinkron
+                                                    </div>
+                                                @else
+                                                    <div class="text-[10px] text-yellow-400">
+                                                        Belum Sinkron
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endif
 
                                         @if (!$item->bbm_spt_file && !$item->bbm_acc_pimpinan_file && !$item->bbm_laporan_nota_file)
@@ -263,7 +285,6 @@
                                             <form method="POST"
                                                 action="{{ route('admin.bbm.tolakPengajuan', $item->bbm_uid) }}"
                                                 onsubmit="return confirm('Tolak pengajuan BBM ini?')">
-
                                                 @csrf
 
                                                 <button type="submit"
@@ -277,7 +298,6 @@
                                             <form method="POST"
                                                 action="{{ route('admin.bbm.terimaLaporan', $item->bbm_uid) }}"
                                                 onsubmit="return confirm('Terima laporan nota ini?')">
-
                                                 @csrf
 
                                                 <button type="submit"
@@ -289,7 +309,6 @@
                                             <form method="POST"
                                                 action="{{ route('admin.bbm.tolakLaporan', $item->bbm_uid) }}"
                                                 onsubmit="return confirm('Tolak laporan nota ini?')">
-
                                                 @csrf
 
                                                 <button type="submit"
@@ -299,7 +318,30 @@
                                             </form>
                                         @endif
 
-                                        @if ($item->bbm_status_pengajuan !== 'Menunggu Verifikasi' && $item->bbm_status_laporan !== 'Menunggu Verifikasi')
+                                        @if ($item->bbm_status_pengajuan === 'Pengajuan Diterima')
+                                            @if ($perluSinkron)
+                                                <form method="POST"
+                                                    action="{{ route('admin.bbm.sinkron', $item->bbm_uid) }}"
+                                                    onsubmit="return confirm('Sinkron semua file pengajuan ini ke Google Drive? File lokal di hosting akan dihapus jika file Drive ditemukan.')">
+                                                    @csrf
+
+                                                    <button type="submit"
+                                                        class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded-lg text-xs">
+                                                        Sinkron Drive
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                                    Sudah Sinkron
+                                                </span>
+                                            @endif
+                                        @endif
+
+                                        @if (
+                                            $item->bbm_status_pengajuan !== 'Menunggu Verifikasi' &&
+                                            $item->bbm_status_pengajuan !== 'Pengajuan Diterima' &&
+                                            $item->bbm_status_laporan !== 'Menunggu Verifikasi'
+                                        )
                                             <span class="text-slate-500 text-xs">
                                                 Tidak ada aksi
                                             </span>
@@ -310,7 +352,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-6 text-slate-400">
+                                <td colspan="9" class="text-center py-6 text-slate-400">
                                     Belum ada data pengajuan BBM.
                                 </td>
                             </tr>
@@ -351,7 +393,17 @@
                     <label class="block mb-2 text-sm text-slate-300">
                         Pengaju
                     </label>
+
                     <input type="text" id="modal_pengaju"
+                        class="w-full rounded-xl px-4 py-3 bg-slate-800 border border-slate-700 text-white" readonly>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm text-slate-300">
+                        No Plat
+                    </label>
+
+                    <input type="text" id="modal_no_plat"
                         class="w-full rounded-xl px-4 py-3 bg-slate-800 border border-slate-700 text-white" readonly>
                 </div>
 
@@ -384,72 +436,10 @@
 
     </div>
 
-    <div id="sinkronModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6 mx-4">
-
-            <div class="flex justify-between items-center mb-5">
-                <div>
-                    <h2 class="text-xl font-bold">
-                        Sinkron File ke Google Drive
-                    </h2>
-                    <p class="text-sm text-slate-400">
-                        Masukkan URL file Google Drive. File lokal akan dihapus.
-                    </p>
-                </div>
-
-                <button type="button" onclick="closeSinkronModal()" class="text-slate-400 hover:text-white text-xl">
-                    ✕
-                </button>
-            </div>
-
-            <form id="sinkronForm" method="POST">
-                @csrf
-
-                <input type="hidden" name="jenis_file" id="sinkron_jenis_file">
-
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm text-slate-300">
-                        Jenis File
-                    </label>
-
-                    <input type="text" id="sinkron_label_file"
-                        class="w-full rounded-xl px-4 py-3 bg-slate-800 border border-slate-700 text-white" readonly>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm text-slate-300">
-                        URL Google Drive
-                    </label>
-
-                    <input type="url" name="drive_url"
-                        class="w-full rounded-xl px-4 py-3 bg-slate-800 border border-slate-700 text-white"
-                        placeholder="https://drive.google.com/..." required>
-                </div>
-
-                <div class="bg-yellow-600/10 border border-yellow-600/30 text-yellow-300 rounded-xl px-4 py-3 text-sm">
-                    Pastikan file sudah diupload ke Google Drive. Setelah disimpan, file lokal di hosting akan dihapus.
-                </div>
-
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeSinkronModal()"
-                        class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl">
-                        Batal
-                    </button>
-
-                    <button type="submit" onclick="return confirm('Yakin sinkron file ini dan hapus file lokal?')"
-                        class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-xl">
-                        Simpan Sinkron
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-
     <script>
         function openTerimaModal(item) {
             $('#modal_pengaju').val(item.bbm_pengaju_nama + ' - ' + item.bbm_pengaju_nip);
+            $('#modal_no_plat').val(item.bbm_no_plat ?? '-');
 
             let action = "{{ url('/admin/bbm') }}/" + item.bbm_uid + "/terima-pengajuan";
 
@@ -469,45 +459,24 @@
         }
 
         $(document).ready(function() {
-            $('#bbmTable')
-                .DataTable({
-                    pageLength: 10,
-                    responsive: true,
-                    language: {
-                        search: "Cari:",
-                        lengthMenu: "Tampilkan _MENU_ data",
-                        info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-                        emptyTable: "Belum ada data pengajuan BBM",
-                        zeroRecords: "Data tidak ditemukan",
-                        paginate: {
-                            previous: "Sebelumnya",
-                            next: "Berikutnya"
-                        }
+            $('#bbmTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                language: {
+                    search: "Cari:",
+                    lengthMenu: "Tampilkan _MENU_ data",
+                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                    emptyTable: "Belum ada data pengajuan BBM",
+                    zeroRecords: "Data tidak ditemukan",
+                    paginate: {
+                        previous: "Sebelumnya",
+                        next: "Berikutnya"
                     }
-                });
+                }
+            });
         });
     </script>
-    <script>
-        function openSinkronModal(uid, jenisFile, labelFile) {
-            let action = "{{ url('/admin/bbm') }}/" + uid + "/sinkron-file";
 
-            $('#sinkronForm').attr('action', action);
-            $('#sinkron_jenis_file').val(jenisFile);
-            $('#sinkron_label_file').val(labelFile);
-
-            $('#sinkronModal')
-                .removeClass('hidden')
-                .addClass('flex');
-        }
-
-        function closeSinkronModal() {
-            $('#sinkronModal')
-                .addClass('hidden')
-                .removeClass('flex');
-
-            $('#sinkronForm')[0].reset();
-        }
-    </script>
 </body>
 
 </html>

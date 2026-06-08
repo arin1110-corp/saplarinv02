@@ -48,10 +48,6 @@ class AuthController extends Controller
             return back()->with('error', 'Role tidak ditemukan');
         }
 
-        /*
-            Ambil role dari database.
-            Kalau masih ada role lama "Admin", otomatis dianggap "Admin Full".
-        */
         $roles = $rolesData->pluck('user_role')->toArray();
 
         $roles = collect($roles)
@@ -62,15 +58,6 @@ class AuthController extends Controller
             ->values()
             ->toArray();
 
-        /*
-            Prioritas role saat login:
-            1. Admin Full
-            2. Admin SPJ
-            3. Admin KAK
-            4. Admin PWA
-            5. Admin BBM
-            6. Pegawai
-        */
         if (in_array('Admin Full', $roles)) {
             $activeRole = 'Admin Full';
         } elseif (in_array('Admin SPJ', $roles)) {
@@ -83,6 +70,14 @@ class AuthController extends Controller
             $activeRole = 'Admin BBM';
         } elseif (in_array('Pegawai', $roles)) {
             $activeRole = 'Pegawai';
+        } elseif (in_array('Pegawai KAK', $roles)) {
+            $activeRole = 'Pegawai KAK';
+        } elseif (in_array('Pegawai SPJ', $roles)) {
+            $activeRole = 'Pegawai SPJ';
+        } elseif (in_array('Pegawai PWA', $roles)) {
+            $activeRole = 'Pegawai PWA';
+        } elseif (in_array('Pegawai BBM Rutin', $roles)) {
+            $activeRole = 'Pegawai BBM Rutin';
         } else {
             $activeRole = $roles[0];
         }
@@ -91,12 +86,16 @@ class AuthController extends Controller
             'pegawai_id' => $pegawai['id'],
             'pegawai_nama' => $pegawai['nama'],
             'pegawai_nip' => $pegawai['nip'],
-            'pegawai_jabatan_id' => $pegawai['jabatan_id'],
-            'pegawai_bidang_id' => $pegawai['bidang_id'],
-            'pegawai_bidang' => $pegawai['bidang'],
-            'pegawai_jabatan' => $pegawai['jabatan'],
-            'pegawai_email' => $pegawai['email'],
-            'pegawai_hp' => $pegawai['hp'],
+
+            'pegawai_jabatan_id' => $pegawai['jabatan_id'] ?? null,
+            'pegawai_bidang_id' => $pegawai['bidang_id'] ?? null,
+
+            'pegawai_bidang' => $pegawai['bidang'] ?? '-',
+            'pegawai_jabatan' => $pegawai['jabatan'] ?? '-',
+
+            'pegawai_email' => $pegawai['email'] ?? null,
+            'pegawai_hp' => $pegawai['hp'] ?? null,
+
             'roles' => $roles,
             'active_role' => $activeRole,
             'logged_in' => true,

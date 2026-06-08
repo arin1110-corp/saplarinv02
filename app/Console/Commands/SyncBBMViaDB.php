@@ -3,141 +3,142 @@
 namespace App\Console\Commands;
 
 use App\Models\ModelBBM;
+use App\Models\ModelDriveFolder;
 use App\Services\GoogleDriveServiceDB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class SyncBBMViaDB extends Command
 {
-    protected $signature = 'sync:bbm-db {jenis}';
-    protected $description = 'Sinkronisasi file BBM ke Google Drive berdasarkan UID dan hapus file lokal SAPLARIN';
+    protected $signature = 'sync:bbm-db {uid?}';
+
+    protected $description = 'Sinkronisasi semua file BBM berdasarkan UID ke Google Drive';
 
     public function handle(GoogleDriveServiceDB $googleDrive)
     {
         ini_set('memory_limit', '-1');
         set_time_limit(0);
 
-        $jenis = strtolower($this->argument('jenis'));
+        $uidArg = $this->argument('uid');
 
-        if (!in_array($jenis, ['spt', 'acc', 'nota'])) {
-            $this->error('Jenis tidak valid. Gunakan: spt, acc, atau nota');
-            return Command::FAILURE;
-        }
-
-        $this->info("Mulai sinkronisasi BBM jenis {$jenis}...");
-
-        $json = DB::table('saplarin_json')
-            ->where('json_key', 'bbm_drive')
-            ->where('json_status', 1)
+        $folder = ModelDriveFolder::with('json')
+            ->where('folder_prefix', 'bbm')
+            ->where('folder_status', 1)
             ->first();
 
-        if (!$json) {
-            $this->error('Config bbm_drive tidak ditemukan di tabel saplarin_json.');
+        if (!$folder) {
+            $this->error('Folder Drive dengan prefix bbm tidak ditemukan.');
             return Command::FAILURE;
         }
 
-        $config = json_decode($json->json_value, true);
-
-        $folderId = $config['folder_bbm'] ?? null;
-
-        if (!$folderId) {
-            $this->error('folder_bbm tidak ditemukan pada json_value.');
+        if (!$folder->json) {
+            $this->error('JSON Credential untuk folder BBM tidak ditemukan.');
             return Command::FAILURE;
         }
 
-        $query = ModelBBM::query()->whereNotNull('bbm_uid');
+        $jsonPath = storage_path('app/' . $folder->json->json_file);
+        $folderId = $folder->folder_drive_id;
 
-        if ($jenis === 'spt') {
-            $query->whereNotNull('bbm_spt_file')->where('bbm_spt_sync', 0);
+        if (!file_exists($jsonPath)) {
+            $this->error('File JSON credential tidak ditemukan: ' . $jsonPath);
+            return Command::FAILURE;
         }
 
-        if ($jenis === 'acc') {
-            $query->whereNotNull('bbm_acc_pimpinan_file')->where('bbm_acc_pimpinan_sync', 0);
+        $googleDrive->setCredential($jsonPath);
+
+        $query = ModelBBM::query()
+            ->where('bbm_status_pengajuan', 'Pengajuan Diterima');
+
+        if ($uidArg) {
+            $query->where('bbm_uid', $uidArg);
         }
 
-        if ($jenis === 'nota') {
-            $query->whereNotNull('bbm_laporan_nota_file')->where('bbm_laporan_nota_sync', 0);
-        }
+        $query->chunk(50, function ($rows) use ($googleDrive, $folderId) {
+            foreach ($rows as $bbm) {
+                $this->info('Sinkron UID: ' . $bbm->bbm_uid);
 
-        $query->chunk(50, function ($rows) use ($googleDrive, $folderId, $jenis) {
-            foreach ($rows as $row) {
-                $uid = $row->bbm_uid;
+                $this->syncFile(
+                    $googleDrive,
+                    $folderId,
+                    $bbm,
+                    'spt',
+                    'bbm_spt_file',
+                    'bbm_spt_sync'
+                );
 
-                if (!$uid) {
-                    continue;
+                $this->syncFile(
+                    $googleDrive,
+                    $folderId,
+                    $bbm,
+                    'acc-pimpinan',
+                    'bbm_acc_pimpinan_file',
+                    'bbm_acc_pimpinan_sync'
+                );
+
+                if ($bbm->bbm_laporan_nota_file) {
+                    $this->syncFile(
+                        $googleDrive,
+                        $folderId,
+                        $bbm,
+                        'nota',
+                        'bbm_laporan_nota_file',
+                        'bbm_laporan_nota_sync'
+                    );
                 }
 
-                $keyword = $this->getKeyword($uid, $jenis);
-
-                $this->info("Mencari file Drive: {$keyword}");
-
-                usleep(300000);
-
-                $result = $googleDrive->findFileByKeyword($keyword, $folderId);
-
-                if (($result['status'] ?? 0) == 1) {
-                    DB::transaction(function () use ($row, $result, $jenis, $uid) {
-                        if ($jenis === 'spt') {
-                            $oldFile = $row->bbm_spt_file;
-
-                            $row->update([
-                                'bbm_spt_file' => $result['file_url'],
-                                'bbm_spt_sync' => 1,
-                            ]);
-
-                            $this->hapusFileLokal($oldFile, $uid, 'SPT');
-                        }
-
-                        if ($jenis === 'acc') {
-                            $oldFile = $row->bbm_acc_pimpinan_file;
-
-                            $row->update([
-                                'bbm_acc_pimpinan_file' => $result['file_url'],
-                                'bbm_acc_pimpinan_sync' => 1,
-                            ]);
-
-                            $this->hapusFileLokal($oldFile, $uid, 'ACC Pimpinan');
-                        }
-
-                        if ($jenis === 'nota') {
-                            $oldFile = $row->bbm_laporan_nota_file;
-
-                            $row->update([
-                                'bbm_laporan_nota_file' => $result['file_url'],
-                                'bbm_laporan_nota_sync' => 1,
-                            ]);
-
-                            $this->hapusFileLokal($oldFile, $uid, 'Nota');
-                        }
-                    });
-
-                    $this->info("{$uid} → Sinkron berhasil: {$result['file_name']}");
-                } else {
-                    $this->warn("{$uid} → File belum ditemukan di Drive");
-                }
+                $this->info('Selesai UID: ' . $bbm->bbm_uid);
             }
         });
 
-        $this->info("Sinkronisasi BBM {$jenis} selesai.");
+        $this->info('Sinkron BBM selesai.');
 
         return Command::SUCCESS;
     }
 
-    private function getKeyword($uid, $jenis)
+    private function syncFile($googleDrive, $folderId, $bbm, $jenis, $fieldFile, $fieldSync)
     {
-        if ($jenis === 'spt') {
-            return $uid . '-spt';
+        if (!$bbm->{$fieldFile}) {
+            $this->warn($bbm->bbm_uid . " → {$jenis} belum ada file.");
+            return;
         }
 
-        if ($jenis === 'acc') {
-            return $uid . '-acc-pimpinan';
+        if ($bbm->{$fieldSync}) {
+            $this->info($bbm->bbm_uid . " → {$jenis} sudah sinkron.");
+            return;
         }
 
-        if ($jenis === 'nota') {
-            return $uid . '-nota';
+        if (str_starts_with($bbm->{$fieldFile}, 'http')) {
+            $bbm->update([
+                $fieldSync => 1,
+            ]);
+
+            $this->info($bbm->bbm_uid . " → {$jenis} sudah berupa URL Drive.");
+            return;
         }
 
-        return $uid;
+        $keyword = $bbm->bbm_uid . '-' . $jenis;
+
+        usleep(300000);
+
+        $result = $googleDrive->findFileByKeyword($keyword, $folderId);
+
+        if (($result['status'] ?? 0) != 1) {
+            $this->warn($bbm->bbm_uid . " → {$jenis} belum ditemukan di Drive.");
+            return;
+        }
+
+        $oldFile = $bbm->{$fieldFile};
+
+        DB::transaction(function () use ($bbm, $fieldFile, $fieldSync, $result, $oldFile, $jenis) {
+            $bbm->update([
+                $fieldFile => $result['file_url'],
+                $fieldSync => 1,
+            ]);
+
+            $this->hapusFileLokal($oldFile, $bbm->bbm_uid, strtoupper($jenis));
+        });
+
+        $this->info($bbm->bbm_uid . " → {$jenis} sinkron: " . $result['file_name']);
     }
 
     private function hapusFileLokal($oldFile, $uid, $label)
@@ -156,13 +157,10 @@ class SyncBBMViaDB extends Command
         $localPath = public_path($relativePath);
 
         if (file_exists($localPath)) {
-            if (unlink($localPath)) {
-                $this->info("{$uid} → File lokal {$label} dihapus");
-            } else {
-                $this->warn("{$uid} → Gagal hapus file lokal {$label}");
-            }
+            unlink($localPath);
+            $this->info("{$uid} → File lokal {$label} dihapus.");
         } else {
-            $this->warn("{$uid} → File lokal {$label} tidak ditemukan: {$localPath}");
+            $this->warn("{$uid} → File lokal {$label} tidak ditemukan.");
         }
     }
 }

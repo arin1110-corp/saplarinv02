@@ -4,6 +4,8 @@
     if (is_string($roles)) {
         $roles = [$roles];
     }
+
+    $roles = array_values(array_unique($roles));
 @endphp
 
 <div id="roleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
@@ -47,6 +49,10 @@
                     @endforeach
 
                 </select>
+
+                <p class="text-xs text-slate-500 mt-2">
+                    Role pegawai menentukan menu yang tampil di halaman user.
+                </p>
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
@@ -69,12 +75,22 @@
 <script>
     function openRoleModal() {
         const modal = document.getElementById('roleModal');
+
+        if (!modal) {
+            return;
+        }
+
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     }
 
     function closeRoleModal() {
         const modal = document.getElementById('roleModal');
+
+        if (!modal) {
+            return;
+        }
+
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
