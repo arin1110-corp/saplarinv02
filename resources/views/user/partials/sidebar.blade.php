@@ -1,41 +1,14 @@
 @php
-    $roles = session('roles', []);
     $activeRole = session('active_role', 'Pegawai');
 
-    if (is_string($roles)) {
-        $roles = [$roles];
-    }
+    $isOperator = $activeRole === 'Operator';
 
-    $isPegawai = $activeRole === 'Pegawai';
-    $isPegawaiKAK = $activeRole === 'Pegawai KAK';
-    $isPegawaiSPJ = $activeRole === 'Pegawai SPJ';
-    $isPegawaiPWA = $activeRole === 'Pegawai PWA';
-    $isPegawaiBBMRutin = $activeRole === 'Pegawai BBM Rutin';
-    $isPegawaiProgress = $activeRole === 'Pegawai Progress Kinerja Bidang';
-    $isPegawaiLaporanSubKegiatan = $activeRole === 'Pegawai Laporan Sub Kegiatan';
-
-    /*
-        Semua role pegawai tetap bisa BBM Kegiatan.
-    */
-    $canBBMKegiatan = in_array($activeRole, [
-        'Pegawai',
-        'Pegawai KAK',
-        'Pegawai SPJ',
-        'Pegawai PWA',
-        'Pegawai BBM Rutin',
-        'Pegawai Progress Kinerja Bidang',
-        'Pegawai Laporan Sub Kegiatan',
-    ]);
-
-    /*
-        Masing-masing role hanya buka menu masing-masing.
-    */
-    $canKAK = $isPegawaiKAK;
-    $canProgressKinerjaBidang = $isPegawaiProgress;
-    $canPermintaanSPJ = $isPegawaiSPJ;
-    $canPermintaanBBMRutin = $isPegawaiBBMRutin;
-    $canLaporanSubKegiatan = $isPegawaiLaporanSubKegiatan;
-    $canPWA = $isPegawaiPWA;
+    $canBBMKegiatan = in_array($activeRole, ['Pegawai', 'Operator']);
+    $canKAK = $isOperator;
+    $canSPJ = $isOperator;
+    $canBBMRutin = $isOperator;
+    $canLaporanAktivitas = $isOperator;
+    $canPWA = $isOperator;
 @endphp
 
 <aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
@@ -58,7 +31,8 @@
             </div>
         </div>
 
-        <div class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
+        <div
+            class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
             <p class="text-xs opacity-80">Login sebagai</p>
 
             <button onclick="openRoleModal()" class="mt-1 text-left w-full">
@@ -99,7 +73,7 @@
         @endif
 
         @if ($canKAK)
-            <a href="{{ route('user.kak.index') }}"
+            <a href="#"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.kak*')
                     ? 'bg-blue-50 text-blue-700'
@@ -109,19 +83,8 @@
             </a>
         @endif
 
-        @if ($canProgressKinerjaBidang)
+        @if ($canSPJ)
             <a href="#"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.progress*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📈</span>
-                <span>Progress Kinerja Bidang</span>
-            </a>
-        @endif
-
-        @if ($canPermintaanSPJ)
-            <a href="{{ route('user.spj.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.spj*')
                     ? 'bg-blue-50 text-blue-700'
@@ -131,7 +94,7 @@
             </a>
         @endif
 
-        @if ($canPermintaanBBMRutin)
+        @if ($canBBMRutin)
             <a href="#"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.bbm-rutin*')
@@ -142,29 +105,29 @@
             </a>
         @endif
 
-        @if ($canLaporanSubKegiatan)
-            <a href="#"
+        @if ($canLaporanAktivitas)
+            <a href="{{ route('user.laporan-aktivitas.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.laporan-subkegiatan*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📊</span>
-                <span>Laporan Sub Kegiatan</span>
+        {{ request()->routeIs('user.laporan-aktivitas*')
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📋</span>
+                <span>Laporan Aktivitas</span>
             </a>
         @endif
 
         @if ($canPWA)
-            <a href="{{ route('user.pwa.index') }}"
+            <a href="#"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.pwa*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+        {{ request()->routeIs('user.pwa*')
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>📊</span>
                 <span>PWA</span>
             </a>
         @endif
 
-        <a href="{{ route('user.riwayat') }}"
+        <a href="#"
             class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
             {{ request()->routeIs('user.riwayat')
                 ? 'bg-blue-50 text-blue-700'

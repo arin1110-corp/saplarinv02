@@ -85,16 +85,10 @@ class AdminController extends Controller
 
         $availableRoles = [
             'Admin Full',
-            'Admin SPJ',
-            'Admin KAK',
-            'Admin PWA',
             'Admin BBM',
+            'Admin Arsiparis',
             'Pegawai',
-            'Pegawai KAK',
-            'Pegawai SPJ',
-            'Pegawai PWA',
-            'Pegawai BBM Rutin',
-            'Pegawai Progress Kinerja',
+            'Operator',
         ];
 
         $users = ModelUser::select('user_uid', 'user_role')->get()->groupBy('user_uid');

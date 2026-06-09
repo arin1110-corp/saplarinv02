@@ -7,6 +7,10 @@ use App\Http\Controllers\LaporanPWAController;
 use App\Http\Controllers\UserBBMController;
 use App\Http\Controllers\AdminBBMController;
 use App\Http\Controllers\AdminDriveController;
+use App\Http\Controllers\AdminKinerjaController;
+use App\Http\Controllers\UserKinerjaController;
+use App\Http\Controllers\UserLaporanAktivitasController;
+use App\Http\Controllers\AdminLaporanAktivitasController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -161,6 +165,43 @@ Route::middleware(['admin'])
 
     Route::get('/laporan-kak', [AdminController::class, 'laporanKAK'])
         ->name('admin.laporan.kak');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Kinerja
+        |--------------------------------------------------------------------------
+        */
+    Route::get('/kinerja', [AdminKinerjaController::class, 'index'])
+        ->name('admin.kinerja.index');
+
+    Route::post('/kinerja/store', [AdminKinerjaController::class, 'store'])
+        ->name('admin.kinerja.store');
+
+    Route::post('/kinerja/update', [AdminKinerjaController::class, 'update'])
+        ->name('admin.kinerja.update');
+
+    Route::post('/kinerja/{uid}/delete', [AdminKinerjaController::class, 'delete'])
+        ->name('admin.kinerja.delete');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Laporan Aktivitas
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/laporan-aktivitas', [AdminLaporanAktivitasController::class, 'index'])
+        ->name('admin.laporan-aktivitas.index');
+
+    Route::post('/laporan-aktivitas/kegiatan/{uid}/nonaktif', [AdminLaporanAktivitasController::class, 'nonaktifKegiatan'])
+        ->name('admin.laporan-aktivitas.kegiatan.nonaktif');
+
+    Route::post('/laporan-aktivitas/kegiatan/{uid}/aktif', [AdminLaporanAktivitasController::class, 'aktifKegiatan'])
+        ->name('admin.laporan-aktivitas.kegiatan.aktif');
+
+    Route::post('/laporan-aktivitas/aktivitas/{uid}/nonaktif', [AdminLaporanAktivitasController::class, 'nonaktifAktivitas'])
+        ->name('admin.laporan-aktivitas.aktivitas.nonaktif');
+
+    Route::post('/laporan-aktivitas/aktivitas/{uid}/aktif', [AdminLaporanAktivitasController::class, 'aktifAktivitas'])
+        ->name('admin.laporan-aktivitas.aktivitas.aktif');
     });
 
 Route::prefix('user')
@@ -214,4 +255,33 @@ Route::prefix('user')
 
     Route::get('/riwayat', [AuthController::class, 'riwayat'])
         ->name('riwayat');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Kinerja
+        |--------------------------------------------------------------------------
+        */
+    Route::get('/kinerja', [UserKinerjaController::class, 'index'])
+        ->name('kinerja.index');
+
+    Route::post('/kinerja/{uid}/progress/store', [UserKinerjaController::class, 'storeProgress'])
+        ->name('kinerja.progress.store');
+
+    Route::post('/kinerja/progress/{uid}/update', [UserKinerjaController::class, 'updateProgress'])
+        ->name('kinerja.progress.update');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Laporan Aktivitas
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/laporan-aktivitas', [UserLaporanAktivitasController::class, 'index'])
+        ->name('laporan-aktivitas.index');
+
+    Route::post('/laporan-aktivitas/kegiatan/store', [UserLaporanAktivitasController::class, 'storeKegiatan'])
+        ->name('laporan-aktivitas.kegiatan.store');
+
+    Route::post('/laporan-aktivitas/{uid}/aktivitas/store', [UserLaporanAktivitasController::class, 'storeAktivitas'])
+        ->name('laporan-aktivitas.aktivitas.store');
     });

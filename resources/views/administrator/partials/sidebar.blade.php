@@ -2,14 +2,15 @@
     $role = session('active_role');
 
     $isAdminFull = $role === 'Admin Full';
+    $isAdminArsiparis = $role === 'Admin Arsiparis';
+    $isAdminBBM = $role === 'Admin BBM';
 
-    $canSPJ = in_array($role, ['Admin Full', 'Admin SPJ']);
-    $canKAK = in_array($role, ['Admin Full', 'Admin KAK']);
-    $canPWA = in_array($role, ['Admin Full', 'Admin PWA']);
-    $canBBM = in_array($role, ['Admin Full', 'Admin BBM']);
+    $canDrive = $isAdminFull || $isAdminArsiparis;
+    $canMaster = $isAdminFull;
+    $canUser = $isAdminFull;
 
-    $showDataPermintaan = $canSPJ || $canKAK || $canBBM;
-    $showLaporan = $canSPJ || $canKAK || $canPWA || $canBBM;
+    $canBBM = $isAdminFull || $isAdminBBM;
+    $canArsip = $isAdminFull || $isAdminArsiparis;
 @endphp
 
 <aside class="w-64 bg-slate-900 border-r border-slate-800 hidden md:block">
@@ -48,7 +49,6 @@
 
     <nav class="mt-6 px-4 text-sm flex flex-col gap-2">
 
-        {{-- DASHBOARD --}}
         <a href="{{ route('admin.dashboard') }}"
             class="block px-4 py-2 rounded-lg transition duration-200
             {{ request()->routeIs('admin.dashboard')
@@ -57,10 +57,7 @@
             Dashboard
         </a>
 
-        {{-- ADMIN FULL ONLY --}}
-        @if ($isAdminFull)
-
-            {{-- DATA USER --}}
+        @if ($canUser)
             <a href="{{ route('admin.users') }}"
                 class="block px-4 py-2 rounded-lg transition duration-200
                 {{ request()->routeIs('admin.users')
@@ -68,8 +65,9 @@
                     : 'hover:bg-slate-800 text-slate-300' }}">
                 Data User
             </a>
+        @endif
 
-            {{-- DRIVE MANAGEMENT --}}
+        @if ($canDrive)
             <div>
                 <button onclick="toggleDriveMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
@@ -111,8 +109,9 @@
 
                 </div>
             </div>
+        @endif
 
-            {{-- DATA MASTER --}}
+        @if ($canMaster)
             <div>
                 <button onclick="toggleMasterMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
@@ -172,32 +171,61 @@
 
                 </div>
             </div>
-
-            {{-- INVENTARIS --}}
-            <a href="#"
-                class="block px-4 py-2 rounded-lg transition duration-200
-                {{ request()->routeIs('admin.inventaris')
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'hover:bg-slate-800 text-slate-300' }}">
-                Inventaris
-            </a>
-
         @endif
 
-        {{-- DATA PERMINTAAN --}}
-        @if ($showDataPermintaan)
+        @if ($canBBM)
             <div>
-                <button onclick="togglePermintaanMenu()"
+                <button onclick="toggleBBMMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
-                    {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
+                    {{ request()->routeIs('admin.bbm*')
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'hover:bg-slate-800 text-slate-300' }}">
 
-                    <span>Data Permintaan</span>
+                    <span>BBM</span>
 
-                    <svg id="permintaanArrow"
+                    <svg id="bbmArrow"
                         class="w-4 h-4 transition-transform duration-300
-                        {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
+                        {{ request()->routeIs('admin.bbm*') ? 'rotate-180' : '' }}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <div id="bbmMenu"
+                    class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
+                    {{ request()->routeIs('admin.bbm*') ? 'max-h-40' : 'max-h-0' }}">
+
+                    <a href="{{ route('admin.bbm.index') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.bbm*')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Permintaan BBM
+                    </a>
+
+                </div>
+            </div>
+        @endif
+
+        @if ($canArsip)
+            <div>
+                <button onclick="toggleArsipMenu()"
+                    class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
+                    {{ request()->routeIs('admin.laporan-aktivitas*') ||
+                    request()->routeIs('admin.permintaan*') ||
+                    request()->routeIs('admin.laporan*')
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'hover:bg-slate-800 text-slate-300' }}">
+
+                    <span>Arsiparis</span>
+
+                    <svg id="arsipArrow"
+                        class="w-4 h-4 transition-transform duration-300
+                        {{ request()->routeIs('admin.laporan-aktivitas*') ||
+                        request()->routeIs('admin.permintaan*') ||
+                        request()->routeIs('admin.laporan*')
                             ? 'rotate-180'
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,126 +235,53 @@
                     </svg>
                 </button>
 
-                <div id="permintaanMenu"
+                <div id="arsipMenu"
                     class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
-                    {{ request()->routeIs('admin.permintaan*') || request()->routeIs('admin.bbm*')
-                        ? 'max-h-60'
+                    {{ request()->routeIs('admin.laporan-aktivitas*') ||
+                    request()->routeIs('admin.permintaan*') ||
+                    request()->routeIs('admin.laporan*')
+                        ? 'max-h-96'
                         : 'max-h-0' }}">
 
-                    @if ($canSPJ)
-                        <a href="{{ route('admin.permintaan.spj') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.permintaan.spj')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Permintaan SPJ
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.laporan-aktivitas.index') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.laporan-aktivitas*')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Laporan Aktivitas
+                    </a>
 
-                    @if ($canKAK)
-                        <a href="{{ route('admin.permintaan.kak') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.permintaan.kak')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Permintaan KAK
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.permintaan.spj') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.permintaan.spj')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Permintaan SPJ
+                    </a>
 
-                    @if ($canBBM)
-                        <a href="{{ route('admin.bbm.index') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.bbm*')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Permintaan BBM
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.permintaan.kak') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.permintaan.kak')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Permintaan KAK
+                    </a>
 
-                </div>
-            </div>
-        @endif
+                    <a href="{{ route('admin.laporan.spj') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.laporan.spj')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Laporan SPJ
+                    </a>
 
-        {{-- LAPORAN --}}
-        @if ($showLaporan)
-            <div>
-                <button onclick="toggleLaporanMenu()"
-                    class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
-                    {{ request()->routeIs('admin.laporan*')
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'hover:bg-slate-800 text-slate-300' }}">
-
-                    <span>Laporan</span>
-
-                    <svg id="laporanArrow"
-                        class="w-4 h-4 transition-transform duration-300
-                        {{ request()->routeIs('admin.laporan*') ? 'rotate-180' : '' }}"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <div id="laporanMenu"
-                    class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
-                    {{ request()->routeIs('admin.laporan*') ? 'max-h-96' : 'max-h-0' }}">
-
-                    @if ($canSPJ)
-                        <a href="{{ route('admin.laporan.spj') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.laporan.spj')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Laporan SPJ
-                        </a>
-                    @endif
-
-                    @if ($isAdminFull)
-                        <a href="{{ route('admin.laporan.kegiatan') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.laporan.kegiatan')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Laporan Kegiatan
-                        </a>
-
-                        <a href="{{ route('admin.laporan.subkegiatan') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.laporan.subkegiatan')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Laporan Sub Kegiatan
-                        </a>
-                    @endif
-
-                    @if ($canPWA)
-                        <a href="{{ route('admin.laporan.pwa') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.laporan.pwa')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Laporan PWA
-                        </a>
-                    @endif
-
-                    @if ($canKAK)
-                        <a href="{{ route('admin.laporan.kak') }}"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.laporan.kak')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Laporan KAK
-                        </a>
-                    @endif
-
-                    @if ($canBBM)
-                        <a href="#"
-                            class="block px-4 py-2 rounded-lg text-sm transition
-                            text-slate-400 hover:bg-slate-800 hover:text-white">
-                            Laporan BBM
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.laporan.kak') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+                        {{ request()->routeIs('admin.laporan.kak')
+                            ? 'bg-slate-700 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Laporan KAK
+                    </a>
 
                 </div>
             </div>
@@ -351,15 +306,15 @@
         document.getElementById('masterArrow')?.classList.toggle('rotate-180');
     }
 
-    function togglePermintaanMenu() {
-        document.getElementById('permintaanMenu')?.classList.toggle('max-h-0');
-        document.getElementById('permintaanMenu')?.classList.toggle('max-h-60');
-        document.getElementById('permintaanArrow')?.classList.toggle('rotate-180');
+    function toggleBBMMenu() {
+        document.getElementById('bbmMenu')?.classList.toggle('max-h-0');
+        document.getElementById('bbmMenu')?.classList.toggle('max-h-40');
+        document.getElementById('bbmArrow')?.classList.toggle('rotate-180');
     }
 
-    function toggleLaporanMenu() {
-        document.getElementById('laporanMenu')?.classList.toggle('max-h-0');
-        document.getElementById('laporanMenu')?.classList.toggle('max-h-96');
-        document.getElementById('laporanArrow')?.classList.toggle('rotate-180');
+    function toggleArsipMenu() {
+        document.getElementById('arsipMenu')?.classList.toggle('max-h-0');
+        document.getElementById('arsipMenu')?.classList.toggle('max-h-96');
+        document.getElementById('arsipArrow')?.classList.toggle('rotate-180');
     }
 </script>

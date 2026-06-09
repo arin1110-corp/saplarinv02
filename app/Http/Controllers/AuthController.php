@@ -52,34 +52,45 @@ class AuthController extends Controller
 
         $roles = collect($roles)
             ->map(function ($role) {
-                return $role === 'Admin' ? 'Admin Full' : $role;
+
+            if ($role == 'Admin') {
+                return 'Admin Full';
+            }
+
+            return $role;
             })
             ->unique()
             ->values()
             ->toArray();
 
+        /*
+|--------------------------------------------------------------------------
+| PRIORITAS ROLE
+|--------------------------------------------------------------------------
+|
+| Admin Full
+| Admin Arsiparis
+| Admin BBM
+| Operator
+| Pegawai
+|
+*/
+
         if (in_array('Admin Full', $roles)) {
+
             $activeRole = 'Admin Full';
-        } elseif (in_array('Admin SPJ', $roles)) {
-            $activeRole = 'Admin SPJ';
-        } elseif (in_array('Admin KAK', $roles)) {
-            $activeRole = 'Admin KAK';
-        } elseif (in_array('Admin PWA', $roles)) {
-            $activeRole = 'Admin PWA';
+        } elseif (in_array('Admin Arsiparis', $roles)) {
+
+            $activeRole = 'Admin Arsiparis';
         } elseif (in_array('Admin BBM', $roles)) {
+
             $activeRole = 'Admin BBM';
-        } elseif (in_array('Pegawai', $roles)) {
-            $activeRole = 'Pegawai';
-        } elseif (in_array('Pegawai KAK', $roles)) {
-            $activeRole = 'Pegawai KAK';
-        } elseif (in_array('Pegawai SPJ', $roles)) {
-            $activeRole = 'Pegawai SPJ';
-        } elseif (in_array('Pegawai PWA', $roles)) {
-            $activeRole = 'Pegawai PWA';
-        } elseif (in_array('Pegawai BBM Rutin', $roles)) {
-            $activeRole = 'Pegawai BBM Rutin';
+        } elseif (in_array('Operator', $roles)) {
+
+            $activeRole = 'Operator';
         } else {
-            $activeRole = $roles[0];
+
+            $activeRole = 'Pegawai';
         }
 
         session([
@@ -90,14 +101,15 @@ class AuthController extends Controller
             'pegawai_jabatan_id' => $pegawai['jabatan_id'] ?? null,
             'pegawai_bidang_id' => $pegawai['bidang_id'] ?? null,
 
-            'pegawai_bidang' => $pegawai['bidang'] ?? '-',
-            'pegawai_jabatan' => $pegawai['jabatan'] ?? '-',
+            'pegawai_bidang' => $pegawai['bidang'] ?? null,
+            'pegawai_jabatan' => $pegawai['jabatan'] ?? null,
 
             'pegawai_email' => $pegawai['email'] ?? null,
             'pegawai_hp' => $pegawai['hp'] ?? null,
 
             'roles' => $roles,
             'active_role' => $activeRole,
+
             'logged_in' => true,
         ]);
 
@@ -129,11 +141,15 @@ class AuthController extends Controller
 
     private function redirectByRole($role)
     {
-        if ($role && str_starts_with($role, 'Admin')) {
-            return redirect('/admin/dashboard');
+        if (
+            $role == 'Admin Full' ||
+            $role == 'Admin Arsiparis' ||
+            $role == 'Admin BBM'
+        ) {
+            return redirect()->route('admin.dashboard');
         }
 
-        return redirect('/user/dashboard');
+        return redirect()->route('user.dashboard');
     }
 
     public function dashboardUser()

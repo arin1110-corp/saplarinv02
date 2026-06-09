@@ -51,12 +51,10 @@
                                 <div class="text-xs text-slate-500 mt-1">
                                     @if (str_starts_with($role, 'Admin'))
                                         Masuk ke tampilan admin.
-                                    @elseif ($role === 'Pegawai')
-                                        Masuk ke tampilan pegawai biasa.
-                                    @elseif (str_starts_with($role, 'Pegawai'))
-                                        Masuk ke tampilan {{ $role }}.
+                                    @elseif ($role === 'Operator')
+                                        Masuk ke tampilan operator user.
                                     @else
-                                        Hak akses modul tambahan.
+                                        Masuk ke tampilan pegawai.
                                     @endif
                                 </div>
                             </div>

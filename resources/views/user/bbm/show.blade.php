@@ -71,23 +71,7 @@
             </div>
 
             <div>
-                <p class="text-slate-500">Sub Kegiatan</p>
-                <p class="font-semibold text-slate-800">
-                    {{ $bbm->subKegiatan->sub_kegiatan_nama ?? '-' }}
-                </p>
-            </div>
-
-        </div>
-
-        <div class="mt-5">
-            <p class="text-slate-500 text-sm">Uraian Kegiatan</p>
-            <p class="mt-2 text-slate-800 leading-relaxed">
-                {{ $bbm->bbm_uraian_kegiatan }}
-            </p>
-        </div>
-
-        <div class="mt-5">
-            <p class="text-slate-500 text-sm">Surat SPT</p>
+                <p class="text-slate-500 text-sm">Surat SPT</p>
 
             @if ($bbm->bbm_spt_file)
                 <a href="{{ asset($bbm->bbm_spt_file) }}"
@@ -100,8 +84,16 @@
                     Belum ada file SPT.
                 </p>
             @endif
+            </div>
+
         </div>
 
+        <div class="mt-5">
+            <p class="text-slate-500 text-sm">Uraian Kegiatan</p>
+            <p class="mt-2 text-slate-800 leading-relaxed">
+                {{ $bbm->bbm_uraian_kegiatan }}
+            </p>
+        </div>
     </div>
 
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">

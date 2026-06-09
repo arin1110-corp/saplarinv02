@@ -6,31 +6,32 @@
 
 @section('content')
 
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<div class="space-y-6">
 
-    <div class="xl:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-lg p-6 text-white">
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
             <div>
-                <p class="text-sm text-slate-500">
-                    Selamat datang kembali,
+                <p class="text-blue-100 text-sm">
+                    Selamat datang,
                 </p>
 
-                <h2 class="text-2xl font-extrabold text-slate-900 mt-1">
+                <h2 class="text-2xl md:text-3xl font-extrabold mt-1">
                     {{ session('pegawai_nama') ?? 'User' }}
                 </h2>
 
-                <p class="text-slate-500 mt-2">
-                    Silakan lanjutkan pengelolaan dokumen sesuai role aktif Anda.
+                <p class="text-blue-100 text-sm mt-2">
+                    Sistem Administrasi Pelaporan Internal Dinas Kebudayaan Provinsi Bali
                 </p>
             </div>
 
-            <div class="rounded-2xl bg-blue-50 px-5 py-4">
-                <p class="text-xs text-blue-500 font-semibold uppercase">
+            <div class="bg-white/15 border border-white/20 rounded-2xl px-5 py-4">
+                <p class="text-xs text-blue-100">
                     Role Aktif
                 </p>
-                <p class="text-blue-800 font-bold mt-1">
+
+                <p class="font-bold text-lg">
                     {{ session('active_role') ?? '-' }}
                 </p>
             </div>
@@ -39,132 +40,71 @@
 
     </div>
 
-    <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-100">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
 
-        <p class="text-sm opacity-80">
-            Status Hari Ini
-        </p>
-
-        <h3 class="text-3xl font-extrabold mt-3">
-            Siap Bekerja
+        <h3 class="text-lg font-bold text-slate-900 mb-6">
+            Identitas Pegawai
         </h3>
 
-        <p class="text-sm opacity-80 mt-2">
-            Pastikan dokumen yang diinput sudah sesuai sebelum dikirim.
-        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
 
-    </div>
-
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
-
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-        <p class="text-sm text-slate-500">Total Dokumen</p>
-        <h3 class="text-3xl font-extrabold text-slate-900 mt-2">0</h3>
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-        <p class="text-sm text-slate-500">Draft</p>
-        <h3 class="text-3xl font-extrabold text-slate-900 mt-2">0</h3>
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-        <p class="text-sm text-slate-500">Menunggu</p>
-        <h3 class="text-3xl font-extrabold text-yellow-500 mt-2">0</h3>
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-        <p class="text-sm text-slate-500">Selesai</p>
-        <h3 class="text-3xl font-extrabold text-green-600 mt-2">0</h3>
-    </div>
-
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-
-    <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-
-        <div class="flex justify-between items-center mb-5">
-            <h3 class="text-lg font-bold text-slate-900">
-                Menu Cepat
-            </h3>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            @if (session('active_role') == 'Penginput SPJ' || session('active_role') == 'Pegawai')
-                <a href="{{ route('user.spj.index') }}"
-                    class="rounded-3xl border border-slate-200 p-5 hover:border-blue-400 hover:bg-blue-50 transition">
-                    <div class="text-3xl mb-3">📄</div>
-                    <h4 class="font-bold text-slate-900">Input SPJ</h4>
-                    <p class="text-sm text-slate-500 mt-1">
-                        Buat dan kelola dokumen SPJ.
-                    </p>
-                </a>
-            @endif
-
-            @if (session('active_role') == 'Penginput KAK')
-                <a href="{{ route('user.kak.index') }}"
-                    class="rounded-3xl border border-slate-200 p-5 hover:border-blue-400 hover:bg-blue-50 transition">
-                    <div class="text-3xl mb-3">📝</div>
-                    <h4 class="font-bold text-slate-900">Input KAK</h4>
-                    <p class="text-sm text-slate-500 mt-1">
-                        Buat dan kelola dokumen KAK.
-                    </p>
-                </a>
-            @endif
-
-            @if (session('active_role') == 'Penginput PWA')
-                <a href="{{ route('user.pwa.index') }}"
-                    class="rounded-3xl border border-slate-200 p-5 hover:border-blue-400 hover:bg-blue-50 transition">
-                    <div class="text-3xl mb-3">📊</div>
-                    <h4 class="font-bold text-slate-900">Input PWA</h4>
-                    <p class="text-sm text-slate-500 mt-1">
-                        Kelola laporan PWA.
-                    </p>
-                </a>
-            @endif
-
-            <a href="{{ route('user.riwayat') }}"
-                class="rounded-3xl border border-slate-200 p-5 hover:border-slate-400 hover:bg-slate-50 transition">
-                <div class="text-3xl mb-3">🕘</div>
-                <h4 class="font-bold text-slate-900">Riwayat</h4>
-                <p class="text-sm text-slate-500 mt-1">
-                    Lihat riwayat dokumen Anda.
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    Nama
                 </p>
-            </a>
 
-        </div>
-
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-
-        <h3 class="text-lg font-bold text-slate-900 mb-4">
-            Informasi User
-        </h3>
-
-        <div class="space-y-4 text-sm">
-
-            <div>
-                <p class="text-slate-500">Nama</p>
-                <p class="font-semibold text-slate-800">
+                <p class="font-semibold text-slate-900">
                     {{ session('pegawai_nama') ?? '-' }}
                 </p>
             </div>
 
-            <div>
-                <p class="text-slate-500">NIP</p>
-                <p class="font-semibold text-slate-800">
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    NIP
+                </p>
+
+                <p class="font-semibold text-slate-900">
                     {{ session('pegawai_nip') ?? '-' }}
                 </p>
             </div>
 
-            <div>
-                <p class="text-slate-500">Role</p>
-                <p class="font-semibold text-blue-700">
-                    {{ session('active_role') ?? '-' }}
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    Jabatan
+                </p>
+
+                <p class="font-semibold text-slate-900">
+                    {{ session('pegawai_jabatan') ?? '-' }}
+                </p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    Bidang
+                </p>
+
+                <p class="font-semibold text-slate-900">
+                    {{ session('pegawai_bidang') ?? '-' }}
+                </p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    Email
+                </p>
+
+                <p class="font-semibold text-slate-900">
+                    {{ session('pegawai_email') ?? '-' }}
+                </p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-slate-500 mb-1">
+                    No. HP
+                </p>
+
+                <p class="font-semibold text-slate-900">
+                    {{ session('pegawai_hp') ?? '-' }}
                 </p>
             </div>
 
