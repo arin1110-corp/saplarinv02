@@ -11,6 +11,8 @@ use App\Http\Controllers\AdminKinerjaController;
 use App\Http\Controllers\UserKinerjaController;
 use App\Http\Controllers\UserLaporanAktivitasController;
 use App\Http\Controllers\AdminLaporanAktivitasController;
+use App\Http\Controllers\AdminPrioritasController;
+use App\Http\Controllers\UserPrioritasController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -202,6 +204,25 @@ Route::middleware(['admin'])
 
     Route::post('/laporan-aktivitas/aktivitas/{uid}/aktif', [AdminLaporanAktivitasController::class, 'aktifAktivitas'])
         ->name('admin.laporan-aktivitas.aktivitas.aktif');
+    /*
+            |--------------------------------------------------------------------------
+            | Prioritas
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/prioritas', [AdminPrioritasController::class, 'index'])
+        ->name('admin.prioritas.index');
+
+    Route::post('/prioritas/store', [AdminPrioritasController::class, 'store'])
+        ->name('admin.prioritas.store');
+
+    Route::post('/prioritas/update', [AdminPrioritasController::class, 'update'])
+        ->name('admin.prioritas.update');
+
+    Route::post('/prioritas/bukti/{uid}/nonaktif', [AdminPrioritasController::class, 'nonaktifBukti'])
+        ->name('admin.prioritas.bukti.nonaktif');
+
+    Route::post('/prioritas/bukti/{uid}/aktif', [AdminPrioritasController::class, 'aktifBukti'])
+        ->name('admin.prioritas.bukti.aktif');
     });
 
 Route::prefix('user')
@@ -284,4 +305,15 @@ Route::prefix('user')
 
     Route::post('/laporan-aktivitas/{uid}/aktivitas/store', [UserLaporanAktivitasController::class, 'storeAktivitas'])
         ->name('laporan-aktivitas.aktivitas.store');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Prioritas
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/prioritas', [UserPrioritasController::class, 'index'])
+        ->name('prioritas.index');
+
+    Route::post('/prioritas/{uid}/bukti/store', [UserPrioritasController::class, 'storeBukti'])
+        ->name('prioritas.bukti.store');
     });

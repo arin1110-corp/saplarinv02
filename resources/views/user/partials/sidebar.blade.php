@@ -1,14 +1,10 @@
+```blade
 @php
     $activeRole = session('active_role', 'Pegawai');
 
     $isOperator = $activeRole === 'Operator';
 
     $canBBMKegiatan = in_array($activeRole, ['Pegawai', 'Operator']);
-    $canKAK = $isOperator;
-    $canSPJ = $isOperator;
-    $canBBMRutin = $isOperator;
-    $canLaporanAktivitas = $isOperator;
-    $canPWA = $isOperator;
 @endphp
 
 <aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
@@ -52,6 +48,7 @@
 
     <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-4">
 
+        {{-- DASHBOARD --}}
         <a href="{{ route('user.dashboard') }}"
             class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
             {{ request()->routeIs('user.dashboard')
@@ -61,6 +58,7 @@
             <span>Dashboard</span>
         </a>
 
+        {{-- BBM KEGIATAN --}}
         @if ($canBBMKegiatan)
             <a href="{{ route('user.bbm.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
@@ -72,68 +70,95 @@
             </a>
         @endif
 
-        @if ($canKAK)
-            <a href="#"
+        {{-- KINERJA PRIORITAS --}}
+        @if ($isOperator)
+            <a href="{{ route('user.prioritas.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.kak*')
+                {{ request()->routeIs('user.prioritas*')
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📝</span>
-                <span>Permintaan KAK</span>
+                <span>🎯</span>
+                <span>Kinerja Prioritas</span>
             </a>
         @endif
 
-        @if ($canSPJ)
-            <a href="#"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.spj*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📄</span>
-                <span>Permintaan SPJ</span>
-            </a>
-        @endif
-
-        @if ($canBBMRutin)
-            <a href="#"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.bbm-rutin*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>🛢️</span>
-                <span>Permintaan BBM Rutin</span>
-            </a>
-        @endif
-
-        @if ($canLaporanAktivitas)
+        {{-- LAPORAN AKTIVITAS --}}
+        @if ($isOperator)
             <a href="{{ route('user.laporan-aktivitas.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-        {{ request()->routeIs('user.laporan-aktivitas*')
-            ? 'bg-blue-50 text-blue-700'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                {{ request()->routeIs('user.laporan-aktivitas*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>📋</span>
                 <span>Laporan Aktivitas</span>
             </a>
         @endif
 
-        @if ($canPWA)
-            <a href="#"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-        {{ request()->routeIs('user.pwa*')
-            ? 'bg-blue-50 text-blue-700'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+        {{-- MENU DISABLE --}}
+
+        <a href="javascript:void(0)"
+            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
+
+            <div class="flex items-center gap-3">
+                <span>📝</span>
+                <span>Permintaan KAK</span>
+            </div>
+
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
+                Soon
+            </span>
+        </a>
+
+        <a href="javascript:void(0)"
+            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
+
+            <div class="flex items-center gap-3">
+                <span>📄</span>
+                <span>Permintaan SPJ</span>
+            </div>
+
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
+                Soon
+            </span>
+        </a>
+
+        <a href="javascript:void(0)"
+            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
+
+            <div class="flex items-center gap-3">
+                <span>🛢️</span>
+                <span>Permintaan BBM Rutin</span>
+            </div>
+
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
+                Soon
+            </span>
+        </a>
+
+        <a href="javascript:void(0)"
+            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
+
+            <div class="flex items-center gap-3">
                 <span>📊</span>
                 <span>PWA</span>
-            </a>
-        @endif
+            </div>
 
-        <a href="#"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-            {{ request()->routeIs('user.riwayat')
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <span>🕘</span>
-            <span>Riwayat</span>
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
+                Soon
+            </span>
+        </a>
+
+        <a href="javascript:void(0)"
+            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
+
+            <div class="flex items-center gap-3">
+                <span>🕘</span>
+                <span>Riwayat</span>
+            </div>
+
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
+                Soon
+            </span>
         </a>
 
     </nav>
@@ -148,3 +173,4 @@
     @include('user.partials.role-modal')
 
 </aside>
+```

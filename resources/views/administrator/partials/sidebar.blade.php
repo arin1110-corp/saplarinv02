@@ -60,9 +60,7 @@
         @if ($canUser)
             <a href="{{ route('admin.users') }}"
                 class="block px-4 py-2 rounded-lg transition duration-200
-                {{ request()->routeIs('admin.users')
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'hover:bg-slate-800 text-slate-300' }}">
+                {{ request()->routeIs('admin.users') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-300' }}">
                 Data User
             </a>
         @endif
@@ -82,8 +80,7 @@
                         {{ request()->routeIs('admin.drive*') ? 'rotate-180' : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -132,8 +129,7 @@
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -177,9 +173,7 @@
             <div>
                 <button onclick="toggleBBMMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
-                    {{ request()->routeIs('admin.bbm*')
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'hover:bg-slate-800 text-slate-300' }}">
+                    {{ request()->routeIs('admin.bbm*') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-300' }}">
 
                     <span>BBM</span>
 
@@ -188,8 +182,7 @@
                         {{ request()->routeIs('admin.bbm*') ? 'rotate-180' : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -230,8 +223,7 @@
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -249,6 +241,13 @@
                             ? 'bg-slate-700 text-white'
                             : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         Laporan Aktivitas
+                    </a>
+                    <a href="{{ route('admin.prioritas.index') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+    {{ request()->routeIs('admin.prioritas*')
+        ? 'bg-slate-700 text-white'
+        : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Kinerja Prioritas
                     </a>
 
                     <a href="{{ route('admin.permintaan.spj') }}"
