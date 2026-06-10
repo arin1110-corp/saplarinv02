@@ -7,6 +7,9 @@ use App\Models\ModelProgramPrioritasRencana;
 use App\Models\ModelProgramPrioritasCapaian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Exports\ProgramPrioritasExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class AdminProgramPrioritasController extends Controller
 {
@@ -108,5 +111,14 @@ class AdminProgramPrioritasController extends Controller
         ]);
 
         return back()->with('success', 'Capaian berhasil diaktifkan.');
+    }
+    public function export()
+    {
+        $waktu = Carbon::now()->format('Ymd_His');
+
+        return Excel::download(
+            new ProgramPrioritasExport,
+            'Laporan-Kinerja-Prioritas-' . $waktu . '.xlsx'
+        );
     }
 }

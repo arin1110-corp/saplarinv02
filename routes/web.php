@@ -251,6 +251,10 @@ Route::middleware(['admin'])
 
     Route::post('/program-prioritas/capaian/{uid}/aktif', [AdminProgramPrioritasController::class, 'aktifCapaian'])
         ->name('admin.program-prioritas.capaian.aktif');
+
+    // Export
+    Route::get('/program-prioritas/export', [AdminProgramPrioritasController::class, 'export'])
+        ->name('admin.program-prioritas.export');
     });
 
 Route::prefix('user')
