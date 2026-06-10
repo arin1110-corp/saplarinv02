@@ -30,7 +30,7 @@ class UserProgramPrioritasController extends Controller
             'rencana_target' => 'required|integer|min:1',
         ]);
 
-        $prioritas = ModelProgramPrioritas::where('prioritas_uid', $uid)->where('prioritas_status', 'Aktif')->firstOrFail();
+        $prioritas = ModelProgramPrioritas::where('prioritas_uid', $uid)->where('prioritas_status', 'Aktif')->orderBy('created_at', 'asc')->firstOrFail();
 
         ModelProgramPrioritasRencana::create([
             'rencana_uid' => Str::uuid(),

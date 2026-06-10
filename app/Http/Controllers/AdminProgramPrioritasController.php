@@ -16,7 +16,7 @@ class AdminProgramPrioritasController extends Controller
                 'rencana.capaian.files',
             ])
             ->orderBy('prioritas_tahun', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return view('administrator.program-prioritas.index', compact('prioritas'));
