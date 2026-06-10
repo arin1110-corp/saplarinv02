@@ -72,11 +72,11 @@
 
         {{-- KINERJA PRIORITAS --}}
         @if ($isOperator)
-            <a href="{{ route('user.prioritas.index') }}"
+            <a href="{{ route('user.program-prioritas.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
-                {{ request()->routeIs('user.prioritas*')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+        {{ request()->routeIs('user.program-prioritas*')
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>🎯</span>
                 <span>Kinerja Prioritas</span>
             </a>

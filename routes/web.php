@@ -13,6 +13,8 @@ use App\Http\Controllers\UserLaporanAktivitasController;
 use App\Http\Controllers\AdminLaporanAktivitasController;
 use App\Http\Controllers\AdminPrioritasController;
 use App\Http\Controllers\UserPrioritasController;
+use App\Http\Controllers\AdminProgramPrioritasController;
+use App\Http\Controllers\UserProgramPrioritasController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -223,6 +225,32 @@ Route::middleware(['admin'])
 
     Route::post('/prioritas/bukti/{uid}/aktif', [AdminPrioritasController::class, 'aktifBukti'])
         ->name('admin.prioritas.bukti.aktif');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Program Prioritas
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/program-prioritas', [AdminProgramPrioritasController::class, 'index'])
+        ->name('admin.program-prioritas.index');
+
+    Route::post('/program-prioritas/store', [AdminProgramPrioritasController::class, 'store'])
+        ->name('admin.program-prioritas.store');
+
+    Route::post('/program-prioritas/update', [AdminProgramPrioritasController::class, 'update'])
+        ->name('admin.program-prioritas.update');
+
+    Route::post('/program-prioritas/rencana/{uid}/nonaktif', [AdminProgramPrioritasController::class, 'nonaktifRencana'])
+        ->name('admin.program-prioritas.rencana.nonaktif');
+
+    Route::post('/program-prioritas/rencana/{uid}/aktif', [AdminProgramPrioritasController::class, 'aktifRencana'])
+        ->name('admin.program-prioritas.rencana.aktif');
+
+    Route::post('/program-prioritas/capaian/{uid}/nonaktif', [AdminProgramPrioritasController::class, 'nonaktifCapaian'])
+        ->name('admin.program-prioritas.capaian.nonaktif');
+
+    Route::post('/program-prioritas/capaian/{uid}/aktif', [AdminProgramPrioritasController::class, 'aktifCapaian'])
+        ->name('admin.program-prioritas.capaian.aktif');
     });
 
 Route::prefix('user')
@@ -316,4 +344,18 @@ Route::prefix('user')
 
     Route::post('/prioritas/{uid}/bukti/store', [UserPrioritasController::class, 'storeBukti'])
         ->name('prioritas.bukti.store');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Program Prioritas
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/program-prioritas', [UserProgramPrioritasController::class, 'index'])
+        ->name('program-prioritas.index');
+
+    Route::post('/program-prioritas/{uid}/rencana/store', [UserProgramPrioritasController::class, 'storeRencana'])
+        ->name('program-prioritas.rencana.store');
+
+    Route::post('/program-prioritas/rencana/{uid}/capaian/store', [UserProgramPrioritasController::class, 'storeCapaian'])
+        ->name('program-prioritas.capaian.store');
     });

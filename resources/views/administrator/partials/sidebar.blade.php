@@ -242,9 +242,9 @@
                             : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         Laporan Aktivitas
                     </a>
-                    <a href="{{ route('admin.prioritas.index') }}"
+                    <a href="{{ route('admin.program-prioritas.index') }}"
                         class="block px-4 py-2 rounded-lg text-sm transition
-    {{ request()->routeIs('admin.prioritas*')
+    {{ request()->routeIs('admin.program-prioritas*')
         ? 'bg-slate-700 text-white'
         : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         Kinerja Prioritas
