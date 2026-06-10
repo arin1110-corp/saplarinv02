@@ -18,6 +18,7 @@ class ModelProgramPrioritasCapaian extends Model
         'capaian_judul',
         'capaian_deskripsi',
         'capaian_tanggal_mulai',
+        'capaian_jumlah',
         'capaian_tanggal_selesai',
         'capaian_user_id',
         'capaian_user_nama',

@@ -53,6 +53,7 @@ class UserProgramPrioritasController extends Controller
         $request->validate([
             'capaian_judul' => 'required|string|max:255',
             'capaian_deskripsi' => 'required|string',
+            'capaian_jumlah' => 'required|integer|min:1',
             'capaian_tanggal_mulai' => 'required|date',
             'capaian_tanggal_selesai' => 'required|date|after_or_equal:capaian_tanggal_mulai',
             'capaian_file' => 'required|array|max:5',
@@ -74,6 +75,7 @@ class UserProgramPrioritasController extends Controller
             'capaian_bidang_id' => session('pegawai_bidang_id'),
             'capaian_bidang_nama' => session('pegawai_bidang'),
             'capaian_status' => 'Aktif',
+            'capaian_jumlah' => $request->capaian_jumlah,
         ]);
 
         foreach ($request->file('capaian_file') as $file) {
