@@ -42,11 +42,13 @@
 
     @forelse ($prioritas as $item)
         @php
-            $totalTargetPrioritas = $item->rencana->sum(function ($r) {
+            $rencanaAktif = $item->rencana->where('rencana_status', 'Aktif');
+
+            $totalTargetPrioritas = $rencanaAktif->sum(function ($r) {
                 return (int) $r->rencana_target;
             });
 
-            $totalCapaianAktif = $item->rencana->sum(function ($r) {
+            $totalCapaianAktif = $rencanaAktif->sum(function ($r) {
                 return $r->capaian
                     ->where('capaian_status', 'Aktif')
                     ->sum('capaian_jumlah');
@@ -112,13 +114,15 @@
 
             <div class="space-y-5">
 
-                @forelse ($item->rencana as $rencana)
+                @forelse ($rencanaAktif as $rencana)
                     @php
+                        $capaianAktifCollection = $rencana->capaian
+                            ->where('capaian_status', 'Aktif')
+                            ->sortByDesc('capaian_tanggal_selesai');
+
                         $targetRencana = (int) $rencana->rencana_target;
 
-                        $capaianAktifRencana = $rencana->capaian
-                            ->where('capaian_status', 'Aktif')
-                            ->sum('capaian_jumlah');
+                        $capaianAktifRencana = $capaianAktifCollection->sum('capaian_jumlah');
 
                         $persenRencana = $targetRencana > 0
                             ? ($capaianAktifRencana / $targetRencana) * 100
@@ -139,15 +143,9 @@
                                         {{ $rencana->rencana_judul }}
                                     </h4>
 
-                                    @if ($rencana->rencana_status === 'Aktif')
-                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-                                            Aktif
-                                        </span>
-                                    @else
-                                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
-                                            Nonaktif
-                                        </span>
-                                    @endif
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                        Aktif
+                                    </span>
 
                                     <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
                                         {{ number_format($persenRencana, 2, ',', '.') }}%
@@ -165,13 +163,11 @@
                                 </div>
                             </div>
 
-                            @if ($rencana->rencana_status === 'Aktif')
-                                <button type="button"
-                                    onclick='openCapaianModal(@json($rencana))'
-                                    class="px-4 py-2 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
-                                    + Input Capaian
-                                </button>
-                            @endif
+                            <button type="button"
+                                onclick='openCapaianModal(@json($rencana))'
+                                class="px-4 py-2 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+                                + Input Capaian
+                            </button>
 
                         </div>
 
@@ -186,12 +182,11 @@
                                         <th class="py-3 px-3">Deskripsi</th>
                                         <th class="py-3 px-3">Rentang Tanggal</th>
                                         <th class="py-3 px-3">Bukti</th>
-                                        <th class="py-3 px-3">Status</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    @forelse ($rencana->capaian->sortByDesc('capaian_tanggal_selesai') as $capaian)
+                                    @forelse ($capaianAktifCollection as $capaian)
                                         @php
                                             $jumlahCapaianBaris = (int) ($capaian->capaian_jumlah ?? 1);
 
@@ -220,15 +215,9 @@
                                             </td>
 
                                             <td class="py-4 px-3">
-                                                @if ($capaian->capaian_status === 'Aktif')
-                                                    <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs">
-                                                        {{ number_format($persenCapaianBaris, 2, ',', '.') }}%
-                                                    </span>
-                                                @else
-                                                    <span class="text-slate-400 text-xs">
-                                                        0%
-                                                    </span>
-                                                @endif
+                                                <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs">
+                                                    {{ number_format($persenCapaianBaris, 2, ',', '.') }}%
+                                                </span>
                                             </td>
 
                                             <td class="py-4 px-3">
@@ -256,23 +245,11 @@
                                                     @endif
                                                 </div>
                                             </td>
-
-                                            <td class="py-4 px-3">
-                                                @if ($capaian->capaian_status === 'Aktif')
-                                                    <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs">
-                                                        Aktif
-                                                    </span>
-                                                @else
-                                                    <span class="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs">
-                                                        Nonaktif
-                                                    </span>
-                                                @endif
-                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="py-8 text-center text-slate-500">
-                                                Belum ada capaian.
+                                            <td colspan="7" class="py-8 text-center text-slate-500">
+                                                Belum ada capaian aktif.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -283,7 +260,7 @@
                     </div>
                 @empty
                     <div class="border border-dashed border-slate-300 rounded-3xl p-8 text-center text-slate-500">
-                        Belum ada rencana aksi.
+                        Belum ada rencana aksi aktif.
                     </div>
                 @endforelse
 

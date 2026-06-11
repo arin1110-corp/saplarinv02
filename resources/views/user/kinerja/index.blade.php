@@ -36,7 +36,7 @@
             </h2>
 
             <p class="text-sm text-slate-500 mt-1">
-                Menampilkan data kinerja untuk bidang:
+                Menampilkan data kinerja aktif untuk bidang:
                 <span class="font-semibold text-slate-800">
                     {{ session('pegawai_bidang') ?? '-' }}
                 </span>
@@ -59,35 +59,42 @@
                     </thead>
 
                     <tbody>
-                        @forelse ($kinerjas as $item)
+                        @forelse ($kinerjas->where('kinerja_status', 'Aktif') as $item)
                             @php
-                                $tw1 = $item->progress
+                                $progressAktif = $item->progress->where('progress_status', 'Diterima');
+
+                                $tw1 = $progressAktif
                                     ->where('progress_triwulan', 'TW I')
-                                    ->where('progress_status', 'Diterima')
-                                    ->sum('progress_persentase');
-                                $tw2 = $item->progress
-                                    ->where('progress_triwulan', 'TW II')
-                                    ->where('progress_status', 'Diterima')
-                                    ->sum('progress_persentase');
-                                $tw3 = $item->progress
-                                    ->where('progress_triwulan', 'TW III')
-                                    ->where('progress_status', 'Diterima')
-                                    ->sum('progress_persentase');
-                                $tw4 = $item->progress
-                                    ->where('progress_triwulan', 'TW IV')
-                                    ->where('progress_status', 'Diterima')
                                     ->sum('progress_persentase');
 
-                                $totalProgress = $item->progress
+                                $tw2 = $progressAktif
+                                    ->where('progress_triwulan', 'TW II')
+                                    ->sum('progress_persentase');
+
+                                $tw3 = $progressAktif
+                                    ->where('progress_triwulan', 'TW III')
+                                    ->sum('progress_persentase');
+
+                                $tw4 = $progressAktif
+                                    ->where('progress_triwulan', 'TW IV')
+                                    ->sum('progress_persentase');
+
+                                $progressTerbaruAktif = $item->progress
                                     ->where('progress_status', 'Diterima')
-                                    ->sum('progress_persentase');
-                                $totalMenunggu = $item->progress
-                                    ->where('progress_status', 'Menunggu Verifikasi')
-                                    ->sum('progress_persentase');
+                                    ->sortByDesc('progress_tanggal_selesai')
+                                    ->first();
+
+                                $totalProgress = $progressAktif->sum('progress_persentase');
+
+                                if ($totalProgress > 100) {
+                                    $totalProgress = 100;
+                                }
                             @endphp
 
                             <tr class="border-b hover:bg-slate-50">
-                                <td class="py-4 px-3">{{ $loop->iteration }}</td>
+                                <td class="py-4 px-3">
+                                    {{ $loop->iteration }}
+                                </td>
 
                                 <td class="py-4 px-3">
                                     {{ $item->kinerja_tahun }}
@@ -101,47 +108,72 @@
                                     <div class="text-xs text-slate-500 mt-1">
                                         {{ $item->kinerja_deskripsi ?: '-' }}
                                     </div>
+
+                                    <div class="mt-2">
+                                        <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs">
+                                            Aktif
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <td class="py-4 px-3">
                                     <div class="text-xs space-y-1">
-                                        <div>TW I: {{ $tw1 !== null ? number_format($tw1, 2, ',', '.') . '%' : '-' }}</div>
-                                        <div>TW II: {{ $tw2 !== null ? number_format($tw2, 2, ',', '.') . '%' : '-' }}</div>
-                                        <div>TW III: {{ $tw3 !== null ? number_format($tw3, 2, ',', '.') . '%' : '-' }}
+                                        <div>
+                                            TW I:
+                                            {{ number_format($tw1, 2, ',', '.') }}%
                                         </div>
-                                        <div>TW IV: {{ $tw4 !== null ? number_format($tw4, 2, ',', '.') . '%' : '-' }}
+
+                                        <div>
+                                            TW II:
+                                            {{ number_format($tw2, 2, ',', '.') }}%
+                                        </div>
+
+                                        <div>
+                                            TW III:
+                                            {{ number_format($tw3, 2, ',', '.') }}%
+                                        </div>
+
+                                        <div>
+                                            TW IV:
+                                            {{ number_format($tw4, 2, ',', '.') }}%
+                                        </div>
+
+                                        <div class="pt-1 mt-1 border-t border-slate-200 font-semibold text-slate-700">
+                                            Total:
+                                            {{ number_format($totalProgress, 2, ',', '.') }}%
                                         </div>
                                     </div>
                                 </td>
 
                                 <td class="py-4 px-3">
-                                    @if ($item->progressTerbaru)
+                                    @if ($progressTerbaruAktif)
                                         <div class="font-semibold text-slate-800">
-                                            {{ number_format($item->progressTerbaru->progress_persentase, 2, ',', '.') }}%
+                                            {{ number_format($progressTerbaruAktif->progress_persentase, 2, ',', '.') }}%
                                         </div>
 
                                         <div class="text-xs text-slate-500">
-                                            {{ $item->progressTerbaru->progress_triwulan }}
+                                            {{ $progressTerbaruAktif->progress_triwulan }}
                                         </div>
 
                                         <div class="text-xs text-slate-400 mt-1">
-                                            {{ $item->progressTerbaru->progress_tanggal_mulai?->format('d/m/Y') }}
+                                            {{ $progressTerbaruAktif->progress_tanggal_mulai?->format('d/m/Y') }}
                                             -
-                                            {{ $item->progressTerbaru->progress_tanggal_selesai?->format('d/m/Y') }}
+                                            {{ $progressTerbaruAktif->progress_tanggal_selesai?->format('d/m/Y') }}
                                         </div>
 
                                         <div class="text-xs text-slate-400 mt-1">
-                                            Oleh: {{ $item->progressTerbaru->progress_user_nama ?? '-' }}
+                                            Oleh: {{ $progressTerbaruAktif->progress_user_nama ?? '-' }}
                                         </div>
                                     @else
                                         <span class="text-slate-400">
-                                            Belum ada
+                                            Belum ada progress diterima
                                         </span>
                                     @endif
                                 </td>
 
                                 <td class="py-4 px-3 text-right">
-                                    <button type="button" onclick='openProgressModal(@json($item))'
+                                    <button type="button"
+                                        onclick='openProgressModal(@json($item))'
                                         class="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
                                         Isi Progress
                                     </button>
@@ -150,7 +182,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="py-8 text-center text-slate-500">
-                                    Belum ada data kinerja untuk bidang Anda.
+                                    Belum ada data kinerja aktif untuk bidang Anda.
                                 </td>
                             </tr>
                         @endforelse
@@ -230,7 +262,8 @@
                         Keterangan
                     </label>
 
-                    <textarea name="progress_keterangan" rows="3" class="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    <textarea name="progress_keterangan" rows="3"
+                        class="w-full rounded-2xl border border-slate-200 px-4 py-3"
                         placeholder="Tuliskan keterangan progress bila diperlukan"></textarea>
                 </div>
 
