@@ -101,6 +101,7 @@
                         <tr>
                             <th>No</th>
                             <th>Program</th>
+                            <th>Kode Rekening Kegiatan</th>
                             <th>Nama Kegiatan</th>
                             <th>Status</th>
                             <th width="120">
@@ -119,7 +120,13 @@
                                 </td>
 
                                 <td>
+                                    {{ $kegiatan->program_kode }}
+                                -
                                     {{ $kegiatan->program_nama }}
+                                </td>
+
+                                <td>
+                                    {{ $kegiatan->kegiatan_kode}}
                                 </td>
 
                                 <td>
@@ -186,7 +193,7 @@
 
                         @foreach ($programs as $program)
                             <option value="{{ $program->program_id }}">
-                                {{ $program->program_nama }}
+                                {{ $program->program_kode }} - {{ $program->program_nama }}
                             </option>
                         @endforeach
 
@@ -202,6 +209,17 @@
                     </label>
 
                     <input type="text" name="kegiatan_nama" class="w-full rounded-xl px-4 py-3" required>
+
+                </div>
+
+                <!-- KODE REKENING -->
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening
+                    </label>
+
+                    <input type="text" name="kegiatan_kode" class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -281,7 +299,7 @@
 
                         @foreach ($programs as $program)
                             <option value="{{ $program->program_id }}">
-                                {{ $program->program_nama }}
+                                {{ $program->program_kode }} - {{ $program->program_nama }}
                             </option>
                         @endforeach
 
@@ -296,6 +314,17 @@
                     </label>
 
                     <input type="text" id="edit_kegiatan_nama" name="kegiatan_nama"
+                        class="w-full rounded-xl px-4 py-3" required>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening
+                    </label>
+
+                    <input type="text" id="edit_kegiatan_kode_rekening" name="kegiatan_kode"
                         class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
@@ -361,6 +390,9 @@
 
             $('#edit_kegiatan_nama')
                 .val(kegiatan.kegiatan_nama);
+
+            $('#edit_kegiatan_kode_rekening')
+                .val(kegiatan.kegiatan_kode);
 
             $('#edit_kegiatan_status')
                 .val(kegiatan.kegiatan_status);

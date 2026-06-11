@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>Admin Saplarin - Kelola Program</title>
     <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
@@ -100,6 +100,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>Kode Rekening Program</th>
                             <th>Nama Program</th>
                             <th>Status</th>
                             <th width="120">
@@ -115,6 +116,10 @@
 
                                 <td>
                                     {{ $loop->iteration }}
+                                </td>
+
+                                <td>
+                                    {{ $program->program_kode }}
                                 </td>
 
                                 <td>
@@ -165,6 +170,13 @@
             <form method="POST" action="{{ route('admin.program.store') }}">
 
                 @csrf
+
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening Program
+                    </label>
+                    <input type="text" name="program_kode" class="w-full rounded-xl px-4 py-3" required>
+                </div>
 
                 <div class="mb-4">
                     <label class="block mb-2 text-sm">
@@ -241,6 +253,14 @@
 
                 <div class="mb-4">
                     <label class="block mb-2 text-sm">
+                        Kode Rekening Program
+                    </label>
+                    <input type="text" id="edit_program_kode" name="program_kode" class="w-full rounded-xl px-4 py-3"
+                        required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">
                         Nama Program
                     </label>
 
@@ -314,6 +334,9 @@
             $('#edit_program_uid')
                 .val(program.program_uid);
 
+            $('#edit_program_kode')
+                .val(program.program_kode);
+                
             $('#edit_program_nama')
                 .val(program.program_nama);
 

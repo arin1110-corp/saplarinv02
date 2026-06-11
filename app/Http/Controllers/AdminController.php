@@ -176,12 +176,14 @@ class AdminController extends Controller
     public function storeProgram(Request $request)
     {
         $request->validate([
+            'program_kode' => 'required|string|max:255|unique:saplarin_program,program_kode',
             'program_nama' => 'required|string|max:255',
             'program_status' => 'required',
         ]);
 
         ModelProgram::create([
             'program_uid' => Str::uuid(),
+            'program_kode' => $request->program_kode,
             'program_nama' => $request->program_nama,
             'program_status' => $request->program_status,
         ]);
@@ -192,11 +194,13 @@ class AdminController extends Controller
     {
         $request->validate([
             'program_id' => 'required',
+            'program_kode' => 'required|string|max:255|unique:saplarin_program,program_kode',
             'program_nama' => 'required|string|max:255',
             'program_status' => 'required',
         ]);
 
         ModelProgram::where('program_id', $request->program_id)->update([
+            'program_kode' => $request->program_kode,
             'program_nama' => $request->program_nama,
             'program_status' => $request->program_status,
         ]);
@@ -209,7 +213,7 @@ class AdminController extends Controller
     {
         // role user login (popup switch role)
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
-        $kegiatans = ModelKegiatan::join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_kegiatan.*', 'saplarin_program.program_nama')->get();
+        $kegiatans = ModelKegiatan::join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_kegiatan.*', 'saplarin_program.program_nama', 'saplarin_program.program_kode')->get();
 
         // dropdown program
         $programs = ModelProgram::where('program_status', 1)->get();
@@ -220,6 +224,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'kegiatan_program' => 'required',
+            'kegiatan_kode' => 'required|string|max:255|unique:saplarin_kegiatan,kegiatan_kode',
             'kegiatan_nama' => 'required|string|max:255',
             'kegiatan_status' => 'required',
         ]);
@@ -227,6 +232,7 @@ class AdminController extends Controller
         ModelKegiatan::create([
             'kegiatan_uid' => Str::uuid(),
             'kegiatan_program' => $request->kegiatan_program,
+            'kegiatan_kode' => $request->kegiatan_kode,
             'kegiatan_nama' => $request->kegiatan_nama,
             'kegiatan_status' => $request->kegiatan_status,
         ]);
@@ -237,12 +243,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'kegiatan_id' => 'required',
+            'kegiatan_kode' => 'required|string|max:255|unique:saplarin_kegiatan,kegiatan_kode',
             'kegiatan_program' => 'required',
             'kegiatan_nama' => 'required|string|max:255',
             'kegiatan_status' => 'required',
         ]);
 
         ModelKegiatan::where('kegiatan_id', $request->kegiatan_id)->update([
+            'kegiatan_kode' => $request->kegiatan_kode,
             'kegiatan_program' => $request->kegiatan_program,
             'kegiatan_nama' => $request->kegiatan_nama,
             'kegiatan_status' => $request->kegiatan_status,
@@ -255,7 +263,7 @@ class AdminController extends Controller
     {
         // role user login (popup switch role)
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
-        $subkegiatans = ModelSubKegiatan::join('saplarin_kegiatan', 'saplarin_sub_kegiatan.sub_kegiatan_kegiatan', '=', 'saplarin_kegiatan.kegiatan_id')->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_sub_kegiatan.*', 'saplarin_kegiatan.kegiatan_nama', 'saplarin_program.program_nama')->get();
+        $subkegiatans = ModelSubKegiatan::join('saplarin_kegiatan', 'saplarin_sub_kegiatan.sub_kegiatan_kegiatan', '=', 'saplarin_kegiatan.kegiatan_id')->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_sub_kegiatan.*', 'saplarin_kegiatan.kegiatan_nama', 'saplarin_program.program_nama', 'saplarin_program.program_kode', 'saplarin_kegiatan.kegiatan_kode')->get();
 
         // dropdown kegiatan
         $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->get();
@@ -265,6 +273,7 @@ class AdminController extends Controller
     public function storeSubKegiatan(Request $request)
     {
         $request->validate([
+            'sub_kegiatan_kode' => 'required|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode',
             'sub_kegiatan_kegiatan' => 'required',
             'sub_kegiatan_nama' => 'required|string|max:255',
             'sub_kegiatan_status' => 'required',
@@ -272,6 +281,7 @@ class AdminController extends Controller
 
         ModelSubKegiatan::create([
             'sub_kegiatan_uid' => Str::uuid(),
+            'sub_kegiatan_kode' => $request->sub_kegiatan_kode,
             'sub_kegiatan_kegiatan' => $request->sub_kegiatan_kegiatan,
             'sub_kegiatan_nama' => $request->sub_kegiatan_nama,
             'sub_kegiatan_status' => $request->sub_kegiatan_status,
@@ -283,12 +293,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'sub_kegiatan_id' => 'required',
+            'sub_kegiatan_kode' => 'required|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode',
             'sub_kegiatan_kegiatan' => 'required',
             'sub_kegiatan_nama' => 'required|string|max:255',
             'sub_kegiatan_status' => 'required',
         ]);
 
         ModelSubKegiatan::where('sub_kegiatan_id', $request->sub_kegiatan_id)->update([
+            'sub_kegiatan_kode' => $request->sub_kegiatan_kode,
             'sub_kegiatan_kegiatan' => $request->sub_kegiatan_kegiatan,
             'sub_kegiatan_nama' => $request->sub_kegiatan_nama,
             'sub_kegiatan_status' => $request->sub_kegiatan_status,

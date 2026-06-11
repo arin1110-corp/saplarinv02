@@ -12,6 +12,7 @@ class ModelSubKegiatan extends Model
     protected $primaryKey = 'sub_kegiatan_id';
     protected $fillable = [
         'sub_kegiatan_uid',
+        'sub_kegiatan_kode',
         'sub_kegiatan_kegiatan',
         'sub_kegiatan_nama',
         'sub_kegiatan_status',

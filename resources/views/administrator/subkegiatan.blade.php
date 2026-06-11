@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>Admin Saplarin - Kelola Sub Kegiatan</title>
     <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
@@ -103,6 +103,7 @@
                             <th>No</th>
                             <th>Program</th>
                             <th>Kegiatan</th>
+                            <th>Kode Rekening Sub Kegiatan</th>
                             <th>Nama Sub Kegiatan</th>
                             <th>Status</th>
                             <th width="120">
@@ -121,10 +122,14 @@
                                 </td>
 
                                 <td>
-                                    {{ $subkegiatan->program_nama }}
+                                    {{ $subkegiatan->program_kode }} - {{ $subkegiatan->program_nama }}
                                 </td>
                                 <td>
-                                    {{ $subkegiatan->kegiatan_nama }}
+                                    {{ $subkegiatan->kegiatan_kode }} -{{ $subkegiatan->kegiatan_nama }}
+                                </td>
+
+                                <td>
+                                    {{ $subkegiatan->sub_kegiatan_kode }}
                                 </td>
 
                                 <td>
@@ -191,11 +196,22 @@
 
                         @foreach ($kegiatans as $kegiatan)
                             <option value="{{ $kegiatan->kegiatan_id }}">
-                                {{ $kegiatan->kegiatan_nama }}
+                                {{ $kegiatan->kegiatan_kode }} - {{ $kegiatan->kegiatan_nama }}
                             </option>
                         @endforeach
 
                     </select>
+
+                </div>
+
+                <!-- KODE REKENING -->
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening Sub Kegiatan
+                    </label>
+
+                    <input type="text" name="sub_kegiatan_kode" class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -281,16 +297,27 @@
                         Kegiatan
                     </label>
 
-                    <select id="edit_sub_kegiatan_program" name="sub_kegiatan_kegiatan" class="w-full rounded-xl px-4 py-3"
-                        required>
+                    <select id="edit_sub_kegiatan_program" name="sub_kegiatan_kegiatan"
+                        class="w-full rounded-xl px-4 py-3" required>
 
                         @foreach ($kegiatans as $kegiatan)
                             <option value="{{ $kegiatan->kegiatan_id }}">
-                                {{ $kegiatan->kegiatan_nama }}
+                                {{ $kegiatan->kegiatan_kode }} - {{ $kegiatan->kegiatan_nama }}
                             </option>
                         @endforeach
 
                     </select>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening Sub Kegiatan
+                    </label>
+
+                    <input type="text" id="edit_sub_kegiatan_kode" name="sub_kegiatan_kode"
+                        class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -366,6 +393,9 @@
 
             $('#edit_sub_kegiatan_nama')
                 .val(kegiatan.sub_kegiatan_nama);
+
+            $('#edit_sub_kegiatan_kode')
+                .val(kegiatan.sub_kegiatan_kode);
 
             $('#edit_sub_kegiatan_status')
                 .val(kegiatan.sub_kegiatan_status);

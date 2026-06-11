@@ -13,6 +13,7 @@ class ModelProgram extends Model
     protected $primaryKey = 'program_id';
     protected $fillable = [
         'program_uid',
+        'program_kode',
         'program_nama',
         'program_status',
     ];

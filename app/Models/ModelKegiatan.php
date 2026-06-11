@@ -12,6 +12,7 @@ class ModelKegiatan extends Model
     protected $primaryKey = 'kegiatan_id';
     protected $fillable = [
         'kegiatan_uid',
+        'kegiatan_kode',
         'kegiatan_program',
         'kegiatan_nama',
         'kegiatan_status',
