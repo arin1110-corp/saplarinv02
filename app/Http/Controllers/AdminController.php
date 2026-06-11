@@ -274,6 +274,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'sub_kegiatan_kode' => 'required|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode',
+            'sub_kegiatan_kode_rekening' => 'nullable|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode_rekening',
             'sub_kegiatan_kegiatan' => 'required',
             'sub_kegiatan_nama' => 'required|string|max:255',
             'sub_kegiatan_status' => 'required',
@@ -282,6 +283,7 @@ class AdminController extends Controller
         ModelSubKegiatan::create([
             'sub_kegiatan_uid' => Str::uuid(),
             'sub_kegiatan_kode' => $request->sub_kegiatan_kode,
+            'sub_kegiatan_kode_rekening' => $request->sub_kegiatan_kode_rekening,
             'sub_kegiatan_kegiatan' => $request->sub_kegiatan_kegiatan,
             'sub_kegiatan_nama' => $request->sub_kegiatan_nama,
             'sub_kegiatan_status' => $request->sub_kegiatan_status,
@@ -294,6 +296,7 @@ class AdminController extends Controller
         $request->validate([
             'sub_kegiatan_id' => 'required',
             'sub_kegiatan_kode' => 'required|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode',
+            'sub_kegiatan_kode_rekening' => 'nullable|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode_rekening',
             'sub_kegiatan_kegiatan' => 'required',
             'sub_kegiatan_nama' => 'required|string|max:255',
             'sub_kegiatan_status' => 'required',
@@ -301,6 +304,7 @@ class AdminController extends Controller
 
         ModelSubKegiatan::where('sub_kegiatan_id', $request->sub_kegiatan_id)->update([
             'sub_kegiatan_kode' => $request->sub_kegiatan_kode,
+            'sub_kegiatan_kode_rekening' => $request->sub_kegiatan_kode_rekening,
             'sub_kegiatan_kegiatan' => $request->sub_kegiatan_kegiatan,
             'sub_kegiatan_nama' => $request->sub_kegiatan_nama,
             'sub_kegiatan_status' => $request->sub_kegiatan_status,

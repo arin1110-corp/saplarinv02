@@ -103,6 +103,7 @@
                             <th>No</th>
                             <th>Program</th>
                             <th>Kegiatan</th>
+                            <th>Kode Sub Kegiatan</th>
                             <th>Kode Rekening Sub Kegiatan</th>
                             <th>Nama Sub Kegiatan</th>
                             <th>Status</th>
@@ -130,6 +131,10 @@
 
                                 <td>
                                     {{ $subkegiatan->sub_kegiatan_kode }}
+                                </td>
+
+                                <td>
+                                    {{ $subkegiatan->sub_kegiatan_kode_rekening }}
                                 </td>
 
                                 <td>
@@ -204,6 +209,17 @@
 
                 </div>
 
+                <!-- KODE SUB KEGIATAN -->
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Sub Kegiatan
+                    </label>
+
+                    <input type="text" name="sub_kegiatan_kode" class="w-full rounded-xl px-4 py-3" required>
+
+                </div>
+
                 <!-- KODE REKENING -->
                 <div class="mb-4">
 
@@ -211,7 +227,7 @@
                         Kode Rekening Sub Kegiatan
                     </label>
 
-                    <input type="text" name="sub_kegiatan_kode" class="w-full rounded-xl px-4 py-3" required>
+                    <input type="text" name="sub_kegiatan_kode_rekening" class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
 
@@ -313,10 +329,21 @@
                 <div class="mb-4">
 
                     <label class="block mb-2 text-sm">
-                        Kode Rekening Sub Kegiatan
+                        Kode Sub Kegiatan
                     </label>
 
                     <input type="text" id="edit_sub_kegiatan_kode" name="sub_kegiatan_kode"
+                        class="w-full rounded-xl px-4 py-3" required>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="block mb-2 text-sm">
+                        Kode Rekening Sub Kegiatan
+                    </label>
+
+                    <input type="text" id="edit_sub_kegiatan_kode" name="sub_kegiatan_kode_rekening"
                         class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
@@ -396,6 +423,9 @@
 
             $('#edit_sub_kegiatan_kode')
                 .val(kegiatan.sub_kegiatan_kode);
+
+            $('#edit_sub_kegiatan_kode_rekening')
+                .val(kegiatan.sub_kegiatan_kode_rekening);
 
             $('#edit_sub_kegiatan_status')
                 .val(kegiatan.sub_kegiatan_status);

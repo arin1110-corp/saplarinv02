@@ -101,7 +101,7 @@
                         <tr>
                             <th>No</th>
                             <th>Program</th>
-                            <th>Kode Rekening Kegiatan</th>
+                            <th>Kode Kegiatan</th>
                             <th>Nama Kegiatan</th>
                             <th>Status</th>
                             <th width="120">
@@ -216,7 +216,7 @@
                 <div class="mb-4">
 
                     <label class="block mb-2 text-sm">
-                        Kode Rekening
+                        Kode Kegiatan
                     </label>
 
                     <input type="text" name="kegiatan_kode" class="w-full rounded-xl px-4 py-3" required>
@@ -321,7 +321,7 @@
                 <div class="mb-4">
 
                     <label class="block mb-2 text-sm">
-                        Kode Rekening
+                        Kode Kegiatan
                     </label>
 
                     <input type="text" id="edit_kegiatan_kode_rekening" name="kegiatan_kode"

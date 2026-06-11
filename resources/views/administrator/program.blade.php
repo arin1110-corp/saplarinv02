@@ -100,7 +100,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Kode Rekening Program</th>
+                            <th>Kode Program</th>
                             <th>Nama Program</th>
                             <th>Status</th>
                             <th width="120">
@@ -173,7 +173,7 @@
 
                 <div class="mb-4">
                     <label class="block mb-2 text-sm">
-                        Kode Rekening Program
+                        Kode Program
                     </label>
                     <input type="text" name="program_kode" class="w-full rounded-xl px-4 py-3" required>
                 </div>
@@ -253,7 +253,7 @@
 
                 <div class="mb-4">
                     <label class="block mb-2 text-sm">
-                        Kode Rekening Program
+                        Kode Program
                     </label>
                     <input type="text" id="edit_program_kode" name="program_kode" class="w-full rounded-xl px-4 py-3"
                         required>
@@ -336,7 +336,7 @@
 
             $('#edit_program_kode')
                 .val(program.program_kode);
-                
+
             $('#edit_program_nama')
                 .val(program.program_nama);
 
