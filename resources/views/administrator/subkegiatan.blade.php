@@ -343,7 +343,7 @@
                         Kode Rekening Sub Kegiatan
                     </label>
 
-                    <input type="text" id="edit_sub_kegiatan_kode" name="sub_kegiatan_kode_rekening"
+                    <input type="text" id="edit_sub_kegiatan_kode_rekening" name="sub_kegiatan_kode_rekening"
                         class="w-full rounded-xl px-4 py-3" required>
 
                 </div>
