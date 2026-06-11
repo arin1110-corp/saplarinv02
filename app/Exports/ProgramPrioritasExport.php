@@ -30,98 +30,55 @@ class ProgramPrioritasExport implements FromArray, WithEvents, WithTitle
             ->get();
 
         foreach ($data as $prioritas) {
-            $totalTarget = $prioritas->rencana->sum(function ($r) {
-                return (int) $r->rencana_target;
-            });
-
-            $totalCapaian = $prioritas->rencana->sum(function ($r) {
-                return $r->capaian
-                    ->where('capaian_status', 'Aktif')
-                    ->sum('capaian_jumlah');
-            });
-
-            $persenPrioritas = $totalTarget > 0 ? ($totalCapaian / $totalTarget) * 100 : 0;
-            $persenPrioritas = min($persenPrioritas, 100);
-
-            $rows[] = [
-                'PROGRAM PRIORITAS',
-                'Tahun',
-                $prioritas->prioritas_tahun,
-                'Nama',
-                $prioritas->prioritas_judul,
-                'Status',
-                $prioritas->prioritas_status,
-            ];
-
-            $rows[] = [
-                '',
-                'Deskripsi',
-                $prioritas->prioritas_deskripsi ?: '-',
-                '',
-                '',
-                '',
-                '',
-            ];
-
-            $rows[] = [
-                '',
-                'Total Target',
-                $totalTarget,
-                'Total Capaian',
-                $totalCapaian,
-                'Persentase',
-                number_format($persenPrioritas, 2, ',', '.') . '%',
-            ];
-
+            $rows[] = ['Tahun', $prioritas->prioritas_tahun];
+            $rows[] = ['Program Prioritas', $prioritas->prioritas_judul];
+            $rows[] = ['Deskripsi', $prioritas->prioritas_deskripsi ?: '-'];
+            $rows[] = ['Status', $prioritas->prioritas_status];
             $rows[] = [];
 
-            $rows[] = [
-                'No',
-                'Rencana Aksi',
-                'Target',
-                'Capaian Aktif',
-                'Persentase Rencana',
-                'Operator Rencana',
-                'Bidang Rencana',
-            ];
+            foreach ($prioritas->rencana as $indexRencana => $rencana) {
+                $target = (int) $rencana->rencana_target;
 
-            $noRencana = 1;
-
-            foreach ($prioritas->rencana as $rencana) {
-                $targetRencana = (int) $rencana->rencana_target;
-
-                $capaianAktifRencana = $rencana->capaian
+                $totalCapaian = $rencana->capaian
                     ->where('capaian_status', 'Aktif')
                     ->sum('capaian_jumlah');
 
-                $persenRencana = $targetRencana > 0 ? ($capaianAktifRencana / $targetRencana) * 100 : 0;
+                $persenRencana = $target > 0 ? ($totalCapaian / $target) * 100 : 0;
                 $persenRencana = min($persenRencana, 100);
 
                 $rows[] = [
-                    $noRencana++,
+                    'Rencana Aksi ' . ($indexRencana + 1),
                     $rencana->rencana_judul,
-                    $targetRencana,
-                    $capaianAktifRencana,
+                    'Target',
+                    $target,
+                    'Capaian',
+                    $totalCapaian,
+                    'Persentase',
                     number_format($persenRencana, 2, ',', '.') . '%',
-                    $rencana->rencana_user_nama ?? '-',
-                    $rencana->rencana_bidang_nama ?? '-',
+                    '',
+                    '',
+                    '',
                 ];
 
                 $rows[] = [
                     '',
-                    'Detail Capaian',
+                    'No',
+                    'Judul Capaian',
                     'Jumlah',
                     'Persentase',
                     'Tanggal',
                     'Operator',
                     'Bidang',
+                    'Status',
+                    'File Bukti',
+                    'Deskripsi',
                 ];
 
                 if ($rencana->capaian->count() > 0) {
-                    foreach ($rencana->capaian as $capaian) {
+                    foreach ($rencana->capaian as $indexCapaian => $capaian) {
                         $jumlah = (int) ($capaian->capaian_jumlah ?? 1);
 
-                        $persenCapaian = $targetRencana > 0 ? ($jumlah / $targetRencana) * 100 : 0;
+                        $persenCapaian = $target > 0 ? ($jumlah / $target) * 100 : 0;
                         $persenCapaian = min($persenCapaian, 100);
 
                         $tanggalMulai = $capaian->capaian_tanggal_mulai
@@ -134,28 +91,26 @@ class ProgramPrioritasExport implements FromArray, WithEvents, WithTitle
 
                         $rows[] = [
                             '',
+                            $indexCapaian + 1,
                             $capaian->capaian_judul,
                             $jumlah,
                             number_format($persenCapaian, 2, ',', '.') . '%',
                             $tanggalMulai . ' - ' . $tanggalSelesai,
                             $capaian->capaian_user_nama ?? '-',
                             $capaian->capaian_bidang_nama ?? '-',
-                        ];
-
-                        $rows[] = [
-                            '',
-                            'Deskripsi',
-                            $capaian->capaian_deskripsi,
-                            'Status',
                             $capaian->capaian_status,
-                            'File Bukti',
                             $capaian->files->count(),
+                            $capaian->capaian_deskripsi,
                         ];
                     }
                 } else {
                     $rows[] = [
                         '',
+                        '-',
                         'Belum ada capaian',
+                        '',
+                        '',
+                        '',
                         '',
                         '',
                         '',
@@ -184,47 +139,77 @@ class ProgramPrioritasExport implements FromArray, WithEvents, WithTitle
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-
                 $highestRow = $sheet->getHighestRow();
 
-                $sheet->mergeCells('A1:G1');
-                $sheet->mergeCells('A2:G2');
-                $sheet->mergeCells('A3:G3');
+                $sheet->mergeCells('A1:K1');
+                $sheet->mergeCells('A2:K2');
+                $sheet->mergeCells('A3:K3');
 
-                $sheet->getStyle('A1:G3')->getFont()->setBold(true);
+                $sheet->getStyle('A1:K3')->getFont()->setBold(true);
                 $sheet->getStyle('A1')->getFont()->setSize(16);
-                $sheet->getStyle('A1:G3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A1:K3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                foreach (range('A', 'G') as $col) {
-                    $sheet->getColumnDimension($col)->setAutoSize(true);
-                }
+                // Lebar kolom dibuat tetap supaya teks panjang tidak bikin Excel melebar.
+                $sheet->getColumnDimension('A')->setWidth(20);
+                $sheet->getColumnDimension('B')->setWidth(100);
+                $sheet->getColumnDimension('C')->setWidth(38);
+                $sheet->getColumnDimension('D')->setWidth(12);
+                $sheet->getColumnDimension('E')->setWidth(15);
+                $sheet->getColumnDimension('F')->setWidth(24);
+                $sheet->getColumnDimension('G')->setWidth(24);
+                $sheet->getColumnDimension('H')->setWidth(24);
+                $sheet->getColumnDimension('I')->setWidth(15);
+                $sheet->getColumnDimension('J')->setWidth(12);
+                $sheet->getColumnDimension('K')->setWidth(55);
 
                 for ($row = 1; $row <= $highestRow; $row++) {
                     $valueA = $sheet->getCell('A' . $row)->getValue();
                     $valueB = $sheet->getCell('B' . $row)->getValue();
 
-                    if ($valueA === 'PROGRAM PRIORITAS') {
-                        $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
+                    if (in_array($valueA, ['Tahun', 'Program Prioritas', 'Deskripsi', 'Status'])) {
+                        $sheet->getStyle("A{$row}:K{$row}")->applyFromArray([
                             'font' => [
                                 'bold' => true,
-                                'color' => ['rgb' => 'FFFFFF'],
                             ],
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => '1D4ED8'],
+                                'startColor' => [
+                                    'rgb' => 'E0F2FE',
+                                ],
                             ],
                         ]);
                     }
 
-                    if ($valueA === 'No') {
-                        $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
+                    if (str_starts_with((string) $valueA, 'Rencana Aksi')) {
+                        $sheet->getStyle("A{$row}:K{$row}")->applyFromArray([
                             'font' => [
                                 'bold' => true,
-                                'color' => ['rgb' => 'FFFFFF'],
+                                'color' => [
+                                    'rgb' => 'FFFFFF',
+                                ],
                             ],
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => '15803D'],
+                                'startColor' => [
+                                    'rgb' => '15803D',
+                                ],
+                            ],
+                        ]);
+                    }
+
+                    if ($valueB === 'No') {
+                        $sheet->getStyle("A{$row}:K{$row}")->applyFromArray([
+                            'font' => [
+                                'bold' => true,
+                                'color' => [
+                                    'rgb' => 'FFFFFF',
+                                ],
+                            ],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'rgb' => '7C3AED',
+                                ],
                             ],
                             'alignment' => [
                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -232,48 +217,46 @@ class ProgramPrioritasExport implements FromArray, WithEvents, WithTitle
                         ]);
                     }
 
-                    if ($valueB === 'Detail Capaian') {
-                        $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
-                            'font' => [
-                                'bold' => true,
-                                'color' => ['rgb' => 'FFFFFF'],
-                            ],
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => '7C3AED'],
-                            ],
-                        ]);
-                    }
-
-                    if ($valueB === 'Deskripsi') {
-                        $sheet->getStyle("A{$row}:G{$row}")->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'F8FAFC'],
-                            ],
-                        ]);
-                    }
+                    $sheet->getRowDimension($row)->setRowHeight(-1);
                 }
 
-                $sheet->getStyle("A1:G{$highestRow}")->applyFromArray([
+                $sheet->getStyle("A1:K{$highestRow}")->applyFromArray([
                     'alignment' => [
                         'vertical' => Alignment::VERTICAL_TOP,
                         'wrapText' => true,
                     ],
                 ]);
 
-                $sheet->getStyle("A5:G{$highestRow}")->applyFromArray([
+                $sheet->getStyle("A5:K{$highestRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['rgb' => 'CBD5E1'],
+                            'color' => [
+                                'rgb' => 'CBD5E1',
+                            ],
                         ],
                     ],
                 ]);
 
-                $sheet->getStyle("A1:G{$highestRow}")
+                $sheet->getStyle("A1:K{$highestRow}")
+                    ->getAlignment()
+                    ->setWrapText(true);
+
+                $sheet->getStyle("A1:K{$highestRow}")
                     ->getAlignment()
                     ->setVertical(Alignment::VERTICAL_TOP);
+
+                $sheet->getStyle("B6:B{$highestRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle("D6:E{$highestRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle("I6:J{$highestRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->freezePane('A5');
             },
