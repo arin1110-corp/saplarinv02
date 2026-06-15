@@ -15,6 +15,8 @@ use App\Http\Controllers\AdminPrioritasController;
 use App\Http\Controllers\UserPrioritasController;
 use App\Http\Controllers\AdminProgramPrioritasController;
 use App\Http\Controllers\UserProgramPrioritasController;
+use App\Http\Controllers\AdminSPJController;
+use App\Http\Controllers\UserSPJController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -255,6 +257,20 @@ Route::middleware(['admin'])
     // Export
     Route::get('/program-prioritas/export', [AdminProgramPrioritasController::class, 'export'])
         ->name('admin.program-prioritas.export');
+
+    /*
+            |--------------------------------------------------------------------------
+            | SPJ
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/spj', [AdminSPJController::class, 'index'])
+        ->name('admin.spj.index');
+
+    Route::post('/spj/store', [AdminSPJController::class, 'store'])
+        ->name('admin.spj.store');
+
+    Route::post('/spj/{uid}/status', [AdminSPJController::class, 'toggleStatus'])
+        ->name('admin.spj.status');
     });
 
 Route::prefix('user')
@@ -362,4 +378,15 @@ Route::prefix('user')
 
     Route::post('/program-prioritas/rencana/{uid}/capaian/store', [UserProgramPrioritasController::class, 'storeCapaian'])
         ->name('program-prioritas.capaian.store');
+
+    /*
+            |--------------------------------------------------------------------------
+            | SPJ
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/spj', [UserSPJController::class, 'index'])
+        ->name('spj.index');
+
+    Route::post('/spj/{uid}/store', [UserSPJController::class, 'store'])
+        ->name('spj.store');
     });
