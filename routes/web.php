@@ -271,6 +271,8 @@ Route::middleware(['admin'])
 
     Route::post('/spj/{uid}/status', [AdminSPJController::class, 'toggleStatus'])
         ->name('admin.spj.status');
+    Route::post('/spj/update', [AdminSPJController::class, 'update'])
+        ->name('admin.spj.update');
     });
 
 Route::prefix('user')

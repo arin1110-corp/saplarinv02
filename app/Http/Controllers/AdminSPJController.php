@@ -97,4 +97,68 @@ class AdminSPJController extends Controller
 
         return back()->with('success', 'Status pagu SPJ berhasil diperbarui.');
     }
+    public function update(Request $request)
+    {
+        $request->validate([
+            'spj_pagu_id' => 'required|exists:saplarin_spj_pagu,spj_pagu_id',
+
+            'spj_pagu_program_id' => 'required',
+            'spj_pagu_kegiatan_id' => 'required',
+            'spj_pagu_sub_kegiatan_id' => 'required',
+            'spj_pagu_tahun' => 'required|digits:4',
+            'spj_pagu_status' => 'required|in:0,1',
+
+            'pagu_jenis' => 'required|array|min:1',
+            'pagu_jenis.*' => 'required|string|max:255',
+
+            'pagu_nominal' => 'required|array|min:1',
+            'pagu_nominal.*' => 'required|numeric|min:0',
+
+            'pagu_tanggal' => 'nullable|array',
+            'pagu_tanggal.*' => 'nullable|date',
+
+            'pagu_keterangan' => 'nullable|array',
+            'pagu_keterangan.*' => 'nullable|string',
+        ]);
+
+        $pagu = ModelSPJPagu::findOrFail($request->spj_pagu_id);
+
+        $paguJenis = $request->input('pagu_jenis', []);
+        $paguNominal = $request->input('pagu_nominal', []);
+        $paguTanggal = $request->input('pagu_tanggal', []);
+        $paguKeterangan = $request->input('pagu_keterangan', []);
+
+        $paguNominalBersih = [];
+
+        foreach ($paguNominal as $index => $nominal) {
+            $nominalBersih = str_replace(['.', ','], ['', '.'], $nominal);
+            $paguNominalBersih[$index] = (float) $nominalBersih;
+        }
+
+        $lastNominal = end($paguNominalBersih);
+
+        $pagu->update([
+            'spj_pagu_program_id' => $request->spj_pagu_program_id,
+            'spj_pagu_kegiatan_id' => $request->spj_pagu_kegiatan_id,
+            'spj_pagu_sub_kegiatan_id' => $request->spj_pagu_sub_kegiatan_id,
+            'spj_pagu_tahun' => $request->spj_pagu_tahun,
+            'spj_pagu_final' => $lastNominal ?: 0,
+            'spj_pagu_status' => $request->spj_pagu_status,
+        ]);
+
+        ModelSPJPaguDetail::where('spj_pagu_detail_pagu_id', $pagu->spj_pagu_id)->delete();
+
+        foreach ($paguNominalBersih as $index => $nominal) {
+            ModelSPJPaguDetail::create([
+                'spj_pagu_detail_pagu_id' => $pagu->spj_pagu_id,
+                'spj_pagu_detail_jenis' => $paguJenis[$index] ?? 'Pagu',
+                'spj_pagu_detail_urutan' => $index + 1,
+                'spj_pagu_detail_nominal' => $nominal,
+                'spj_pagu_detail_tanggal' => $paguTanggal[$index] ?? null,
+                'spj_pagu_detail_keterangan' => $paguKeterangan[$index] ?? null,
+            ]);
+        }
+
+        return back()->with('success', 'Data pagu SPJ berhasil diperbarui.');
+    }
 }
