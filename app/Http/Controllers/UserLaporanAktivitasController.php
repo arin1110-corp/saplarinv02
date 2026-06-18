@@ -6,7 +6,7 @@ use App\Models\ModelLaporanKegiatan;
 use App\Models\ModelLaporanAktivitas;
 use App\Models\ModelLaporanAktivitasBukti;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Models\ModelProgram;
 use App\Models\ModelKegiatan;
@@ -23,13 +23,24 @@ class UserLaporanAktivitasController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $programs = ModelProgram::where('program_status', 1)->orderBy('program_nama', 'asc')->get();
+        $programs = ModelProgram::where('program_status', 1)
+            ->orderBy('program_nama', 'asc')
+            ->get();
 
-        $masterKegiatans = ModelKegiatan::where('kegiatan_status', 1)->orderBy('kegiatan_nama', 'asc')->get();
+        $masterKegiatans = ModelKegiatan::where('kegiatan_status', 1)
+            ->orderBy('kegiatan_nama', 'asc')
+            ->get();
 
-        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)->orderBy('sub_kegiatan_nama', 'asc')->get();
+        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)
+            ->orderBy('sub_kegiatan_nama', 'asc')
+            ->get();
 
-        return view('user.laporan-aktivitas.index', compact('kegiatans', 'programs', 'masterKegiatans', 'subKegiatans'));
+        return view('user.laporan-aktivitas.index', compact(
+            'kegiatans',
+            'programs',
+            'masterKegiatans',
+            'subKegiatans'
+        ));
     }
 
     public function storeKegiatan(Request $request)
@@ -40,7 +51,12 @@ class UserLaporanAktivitasController extends Controller
             'laporan_kegiatan_deskripsi' => 'nullable|string',
         ]);
 
-        $subKegiatan = ModelSubKegiatan::where('sub_kegiatan_id', $request->laporan_kegiatan_sub_kegiatan_id)->where('sub_kegiatan_status', 1)->firstOrFail();
+        $subKegiatan = ModelSubKegiatan::where(
+            'sub_kegiatan_id',
+            $request->laporan_kegiatan_sub_kegiatan_id
+        )
+            ->where('sub_kegiatan_status', 1)
+            ->firstOrFail();
 
         ModelLaporanKegiatan::create([
             'laporan_kegiatan_uid' => Str::uuid(),
@@ -76,12 +92,17 @@ class UserLaporanAktivitasController extends Controller
             'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
         ]);
 
-        $kegiatan = ModelLaporanKegiatan::where('laporan_kegiatan_uid', $uid)->where('laporan_kegiatan_status', 'Aktif')->where('laporan_kegiatan_bidang_id', session('pegawai_bidang_id'))->firstOrFail();
+        $kegiatan = ModelLaporanKegiatan::where('laporan_kegiatan_uid', $uid)
+            ->where('laporan_kegiatan_status', 'Aktif')
+            ->where('laporan_kegiatan_bidang_id', session('pegawai_bidang_id'))
+            ->firstOrFail();
 
         $triwulan = $this->getTriwulan($request->aktivitas_tanggal_selesai);
 
+        $aktivitasUid = (string) Str::uuid();
+
         $aktivitas = ModelLaporanAktivitas::create([
-            'aktivitas_uid' => Str::uuid(),
+            'aktivitas_uid' => $aktivitasUid,
             'aktivitas_kegiatan_id' => $kegiatan->laporan_kegiatan_id,
 
             'aktivitas_nama' => $request->aktivitas_nama,
@@ -102,11 +123,14 @@ class UserLaporanAktivitasController extends Controller
         ]);
 
         foreach ($request->file('bukti_file') as $file) {
-            $path = $this->uploadBukti($file, $aktivitas->aktivitas_uid);
+            $uploaded = $this->uploadBuktiToArinDrive(
+                $file,
+                $aktivitas->aktivitas_uid
+            );
 
             ModelLaporanAktivitasBukti::create([
                 'bukti_aktivitas_id' => $aktivitas->aktivitas_id,
-                'bukti_file' => $path,
+                'bukti_file' => $uploaded['url'],
                 'bukti_nama_file' => $file->getClientOriginalName(),
             ]);
         }
@@ -133,20 +157,46 @@ class UserLaporanAktivitasController extends Controller
         return 'TW IV';
     }
 
-    private function uploadBukti($file, $uid)
+    private function uploadBuktiToArinDrive($file, $aktivitasUid)
     {
-        $folder = public_path('assets/laporan-aktivitas');
+        $filename = $aktivitasUid
+            . '-bukti-'
+            . date('Ymd')
+            . '-'
+            . time()
+            . '-'
+            . rand(100, 999)
+            . '.'
+            . $file->getClientOriginalExtension();
 
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach(
+                'file',
+                fopen($file->getRealPath(), 'r'),
+                $filename
+            )
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => 'laporan-aktivitas/bukti',
+                'reference_id' => $aktivitasUid,
+                'jenis' => 'bukti-aktivitas',
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload bukti ke ArinDrive: ' . $response->body());
         }
 
-        $extension = $file->getClientOriginalExtension();
+        $result = $response->json();
 
-        $filename = $uid . '-bukti-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $extension;
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
 
-        $file->move($folder, $filename);
-
-        return 'assets/laporan-aktivitas/' . $filename;
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 }

@@ -6,7 +6,7 @@ use App\Models\ModelPrioritas;
 use App\Models\ModelPrioritasBukti;
 use App\Models\ModelPrioritasBuktiFile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserPrioritasController extends Controller
@@ -35,8 +35,10 @@ class UserPrioritasController extends Controller
             ->where('prioritas_status', 'Aktif')
             ->firstOrFail();
 
+        $buktiUid = (string) Str::uuid();
+
         $bukti = ModelPrioritasBukti::create([
-            'bukti_uid' => Str::uuid(),
+            'bukti_uid' => $buktiUid,
             'bukti_prioritas_id' => $prioritas->prioritas_id,
 
             'bukti_op_id' => session('pegawai_id'),
@@ -56,11 +58,16 @@ class UserPrioritasController extends Controller
         ]);
 
         foreach ($request->file('bukti_file') as $file) {
-            $path = $this->uploadFile($file, $bukti->bukti_uid);
+            $uploaded = $this->uploadFileToArinDrive(
+                $file,
+                $bukti->bukti_uid,
+                'bukti-prioritas',
+                'prioritas/bukti'
+            );
 
             ModelPrioritasBuktiFile::create([
                 'file_bukti_id' => $bukti->bukti_id,
-                'file_path' => $path,
+                'file_path' => $uploaded['url'],
                 'file_nama_asli' => $file->getClientOriginalName(),
             ]);
         }
@@ -68,20 +75,34 @@ class UserPrioritasController extends Controller
         return back()->with('success', 'Bukti dukung prioritas berhasil ditambahkan.');
     }
 
-    private function uploadFile($file, $uid)
+    private function uploadFileToArinDrive($file, $uid, $jenis, $folder)
     {
-        $folder = public_path('assets/prioritas');
+        $filename = $uid . '-' . $jenis . '-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
 
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach('file', fopen($file->getRealPath(), 'r'), $filename)
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => $folder,
+                'reference_id' => $uid,
+                'jenis' => $jenis,
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
         }
 
-        $extension = $file->getClientOriginalExtension();
+        $result = $response->json();
 
-        $filename = $uid . '-bukti-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $extension;
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
 
-        $file->move($folder, $filename);
-
-        return 'assets/prioritas/' . $filename;
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 }

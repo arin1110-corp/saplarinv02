@@ -6,9 +6,7 @@ use App\Models\ModelBBM;
 use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use App\Models\ModelDriveFolder;
-use App\Services\GoogleDriveServiceDB;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class AdminBBMController extends Controller
 {
@@ -27,18 +25,32 @@ class AdminBBMController extends Controller
 
         $bbm = ModelBBM::where('bbm_uid', $uid)->firstOrFail();
 
-        $accFile = $this->uploadFileToPublic($request->file('bbm_acc_pimpinan_file'), $bbm->bbm_uid, 'acc-pimpinan');
+        $accFile = $this->uploadFileToArinDrive(
+            $request->file('bbm_acc_pimpinan_file'),
+            $bbm->bbm_uid,
+            'acc-pimpinan'
+        );
 
         $bbm->update([
-            'bbm_acc_pimpinan_file' => $accFile,
-            'bbm_acc_pimpinan_sync' => false,
+            'bbm_acc_pimpinan_file' => $accFile['url'],
+            'bbm_acc_pimpinan_sync' => true,
             'bbm_status_pengajuan' => 'Pengajuan Diterima',
             'bbm_catatan_admin' => null,
         ]);
 
-        $emailService->kirimKePengaju($bbm, 'Pengajuan BBM Diterima', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Pengajuan BBM Anda telah diterima.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . "Status     : Pengajuan Diterima\n\n" . "Silakan upload laporan nota setelah pencairan atau setelah nota tersedia.\n\n" . 'SAPLARIN');
+        $emailService->kirimKePengaju(
+            $bbm,
+            'Pengajuan BBM Diterima',
+            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
+                "Pengajuan BBM Anda telah diterima.\n\n" .
+                "No Plat    : {$bbm->bbm_no_plat}\n" .
+                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
+                "Status     : Pengajuan Diterima\n\n" .
+                "Silakan upload laporan nota setelah pencairan atau setelah nota tersedia.\n\n" .
+                "SAPLARIN"
+        );
 
-        return back()->with('success', 'Pengajuan BBM diterima dan dokumen ACC pimpinan berhasil diupload.');
+        return back()->with('success', 'Pengajuan BBM diterima dan dokumen ACC pimpinan berhasil diupload ke ArinDrive.');
     }
 
     public function tolakPengajuan(Request $request, $uid, BBMEmailService $emailService)
@@ -50,7 +62,16 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => $request->catatan,
         ]);
 
-        $emailService->kirimKePengaju($bbm, 'Pengajuan BBM Ditolak', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Pengajuan BBM Anda ditolak.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . 'Catatan    : ' . ($request->catatan ?? '-') . "\n\n" . 'SAPLARIN');
+        $emailService->kirimKePengaju(
+            $bbm,
+            'Pengajuan BBM Ditolak',
+            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
+                "Pengajuan BBM Anda ditolak.\n\n" .
+                "No Plat    : {$bbm->bbm_no_plat}\n" .
+                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
+                "Catatan    : " . ($request->catatan ?? '-') . "\n\n" .
+                "SAPLARIN"
+        );
 
         return back()->with('success', 'Pengajuan BBM ditolak.');
     }
@@ -68,7 +89,26 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => null,
         ]);
 
-        $emailService->kirimKePengaju($bbm, 'Laporan Nota BBM Diterima', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Laporan nota BBM Anda telah diterima.\n\n" . "No Plat      : {$bbm->bbm_no_plat}\n" . "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" . 'Tanggal Nota : ' . ($bbm->bbm_tanggal_nota ? $bbm->bbm_tanggal_nota->format('d/m/Y') : '-') . "\n" . "Status Nota  : Laporan Nota Diterima\n\n" . "Proses pengajuan BBM telah selesai.\n\n" . 'SAPLARIN');
+        $tanggalNota = '-';
+
+        if ($bbm->bbm_tanggal_nota) {
+            $tanggalNota = is_string($bbm->bbm_tanggal_nota)
+                ? date('d/m/Y', strtotime($bbm->bbm_tanggal_nota))
+                : $bbm->bbm_tanggal_nota->format('d/m/Y');
+        }
+
+        $emailService->kirimKePengaju(
+            $bbm,
+            'Laporan Nota BBM Diterima',
+            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
+                "Laporan nota BBM Anda telah diterima.\n\n" .
+                "No Plat      : {$bbm->bbm_no_plat}\n" .
+                "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" .
+                "Tanggal Nota : {$tanggalNota}\n" .
+                "Status Nota  : Laporan Nota Diterima\n\n" .
+                "Proses pengajuan BBM telah selesai.\n\n" .
+                "SAPLARIN"
+        );
 
         return back()->with('success', 'Laporan nota diterima.');
     }
@@ -82,7 +122,17 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => $request->catatan,
         ]);
 
-        $emailService->kirimKePengaju($bbm, 'Laporan Nota BBM Ditolak', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Laporan nota BBM Anda ditolak.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . 'Catatan    : ' . ($request->catatan ?? '-') . "\n\n" . "Silakan perbaiki dan upload kembali laporan nota.\n\n" . 'SAPLARIN');
+        $emailService->kirimKePengaju(
+            $bbm,
+            'Laporan Nota BBM Ditolak',
+            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
+                "Laporan nota BBM Anda ditolak.\n\n" .
+                "No Plat    : {$bbm->bbm_no_plat}\n" .
+                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
+                "Catatan    : " . ($request->catatan ?? '-') . "\n\n" .
+                "Silakan perbaiki dan upload kembali laporan nota.\n\n" .
+                "SAPLARIN"
+        );
 
         return back()->with('success', 'Laporan nota ditolak.');
     }
@@ -123,34 +173,66 @@ class AdminBBMController extends Controller
             ]);
         }
 
-        return back()->with('success', 'File berhasil disinkronkan ke Google Drive dan file lokal dihapus.');
+        return back()->with('success', 'File berhasil disinkronkan.');
     }
 
-    private function uploadFileToPublic($file, $uid, $jenis)
+    public function sinkronPengajuan($uid)
     {
-        $folder = public_path('assets/notabbm');
+        $bbm = ModelBBM::where('bbm_uid', $uid)->firstOrFail();
 
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        if ($bbm->bbm_status_pengajuan !== 'Pengajuan Diterima') {
+            return back()->with('error', 'Sinkron hanya bisa dilakukan setelah pengajuan diterima.');
         }
 
-        $tanggal = date('Ymd');
-        $extension = $file->getClientOriginalExtension();
+        return back()->with('success', 'File BBM sekarang otomatis tersimpan di ArinDrive. Sinkron manual lama tidak diperlukan.');
+    }
 
-        $filename = $uid . '-' . $jenis . '-' . $tanggal . '-' . time() . '.' . $extension;
+    private function uploadFileToArinDrive($file, $uid, $jenis, $tanggalNota = null)
+    {
+        $tanggal = $tanggalNota
+            ? date('Ymd', strtotime($tanggalNota))
+            : date('Ymd');
 
-        $file->move($folder, $filename);
+        $filename = $uid . '-' . $jenis . '-' . $tanggal . '.' . $file->getClientOriginalExtension();
 
-        return 'assets/notabbm/' . $filename;
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach(
+                'file',
+                fopen($file->getRealPath(), 'r'),
+                $filename
+            )
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => 'bbm/' . $jenis,
+                'reference_id' => $uid,
+                'jenis' => $jenis,
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
+        }
+
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
+
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 
     private function hapusFileLokal($path)
-{
+    {
         if (!$path) {
             return;
         }
 
-        if (str_starts_with($path, 'http')) {
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return;
         }
 
@@ -159,85 +241,8 @@ class AdminBBMController extends Controller
 
         $fullPath = public_path($relativePath);
 
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
+        if (File::exists($fullPath)) {
+            File::delete($fullPath);
         }
-    }
-    public function sinkronPengajuan($uid, GoogleDriveServiceDB $googleDrive)
-    {
-        $bbm = ModelBBM::where('bbm_uid', $uid)->firstOrFail();
-
-        if ($bbm->bbm_status_pengajuan !== 'Pengajuan Diterima') {
-            return back()->with('error', 'Sinkron hanya bisa dilakukan setelah pengajuan diterima.');
-        }
-
-        $folder = ModelDriveFolder::with('json')->where('folder_prefix', 'bbm')->where('folder_status', 1)->first();
-
-        if (!$folder) {
-            return back()->with('error', 'Folder Drive BBM belum diatur.');
-        }
-
-        if (!$folder->json) {
-            return back()->with('error', 'JSON Credential Drive belum diatur.');
-        }
-
-        $jsonPath = storage_path('app/' . $folder->json->json_file);
-
-        if (!file_exists($jsonPath)) {
-            return back()->with('error', 'File JSON Credential tidak ditemukan: ' . $jsonPath);
-        }
-
-        $googleDrive->setCredential($jsonPath);
-
-        $hasil = [];
-
-        $hasil[] = $this->sinkronFileByUid($googleDrive, $folder->folder_drive_id, $bbm, 'spt', 'bbm_spt_file', 'bbm_spt_sync', 'SPT');
-
-        $hasil[] = $this->sinkronFileByUid($googleDrive, $folder->folder_drive_id, $bbm, 'acc-pimpinan', 'bbm_acc_pimpinan_file', 'bbm_acc_pimpinan_sync', 'ACC Pimpinan');
-
-        if ($bbm->bbm_laporan_nota_file) {
-            $hasil[] = $this->sinkronFileByUid($googleDrive, $folder->folder_drive_id, $bbm, 'nota', 'bbm_laporan_nota_file', 'bbm_laporan_nota_sync', 'Nota');
-        }
-
-        return back()->with('success', implode(' | ', $hasil));
-    }
-    private function sinkronFileByUid(GoogleDriveServiceDB $googleDrive, $folderId, ModelBBM $bbm, $jenis, $fieldFile, $fieldSync, $label)
-    {
-        if (!$bbm->{$fieldFile}) {
-            return "{$label}: file belum ada";
-        }
-
-        if ($bbm->{$fieldSync}) {
-            return "{$label}: sudah sinkron";
-        }
-
-        if (str_starts_with($bbm->{$fieldFile}, 'http')) {
-            $bbm->update([
-                $fieldSync => 1,
-            ]);
-
-            return "{$label}: sudah berupa URL Drive";
-        }
-
-        $keyword = $bbm->bbm_uid . '-' . $jenis;
-
-        $result = $googleDrive->findFileByKeyword($keyword, $folderId);
-
-        if (($result['status'] ?? 0) != 1) {
-            return "{$label}: belum ditemukan. Keyword: {$keyword}. Pesan: " . ($result['message'] ?? '-');
-        }
-
-        $oldFile = $bbm->{$fieldFile};
-
-        DB::transaction(function () use ($bbm, $fieldFile, $fieldSync, $result, $oldFile) {
-            $bbm->update([
-                $fieldFile => $result['file_url'],
-                $fieldSync => 1,
-            ]);
-
-            $this->hapusFileLokal($oldFile);
-        });
-
-        return "{$label}: berhasil sinkron dan file hosting dihapus";
     }
 }

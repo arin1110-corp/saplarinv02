@@ -6,7 +6,7 @@ use App\Models\ModelKinerja;
 use App\Models\ModelKinerjaProgress;
 use App\Models\ModelKinerjaProgressBukti;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserKinerjaController extends Controller
@@ -75,13 +75,19 @@ class UserKinerjaController extends Controller
         $totalAkanMasuk = $totalDiterima + $totalMenunggu + $request->progress_persentase;
 
         if ($totalAkanMasuk > 100) {
-            return back()->with('error', 'Total progress tidak boleh melebihi 100%. Total saat ini termasuk menunggu verifikasi: ' . number_format($totalDiterima + $totalMenunggu, 2, ',', '.') . '%.');
+            return back()->with(
+                'error',
+                'Total progress tidak boleh melebihi 100%. Total saat ini termasuk menunggu verifikasi: ' .
+                    number_format($totalDiterima + $totalMenunggu, 2, ',', '.') . '%.'
+            );
         }
 
         $triwulan = $this->getTriwulan($request->progress_tanggal_selesai);
 
+        $progressUid = (string) Str::uuid();
+
         $progress = ModelKinerjaProgress::create([
-            'progress_uid' => Str::uuid(),
+            'progress_uid' => $progressUid,
             'progress_kinerja_id' => $kinerja->kinerja_id,
             'progress_tanggal_mulai' => $request->progress_tanggal_mulai,
             'progress_tanggal_selesai' => $request->progress_tanggal_selesai,
@@ -97,11 +103,14 @@ class UserKinerjaController extends Controller
         ]);
 
         foreach ($request->file('bukti_file') as $file) {
-            $path = $this->uploadBukti($file, $progress->progress_uid);
+            $uploaded = $this->uploadBuktiToArinDrive(
+                $file,
+                $progress->progress_uid
+            );
 
             ModelKinerjaProgressBukti::create([
                 'bukti_progress_id' => $progress->progress_id,
-                'bukti_file' => $path,
+                'bukti_file' => $uploaded['url'],
                 'bukti_nama_file' => $file->getClientOriginalName(),
             ]);
         }
@@ -135,7 +144,11 @@ class UserKinerjaController extends Controller
             ->sum('progress_persentase');
 
         if (($totalLain + $request->progress_persentase) > 100) {
-            return back()->with('error', 'Total progress tidak boleh melebihi 100%. Total progress lain: ' . number_format($totalLain, 2, ',', '.') . '%.');
+            return back()->with(
+                'error',
+                'Total progress tidak boleh melebihi 100%. Total progress lain: ' .
+                    number_format($totalLain, 2, ',', '.') . '%.'
+            );
         }
 
         $triwulan = $this->getTriwulan($request->progress_tanggal_selesai);
@@ -150,11 +163,14 @@ class UserKinerjaController extends Controller
 
         if ($request->hasFile('bukti_file')) {
             foreach ($request->file('bukti_file') as $file) {
-                $path = $this->uploadBukti($file, $progress->progress_uid);
+                $uploaded = $this->uploadBuktiToArinDrive(
+                    $file,
+                    $progress->progress_uid
+                );
 
                 ModelKinerjaProgressBukti::create([
                     'bukti_progress_id' => $progress->progress_id,
-                    'bukti_file' => $path,
+                    'bukti_file' => $uploaded['url'],
                     'bukti_nama_file' => $file->getClientOriginalName(),
                 ]);
             }
@@ -182,20 +198,46 @@ class UserKinerjaController extends Controller
         return 'TW IV';
     }
 
-    private function uploadBukti($file, $uid)
+    private function uploadBuktiToArinDrive($file, $progressUid)
     {
-        $folder = public_path('assets/kinerja');
+        $filename = $progressUid
+            . '-bukti-'
+            . date('Ymd')
+            . '-'
+            . time()
+            . '-'
+            . rand(100, 999)
+            . '.'
+            . $file->getClientOriginalExtension();
 
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach(
+                'file',
+                fopen($file->getRealPath(), 'r'),
+                $filename
+            )
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => 'kinerja/bukti-progress',
+                'reference_id' => $progressUid,
+                'jenis' => 'bukti-kinerja',
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload bukti ke ArinDrive: ' . $response->body());
         }
 
-        $extension = $file->getClientOriginalExtension();
+        $result = $response->json();
 
-        $filename = $uid . '-bukti-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $extension;
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
 
-        $file->move($folder, $filename);
-
-        return 'assets/kinerja/' . $filename;
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 }

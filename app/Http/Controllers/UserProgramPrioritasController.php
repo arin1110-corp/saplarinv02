@@ -7,7 +7,7 @@ use App\Models\ModelProgramPrioritasRencana;
 use App\Models\ModelProgramPrioritasCapaian;
 use App\Models\ModelProgramPrioritasCapaianFile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserProgramPrioritasController extends Controller
@@ -30,7 +30,10 @@ class UserProgramPrioritasController extends Controller
             'rencana_target' => 'required|integer|min:1',
         ]);
 
-        $prioritas = ModelProgramPrioritas::where('prioritas_uid', $uid)->where('prioritas_status', 'Aktif')->orderBy('created_at', 'asc')->firstOrFail();
+        $prioritas = ModelProgramPrioritas::where('prioritas_uid', $uid)
+            ->where('prioritas_status', 'Aktif')
+            ->orderBy('created_at', 'asc')
+            ->firstOrFail();
 
         ModelProgramPrioritasRencana::create([
             'rencana_uid' => Str::uuid(),
@@ -60,10 +63,14 @@ class UserProgramPrioritasController extends Controller
             'capaian_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
         ]);
 
-        $rencana = ModelProgramPrioritasRencana::where('rencana_uid', $uid)->where('rencana_status', 'Aktif')->firstOrFail();
+        $rencana = ModelProgramPrioritasRencana::where('rencana_uid', $uid)
+            ->where('rencana_status', 'Aktif')
+            ->firstOrFail();
+
+        $capaianUid = (string) Str::uuid();
 
         $capaian = ModelProgramPrioritasCapaian::create([
-            'capaian_uid' => Str::uuid(),
+            'capaian_uid' => $capaianUid,
             'capaian_rencana_id' => $rencana->rencana_id,
             'capaian_judul' => $request->capaian_judul,
             'capaian_deskripsi' => $request->capaian_deskripsi,
@@ -79,11 +86,16 @@ class UserProgramPrioritasController extends Controller
         ]);
 
         foreach ($request->file('capaian_file') as $file) {
-            $path = $this->uploadFile($file, $capaian->capaian_uid);
+            $uploaded = $this->uploadFileToArinDrive(
+                $file,
+                $capaian->capaian_uid,
+                'capaian-program-prioritas',
+                'program-prioritas/capaian'
+            );
 
             ModelProgramPrioritasCapaianFile::create([
                 'file_capaian_id' => $capaian->capaian_id,
-                'file_path' => $path,
+                'file_path' => $uploaded['url'],
                 'file_nama_asli' => $file->getClientOriginalName(),
             ]);
         }
@@ -91,20 +103,34 @@ class UserProgramPrioritasController extends Controller
         return back()->with('success', 'Capaian berhasil ditambahkan.');
     }
 
-    private function uploadFile($file, $uid)
+    private function uploadFileToArinDrive($file, $uid, $jenis, $folder)
     {
-        $folder = public_path('assets/program-prioritas');
+        $filename = $uid . '-' . $jenis . '-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
 
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach('file', fopen($file->getRealPath(), 'r'), $filename)
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => $folder,
+                'reference_id' => $uid,
+                'jenis' => $jenis,
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
         }
 
-        $extension = $file->getClientOriginalExtension();
+        $result = $response->json();
 
-        $filename = $uid . '-capaian-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $extension;
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
 
-        $file->move($folder, $filename);
-
-        return 'assets/program-prioritas/' . $filename;
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 }

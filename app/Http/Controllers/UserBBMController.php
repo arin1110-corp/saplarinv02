@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ModelBBM;
 use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserBBMController extends Controller
@@ -35,7 +35,7 @@ class UserBBMController extends Controller
 
         $uid = (string) Str::uuid();
 
-        $sptFile = $this->uploadFileToPublic(
+        $sptFile = $this->uploadFileToArinDrive(
             $request->file('bbm_spt_file'),
             $uid,
             'spt'
@@ -54,8 +54,8 @@ class UserBBMController extends Controller
             'bbm_uraian_kegiatan' => $request->bbm_uraian_kegiatan,
             'bbm_liter' => $request->bbm_liter,
 
-            'bbm_spt_file' => $sptFile,
-            'bbm_spt_sync' => false,
+            'bbm_spt_file' => $sptFile['url'],
+            'bbm_spt_sync' => true,
 
             'bbm_status_pengajuan' => 'Menunggu Verifikasi',
             'bbm_status_laporan' => 'Belum Upload',
@@ -89,7 +89,7 @@ class UserBBMController extends Controller
 
         return redirect()
             ->route('user.bbm.index')
-            ->with('success', 'Pengajuan BBM berhasil dikirim');
+            ->with('success', 'Pengajuan BBM berhasil dikirim.');
     }
 
     public function show($uid)
@@ -120,7 +120,7 @@ class UserBBMController extends Controller
             return back()->with('error', 'Laporan nota sudah diterima dan tidak bisa diubah.');
         }
 
-        $notaFile = $this->uploadFileToPublic(
+        $notaFile = $this->uploadFileToArinDrive(
             $request->file('bbm_laporan_nota_file'),
             $bbm->bbm_uid,
             'nota',
@@ -129,8 +129,8 @@ class UserBBMController extends Controller
 
         $bbm->update([
             'bbm_tanggal_nota' => $request->bbm_tanggal_nota,
-            'bbm_laporan_nota_file' => $notaFile,
-            'bbm_laporan_nota_sync' => false,
+            'bbm_laporan_nota_file' => $notaFile['url'],
+            'bbm_laporan_nota_sync' => true,
             'bbm_status_laporan' => 'Menunggu Verifikasi',
         ]);
 
@@ -152,24 +152,42 @@ class UserBBMController extends Controller
         return back()->with('success', 'Laporan nota berhasil diupload.');
     }
 
-    private function uploadFileToPublic($file, $uid, $jenis, $tanggalNota = null)
+    private function uploadFileToArinDrive($file, $uid, $jenis, $tanggalNota = null)
     {
-        $folder = public_path('assets/notabbm');
-
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
-        }
-
         $tanggal = $tanggalNota
             ? date('Ymd', strtotime($tanggalNota))
             : date('Ymd');
 
-        $extension = $file->getClientOriginalExtension();
+        $filename = $uid . '-' . $jenis . '-' . $tanggal . '.' . $file->getClientOriginalExtension();
 
-        $filename = $uid . '-' . $jenis . '-' . $tanggal . '-' . time() . '.' . $extension;
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
+            ->attach(
+                'file',
+                fopen($file->getRealPath(), 'r'),
+                $filename
+            )
+            ->post(env('ARINDRIVE_URL') . '/api/upload', [
+                'group' => env('ARINDRIVE_GROUP', 'kantor'),
+                'source_app' => 'saplarin',
+                'folder' => 'bbm/' . $jenis,
+                'reference_id' => $uid,
+                'jenis' => $jenis,
+            ]);
 
-        $file->move($folder, $filename);
+        if (!$response->successful()) {
+            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
+        }
 
-        return 'assets/notabbm/' . $filename;
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
+        }
+
+        return [
+            'file_id' => $result['data']['file_id'],
+            'url' => $result['data']['url'],
+            'name' => $result['data']['name'],
+        ];
     }
 }
