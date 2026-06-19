@@ -104,8 +104,15 @@ class MoveDriveFilesToFolders extends Command
 
                 $url = $row->{$field};
 
-                if (!$url || !str_contains($url, 'drive.google.com')) {
+                if (!$url) {
                     $this->skipped++;
+                    $this->line("SKIP kosong: {$target['table']}.{$field} ID {$row->{$target['pk']}}");
+                    continue;
+                }
+
+                if (!str_contains($url, 'drive.google.com')) {
+                    $this->skipped++;
+                    $this->line("SKIP bukan link Google Drive: {$target['table']}.{$field} ID {$row->{$target['pk']}} => {$url}");
                     continue;
                 }
 
