@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ModelSPJPagu;
 use App\Models\ModelSPJRealisasi;
+use App\Services\ArinDriveService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -27,7 +27,7 @@ class UserSPJController extends Controller
         return view('user.spj.index', compact('pagus'));
     }
 
-    public function store(Request $request, $uid)
+    public function store(Request $request, $uid, ArinDriveService $arinDrive)
     {
         $request->validate([
             'spj_uraian' => 'required|string',
@@ -42,11 +42,19 @@ class UserSPJController extends Controller
 
         $spjUid = (string) Str::uuid();
 
-        $uploaded = $this->uploadFileToArinDrive(
-            $request->file('spj_file'),
-            $spjUid,
+        $file = $request->file('spj_file');
+
+        $filename = $spjUid
+            . '_SPJ_'
+            . date('Ymd_His')
+            . '.'
+            . $file->getClientOriginalExtension();
+
+        $spjFile = $arinDrive->upload(
+            $file,
             'spj',
-            'spj/realisasi'
+            $filename,
+            $spjUid
         );
 
         ModelSPJRealisasi::create([
@@ -56,7 +64,7 @@ class UserSPJController extends Controller
             'spj_nominal' => $request->spj_nominal,
             'spj_tanggal' => $request->spj_tanggal,
             'spj_tanggal_input' => Carbon::now(),
-            'spj_file' => $uploaded['url'],
+            'spj_file' => $spjFile,
             'spj_operator_id' => session('pegawai_id'),
             'spj_operator_nama' => session('pegawai_nama'),
             'spj_operator_nip' => session('pegawai_nip'),
@@ -66,36 +74,5 @@ class UserSPJController extends Controller
         ]);
 
         return back()->with('success', 'SPJ berhasil diinput.');
-    }
-
-    private function uploadFileToArinDrive($file, $uid, $jenis, $folder)
-    {
-        $filename = $uid . '-' . $jenis . '-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach('file', fopen($file->getRealPath(), 'r'), $filename)
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => $folder,
-                'reference_id' => $uid,
-                'jenis' => $jenis,
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
     }
 }

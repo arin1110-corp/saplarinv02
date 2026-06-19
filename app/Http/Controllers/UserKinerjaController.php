@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ModelKinerja;
 use App\Models\ModelKinerjaProgress;
 use App\Models\ModelKinerjaProgressBukti;
+use App\Services\ArinDriveService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserKinerjaController extends Controller
@@ -37,7 +37,7 @@ class UserKinerjaController extends Controller
         return view('user.kinerja.index', compact('kinerjas'));
     }
 
-    public function storeProgress(Request $request, $uid)
+    public function storeProgress(Request $request, $uid, ArinDriveService $arinDrive)
     {
         $request->validate([
             'progress_tanggal_mulai' => 'required|date',
@@ -83,7 +83,6 @@ class UserKinerjaController extends Controller
         }
 
         $triwulan = $this->getTriwulan($request->progress_tanggal_selesai);
-
         $progressUid = (string) Str::uuid();
 
         $progress = ModelKinerjaProgress::create([
@@ -103,14 +102,24 @@ class UserKinerjaController extends Controller
         ]);
 
         foreach ($request->file('bukti_file') as $file) {
-            $uploaded = $this->uploadBuktiToArinDrive(
+            $filename = $progress->progress_uid .
+                '_BUKTI_KINERJA_' .
+                date('Ymd_His') .
+                '_' .
+                rand(100, 999) .
+                '.' .
+                $file->getClientOriginalExtension();
+
+            $path = $arinDrive->upload(
                 $file,
+                'kinerja',
+                $filename,
                 $progress->progress_uid
             );
 
             ModelKinerjaProgressBukti::create([
                 'bukti_progress_id' => $progress->progress_id,
-                'bukti_file' => $uploaded['url'],
+                'bukti_file' => $path,
                 'bukti_nama_file' => $file->getClientOriginalName(),
             ]);
         }
@@ -118,7 +127,7 @@ class UserKinerjaController extends Controller
         return back()->with('success', 'Progress berhasil dikirim. Progress masuk ' . $triwulan . ' dan menunggu verifikasi.');
     }
 
-    public function updateProgress(Request $request, $uid)
+    public function updateProgress(Request $request, $uid, ArinDriveService $arinDrive)
     {
         $request->validate([
             'progress_tanggal_mulai' => 'required|date',
@@ -163,14 +172,24 @@ class UserKinerjaController extends Controller
 
         if ($request->hasFile('bukti_file')) {
             foreach ($request->file('bukti_file') as $file) {
-                $uploaded = $this->uploadBuktiToArinDrive(
+                $filename = $progress->progress_uid .
+                    '_BUKTI_KINERJA_' .
+                    date('Ymd_His') .
+                    '_' .
+                    rand(100, 999) .
+                    '.' .
+                    $file->getClientOriginalExtension();
+
+                $path = $arinDrive->upload(
                     $file,
+                    'kinerja',
+                    $filename,
                     $progress->progress_uid
                 );
 
                 ModelKinerjaProgressBukti::create([
                     'bukti_progress_id' => $progress->progress_id,
-                    'bukti_file' => $uploaded['url'],
+                    'bukti_file' => $path,
                     'bukti_nama_file' => $file->getClientOriginalName(),
                 ]);
             }
@@ -196,48 +215,5 @@ class UserKinerjaController extends Controller
         }
 
         return 'TW IV';
-    }
-
-    private function uploadBuktiToArinDrive($file, $progressUid)
-    {
-        $filename = $progressUid
-            . '-bukti-'
-            . date('Ymd')
-            . '-'
-            . time()
-            . '-'
-            . rand(100, 999)
-            . '.'
-            . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach(
-                'file',
-                fopen($file->getRealPath(), 'r'),
-                $filename
-            )
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => 'kinerja/bukti-progress',
-                'reference_id' => $progressUid,
-                'jenis' => 'bukti-kinerja',
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload bukti ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
     }
 }

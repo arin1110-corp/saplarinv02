@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ModelBBM;
+use App\Services\ArinDriveService;
 use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 
 class AdminBBMController extends Controller
 {
@@ -17,7 +17,7 @@ class AdminBBMController extends Controller
         return view('administrator.bbm.index', compact('bbms'));
     }
 
-    public function terimaPengajuan(Request $request, $uid, BBMEmailService $emailService)
+    public function terimaPengajuan(Request $request, $uid, BBMEmailService $emailService, ArinDriveService $arinDrive)
     {
         $request->validate([
             'bbm_acc_pimpinan_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
@@ -25,14 +25,17 @@ class AdminBBMController extends Controller
 
         $bbm = ModelBBM::where('bbm_uid', $uid)->firstOrFail();
 
-        $accFile = $this->uploadFileToArinDrive(
-            $request->file('bbm_acc_pimpinan_file'),
-            $bbm->bbm_uid,
-            'acc-pimpinan'
+        $file = $request->file('bbm_acc_pimpinan_file');
+
+        $accFile = $arinDrive->upload(
+            $file,
+            'bbm_acc',
+            $bbm->bbm_uid . '_ACC_PIMPINAN.' . $file->getClientOriginalExtension(),
+            $bbm->bbm_uid
         );
 
         $bbm->update([
-            'bbm_acc_pimpinan_file' => $accFile['url'],
+            'bbm_acc_pimpinan_file' => $accFile,
             'bbm_acc_pimpinan_sync' => true,
             'bbm_status_pengajuan' => 'Pengajuan Diterima',
             'bbm_catatan_admin' => null,
@@ -50,7 +53,7 @@ class AdminBBMController extends Controller
                 "SAPLARIN"
         );
 
-        return back()->with('success', 'Pengajuan BBM diterima dan dokumen ACC pimpinan berhasil diupload ke ArinDrive.');
+        return back()->with('success', 'Pengajuan BBM diterima dan dokumen ACC pimpinan berhasil diupload ke Google Drive.');
     }
 
     public function tolakPengajuan(Request $request, $uid, BBMEmailService $emailService)
@@ -184,46 +187,7 @@ class AdminBBMController extends Controller
             return back()->with('error', 'Sinkron hanya bisa dilakukan setelah pengajuan diterima.');
         }
 
-        return back()->with('success', 'File BBM sekarang otomatis tersimpan di ArinDrive. Sinkron manual lama tidak diperlukan.');
-    }
-
-    private function uploadFileToArinDrive($file, $uid, $jenis, $tanggalNota = null)
-    {
-        $tanggal = $tanggalNota
-            ? date('Ymd', strtotime($tanggalNota))
-            : date('Ymd');
-
-        $filename = $uid . '-' . $jenis . '-' . $tanggal . '.' . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach(
-                'file',
-                fopen($file->getRealPath(), 'r'),
-                $filename
-            )
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => 'bbm/' . $jenis,
-                'reference_id' => $uid,
-                'jenis' => $jenis,
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
+        return back()->with('success', 'File BBM sekarang otomatis tersimpan di Google Drive melalui ArinDrive. Sinkron manual lama tidak diperlukan.');
     }
 
     private function hapusFileLokal($path)

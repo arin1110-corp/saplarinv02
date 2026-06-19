@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\ModelLaporanKegiatan;
 use App\Models\ModelLaporanAktivitas;
 use App\Models\ModelLaporanAktivitasBukti;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use App\Models\ModelProgram;
 use App\Models\ModelKegiatan;
 use App\Models\ModelSubKegiatan;
+use App\Services\ArinDriveService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UserLaporanAktivitasController extends Controller
 {
@@ -51,10 +51,7 @@ class UserLaporanAktivitasController extends Controller
             'laporan_kegiatan_deskripsi' => 'nullable|string',
         ]);
 
-        $subKegiatan = ModelSubKegiatan::where(
-            'sub_kegiatan_id',
-            $request->laporan_kegiatan_sub_kegiatan_id
-        )
+        $subKegiatan = ModelSubKegiatan::where('sub_kegiatan_id', $request->laporan_kegiatan_sub_kegiatan_id)
             ->where('sub_kegiatan_status', 1)
             ->firstOrFail();
 
@@ -81,7 +78,7 @@ class UserLaporanAktivitasController extends Controller
         return back()->with('success', 'Kegiatan berdasarkan sub kegiatan berhasil ditambahkan.');
     }
 
-    public function storeAktivitas(Request $request, $uid)
+    public function storeAktivitas(Request $request, $uid, ArinDriveService $arinDrive)
     {
         $request->validate([
             'aktivitas_nama' => 'required|string|max:255',
@@ -123,14 +120,24 @@ class UserLaporanAktivitasController extends Controller
         ]);
 
         foreach ($request->file('bukti_file') as $file) {
-            $uploaded = $this->uploadBuktiToArinDrive(
+            $filename = $aktivitas->aktivitas_uid
+                . '_BUKTI_AKTIVITAS_'
+                . date('Ymd_His')
+                . '_'
+                . rand(100, 999)
+                . '.'
+                . $file->getClientOriginalExtension();
+
+            $path = $arinDrive->upload(
                 $file,
+                'laporan_aktivitas',
+                $filename,
                 $aktivitas->aktivitas_uid
             );
 
             ModelLaporanAktivitasBukti::create([
                 'bukti_aktivitas_id' => $aktivitas->aktivitas_id,
-                'bukti_file' => $uploaded['url'],
+                'bukti_file' => $path,
                 'bukti_nama_file' => $file->getClientOriginalName(),
             ]);
         }
@@ -155,48 +162,5 @@ class UserLaporanAktivitasController extends Controller
         }
 
         return 'TW IV';
-    }
-
-    private function uploadBuktiToArinDrive($file, $aktivitasUid)
-    {
-        $filename = $aktivitasUid
-            . '-bukti-'
-            . date('Ymd')
-            . '-'
-            . time()
-            . '-'
-            . rand(100, 999)
-            . '.'
-            . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach(
-                'file',
-                fopen($file->getRealPath(), 'r'),
-                $filename
-            )
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => 'laporan-aktivitas/bukti',
-                'reference_id' => $aktivitasUid,
-                'jenis' => 'bukti-aktivitas',
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload bukti ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
     }
 }

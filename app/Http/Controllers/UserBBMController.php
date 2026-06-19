@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ModelBBM;
+use App\Services\ArinDriveService;
 use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserBBMController extends Controller
@@ -24,7 +24,7 @@ class UserBBMController extends Controller
         return view('user.bbm.create');
     }
 
-    public function store(Request $request, BBMEmailService $emailService)
+    public function store(Request $request, BBMEmailService $emailService, ArinDriveService $arinDrive)
     {
         $request->validate([
             'bbm_no_plat' => 'required|string|max:50',
@@ -35,10 +35,11 @@ class UserBBMController extends Controller
 
         $uid = (string) Str::uuid();
 
-        $sptFile = $this->uploadFileToArinDrive(
+        $sptFile = $arinDrive->upload(
             $request->file('bbm_spt_file'),
-            $uid,
-            'spt'
+            'bbm_spt',
+            $uid . '_SPT.' . $request->file('bbm_spt_file')->getClientOriginalExtension(),
+            $uid
         );
 
         $bbm = ModelBBM::create([
@@ -54,7 +55,7 @@ class UserBBMController extends Controller
             'bbm_uraian_kegiatan' => $request->bbm_uraian_kegiatan,
             'bbm_liter' => $request->bbm_liter,
 
-            'bbm_spt_file' => $sptFile['url'],
+            'bbm_spt_file' => $sptFile,
             'bbm_spt_sync' => true,
 
             'bbm_status_pengajuan' => 'Menunggu Verifikasi',
@@ -101,7 +102,7 @@ class UserBBMController extends Controller
         return view('user.bbm.show', compact('bbm'));
     }
 
-    public function uploadLaporan(Request $request, $uid, BBMEmailService $emailService)
+    public function uploadLaporan(Request $request, $uid, BBMEmailService $emailService, ArinDriveService $arinDrive)
     {
         $request->validate([
             'bbm_tanggal_nota' => 'required|date',
@@ -120,16 +121,18 @@ class UserBBMController extends Controller
             return back()->with('error', 'Laporan nota sudah diterima dan tidak bisa diubah.');
         }
 
-        $notaFile = $this->uploadFileToArinDrive(
+        $tanggal = date('Ymd', strtotime($request->bbm_tanggal_nota));
+
+        $notaFile = $arinDrive->upload(
             $request->file('bbm_laporan_nota_file'),
-            $bbm->bbm_uid,
-            'nota',
-            $request->bbm_tanggal_nota
+            'bbm_nota',
+            $bbm->bbm_uid . '_NOTA_' . $tanggal . '.' . $request->file('bbm_laporan_nota_file')->getClientOriginalExtension(),
+            $bbm->bbm_uid
         );
 
         $bbm->update([
             'bbm_tanggal_nota' => $request->bbm_tanggal_nota,
-            'bbm_laporan_nota_file' => $notaFile['url'],
+            'bbm_laporan_nota_file' => $notaFile,
             'bbm_laporan_nota_sync' => true,
             'bbm_status_laporan' => 'Menunggu Verifikasi',
         ]);
@@ -150,44 +153,5 @@ class UserBBMController extends Controller
         );
 
         return back()->with('success', 'Laporan nota berhasil diupload.');
-    }
-
-    private function uploadFileToArinDrive($file, $uid, $jenis, $tanggalNota = null)
-    {
-        $tanggal = $tanggalNota
-            ? date('Ymd', strtotime($tanggalNota))
-            : date('Ymd');
-
-        $filename = $uid . '-' . $jenis . '-' . $tanggal . '.' . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach(
-                'file',
-                fopen($file->getRealPath(), 'r'),
-                $filename
-            )
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => 'bbm/' . $jenis,
-                'reference_id' => $uid,
-                'jenis' => $jenis,
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
     }
 }

@@ -6,8 +6,8 @@ use App\Models\ModelProgramPrioritas;
 use App\Models\ModelProgramPrioritasRencana;
 use App\Models\ModelProgramPrioritasCapaian;
 use App\Models\ModelProgramPrioritasCapaianFile;
+use App\Services\ArinDriveService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class UserProgramPrioritasController extends Controller
@@ -51,7 +51,7 @@ class UserProgramPrioritasController extends Controller
         return back()->with('success', 'Rencana aksi berhasil ditambahkan.');
     }
 
-    public function storeCapaian(Request $request, $uid)
+    public function storeCapaian(Request $request, $uid, ArinDriveService $arinDrive)
     {
         $request->validate([
             'capaian_judul' => 'required|string|max:255',
@@ -86,51 +86,28 @@ class UserProgramPrioritasController extends Controller
         ]);
 
         foreach ($request->file('capaian_file') as $file) {
-            $uploaded = $this->uploadFileToArinDrive(
+            $filename = $capaian->capaian_uid .
+                '_CAPAIAN_PROGRAM_PRIORITAS_' .
+                date('Ymd_His') .
+                '_' .
+                rand(100, 999) .
+                '.' .
+                $file->getClientOriginalExtension();
+
+            $path = $arinDrive->upload(
                 $file,
-                $capaian->capaian_uid,
-                'capaian-program-prioritas',
-                'program-prioritas/capaian'
+                'program_prioritas',
+                $filename,
+                $capaian->capaian_uid
             );
 
             ModelProgramPrioritasCapaianFile::create([
                 'file_capaian_id' => $capaian->capaian_id,
-                'file_path' => $uploaded['url'],
+                'file_path' => $path,
                 'file_nama_asli' => $file->getClientOriginalName(),
             ]);
         }
 
         return back()->with('success', 'Capaian berhasil ditambahkan.');
-    }
-
-    private function uploadFileToArinDrive($file, $uid, $jenis, $folder)
-    {
-        $filename = $uid . '-' . $jenis . '-' . date('Ymd') . '-' . time() . '-' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
-
-        $response = Http::withToken(env('ARINDRIVE_TOKEN'))
-            ->attach('file', fopen($file->getRealPath(), 'r'), $filename)
-            ->post(env('ARINDRIVE_URL') . '/api/upload', [
-                'group' => env('ARINDRIVE_GROUP', 'kantor'),
-                'source_app' => 'saplarin',
-                'folder' => $folder,
-                'reference_id' => $uid,
-                'jenis' => $jenis,
-            ]);
-
-        if (!$response->successful()) {
-            throw new \Exception('Gagal upload ke ArinDrive: ' . $response->body());
-        }
-
-        $result = $response->json();
-
-        if (!($result['success'] ?? false)) {
-            throw new \Exception($result['message'] ?? 'Upload ArinDrive gagal.');
-        }
-
-        return [
-            'file_id' => $result['data']['file_id'],
-            'url' => $result['data']['url'],
-            'name' => $result['data']['name'],
-        ];
     }
 }
