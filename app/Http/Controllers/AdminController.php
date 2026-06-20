@@ -61,8 +61,9 @@ class AdminController extends Controller
             ->where('prioritas_status', 'Aktif')
             ->count();
 
-        $jumlahAktivitas = \DB::table('saplarin_laporan_aktivitas')
-            ->where('aktivitas_status', 'Aktif')
+        $jumlahAktivitas = \DB::table('saplarin_laporan_kegiatan')
+            ->where('laporan_kegiatan_tahun', $tahun)
+            ->where('laporan_kegiatan_status', 'Aktif')
             ->count();
 
         $paguTerbaru = \App\Models\ModelSPJPagu::with(['program', 'kegiatan', 'subKegiatan', 'realisasi'])
