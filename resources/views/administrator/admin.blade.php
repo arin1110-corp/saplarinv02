@@ -42,7 +42,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                 <div class="bg-slate-800 p-5 rounded-2xl shadow-lg border border-slate-700">
-                    <p class="text-slate-400 text-sm">Total Pagu SPJ</p>
+                    <p class="text-slate-400 text-sm">Total Pagu Anggaran</p>
                     <h2 class="text-2xl font-bold mt-2">
                         Rp {{ number_format($totalPagu, 0, ',', '.') }}
                     </h2>
