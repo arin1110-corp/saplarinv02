@@ -151,7 +151,8 @@
                                 </td>
 
                                 <td>
-                                    <span class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold">
+                                    <span
+                                        class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold">
                                         {{ $item->bbm_no_plat ?? '-' }}
                                     </span>
                                 </td>
@@ -270,6 +271,19 @@
                                         @endif
 
                                     </div>
+
+                                    <div>
+                                        <p class="text-slate-400 text-xs">Foto Mobil / Kendaraan</p>
+
+                                        @if ($item->bbm_foto_mobil_file)
+                                            <a href="{{ $item->bbm_foto_mobil_file }}" target="_blank"
+                                                class="text-blue-400 hover:underline">
+                                                Lihat Foto Mobil
+                                            </a>
+                                        @else
+                                            <p class="text-slate-500">Belum ada</p>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 <td>
@@ -331,7 +345,8 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                                <span
+                                                    class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
                                                     Sudah Sinkron
                                                 </span>
                                             @endif
@@ -339,9 +354,8 @@
 
                                         @if (
                                             $item->bbm_status_pengajuan !== 'Menunggu Verifikasi' &&
-                                            $item->bbm_status_pengajuan !== 'Pengajuan Diterima' &&
-                                            $item->bbm_status_laporan !== 'Menunggu Verifikasi'
-                                        )
+                                                $item->bbm_status_pengajuan !== 'Pengajuan Diterima' &&
+                                                $item->bbm_status_laporan !== 'Menunggu Verifikasi')
                                             <span class="text-slate-500 text-xs">
                                                 Tidak ada aksi
                                             </span>

@@ -31,6 +31,7 @@ class UserBBMController extends Controller
             'bbm_uraian_kegiatan' => 'required|string',
             'bbm_liter' => 'required|numeric|min:0.01',
             'bbm_spt_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
+            'bbm_foto_mobil_file' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $uid = (string) Str::uuid();
@@ -39,6 +40,13 @@ class UserBBMController extends Controller
             $request->file('bbm_spt_file'),
             'bbm_spt',
             $uid . '_SPT.' . $request->file('bbm_spt_file')->getClientOriginalExtension(),
+            $uid
+        );
+
+        $fotoMobilFile = $arinDrive->upload(
+            $request->file('bbm_foto_mobil_file'),
+            'bbm_foto_mobil',
+            $uid . '_FOTO_MOBIL.' . $request->file('bbm_foto_mobil_file')->getClientOriginalExtension(),
             $uid
         );
 
@@ -58,6 +66,9 @@ class UserBBMController extends Controller
             'bbm_spt_file' => $sptFile,
             'bbm_spt_sync' => true,
 
+            'bbm_foto_mobil_file' => $fotoMobilFile,
+            'bbm_foto_mobil_sync' => true,
+
             'bbm_status_pengajuan' => 'Menunggu Verifikasi',
             'bbm_status_laporan' => 'Belum Upload',
         ]);
@@ -72,6 +83,7 @@ class UserBBMController extends Controller
                 "No Plat      : {$bbm->bbm_no_plat}\n" .
                 "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" .
                 "Status       : {$bbm->bbm_status_pengajuan}\n\n" .
+                "Foto kendaraan telah dilampirkan pada pengajuan.\n\n" .
                 "Silakan login ke SAPLARIN untuk melakukan verifikasi.\n\n" .
                 "SAPLARIN"
         );

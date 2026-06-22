@@ -143,7 +143,7 @@ class AdminBBMController extends Controller
     public function sinkronFile(Request $request, $uid)
     {
         $request->validate([
-            'jenis_file' => 'required|in:spt,acc_pimpinan,nota',
+            'jenis_file' => 'required|in:spt,foto_mobil,acc_pimpinan,nota',
             'drive_url' => 'required|url',
         ]);
 
@@ -164,6 +164,14 @@ class AdminBBMController extends Controller
             $bbm->update([
                 'bbm_acc_pimpinan_file' => $request->drive_url,
                 'bbm_acc_pimpinan_sync' => true,
+            ]);
+        }
+        if ($request->jenis_file === 'foto_mobil') {
+            $this->hapusFileLokal($bbm->bbm_foto_mobil_file);
+
+            $bbm->update([
+                'bbm_foto_mobil_file' => $request->drive_url,
+                'bbm_foto_mobil_sync' => true,
             ]);
         }
 

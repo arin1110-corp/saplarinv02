@@ -39,6 +39,8 @@ class ModelBBM extends Model
 
         'bbm_status_laporan',
         'bbm_catatan_admin',
+        'bbm_foto_mobil_file',
+        'bbm_foto_mobil_sync',
     ];
 
     protected $casts = [
@@ -47,5 +49,6 @@ class ModelBBM extends Model
         'bbm_spt_sync' => 'boolean',
         'bbm_acc_pimpinan_sync' => 'boolean',
         'bbm_laporan_nota_sync' => 'boolean',
+        'bbm_foto_mobil_sync' => 'boolean',
     ];
 }
