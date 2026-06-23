@@ -231,7 +231,7 @@
                     @endif
 
                     @if ($canPermintaanSPJ)
-                        <a href="{{ route('admin.permintaan.spj') }}"
+                        <a href="{{ route('admin.spj.request') }}"
                             class="block px-4 py-2 rounded-lg text-sm transition
                             {{ request()->routeIs('admin.permintaan.spj')
                                 ? 'bg-slate-700 text-white'

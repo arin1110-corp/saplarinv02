@@ -17,17 +17,25 @@ class ModelSPJRealisasi extends Model
         'spj_tanggal',
         'spj_tanggal_input',
         'spj_file',
+
         'spj_operator_id',
         'spj_operator_nama',
         'spj_operator_nip',
+
         'spj_bidang_id',
         'spj_bidang_nama',
+
         'spj_status',
+        'spj_catatan_admin',
+        'spj_status_by',
+        'spj_status_by_nama',
+        'spj_status_at',
     ];
 
     protected $casts = [
         'spj_tanggal' => 'date',
         'spj_tanggal_input' => 'datetime',
+        'spj_status_at' => 'datetime',
     ];
 
     public function pagu()

@@ -17,6 +17,7 @@ use App\Http\Controllers\AdminProgramPrioritasController;
 use App\Http\Controllers\UserProgramPrioritasController;
 use App\Http\Controllers\AdminSPJController;
 use App\Http\Controllers\UserSPJController;
+use App\Http\Controllers\AdminSPJRequestController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -273,6 +274,17 @@ Route::middleware(['admin'])
         ->name('admin.spj.status');
     Route::post('/spj/update', [AdminSPJController::class, 'update'])
         ->name('admin.spj.update');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Permintaan SPJ
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/spj/permintaan', [AdminSPJRequestController::class, 'index'])
+        ->name('admin.spj.request');
+
+    Route::post('/spj/permintaan/{uid}/toggle', [AdminSPJRequestController::class, 'toggle'])
+        ->name('admin.spj.request.toggle');
     });
 
 Route::prefix('user')
