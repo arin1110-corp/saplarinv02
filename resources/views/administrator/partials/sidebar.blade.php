@@ -22,11 +22,7 @@
     $canLaporanKAK = $isAdminFull || $isAdminArsiparis;
 
     $canDataLaporan =
-        $canKinerjaPrioritas ||
-        $canLaporanAktivitas ||
-        $canDataPaguSPJ ||
-        $canLaporanSPJ ||
-        $canLaporanKAK;
+        $canKinerjaPrioritas || $canLaporanAktivitas || $canDataPaguSPJ || $canLaporanSPJ || $canLaporanKAK;
 @endphp
 
 <aside class="w-64 bg-slate-900 border-r border-slate-800 hidden md:block">
@@ -76,9 +72,7 @@
         @if ($canUser)
             <a href="{{ route('admin.users') }}"
                 class="block px-4 py-2 rounded-lg transition duration-200
-                {{ request()->routeIs('admin.users')
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'hover:bg-slate-800 text-slate-300' }}">
+                {{ request()->routeIs('admin.users') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-300' }}">
                 Data User
             </a>
         @endif
@@ -98,8 +92,7 @@
                         {{ request()->routeIs('admin.drive*') ? 'rotate-180' : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -148,8 +141,7 @@
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -193,8 +185,7 @@
             <div>
                 <button onclick="togglePermintaanMenu()"
                     class="w-full flex justify-between items-center px-4 py-2 rounded-lg transition duration-200
-                    {{ request()->routeIs('admin.bbm*') ||
-                    request()->routeIs('admin.permintaan*')
+                    {{ request()->routeIs('admin.bbm*') || request()->routeIs('admin.permintaan*')
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'hover:bg-slate-800 text-slate-300' }}">
 
@@ -202,23 +193,16 @@
 
                     <svg id="permintaanArrow"
                         class="w-4 h-4 transition-transform duration-300
-                        {{ request()->routeIs('admin.bbm*') ||
-                        request()->routeIs('admin.permintaan*')
-                            ? 'rotate-180'
-                            : '' }}"
+                        {{ request()->routeIs('admin.bbm*') || request()->routeIs('admin.permintaan*') ? 'rotate-180' : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
                 <div id="permintaanMenu"
                     class="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300
-                    {{ request()->routeIs('admin.bbm*') ||
-                    request()->routeIs('admin.permintaan*')
-                        ? 'max-h-60'
-                        : 'max-h-0' }}">
+                    {{ request()->routeIs('admin.bbm*') || request()->routeIs('admin.permintaan*') ? 'max-h-60' : 'max-h-0' }}">
 
                     @if ($canPermintaanBBM)
                         <a href="{{ route('admin.bbm.index') }}"
@@ -231,11 +215,11 @@
                     @endif
 
                     @if ($canPermintaanSPJ)
-                        <a href="{{ route('admin.spj.request') }}"
+                        <a href="{{ route('admin.permintaan.spj') }}"
                             class="block px-4 py-2 rounded-lg text-sm transition
-                            {{ request()->routeIs('admin.permintaan.spj')
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+        {{ request()->routeIs('admin.permintaan.spj*')
+            ? 'bg-slate-700 text-white'
+            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             Permintaan SPJ
                         </a>
                     @endif
@@ -277,8 +261,7 @@
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 

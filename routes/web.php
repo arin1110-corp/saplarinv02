@@ -281,10 +281,10 @@ Route::middleware(['admin'])
             |--------------------------------------------------------------------------
             */
     Route::get('/spj/permintaan', [AdminSPJRequestController::class, 'index'])
-        ->name('admin.spj.request');
+        ->name('admin.permintaan.spj');
 
     Route::post('/spj/permintaan/{uid}/toggle', [AdminSPJRequestController::class, 'toggle'])
-        ->name('admin.spj.request.toggle');
+        ->name('admin.permintaan.spj.toggle');
     });
 
 Route::prefix('user')
