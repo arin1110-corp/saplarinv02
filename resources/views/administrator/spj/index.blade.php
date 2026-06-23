@@ -895,7 +895,7 @@
             scrollX: true,
             autoWidth: false,
             pageLength: 10,
-            order: [[1, 'desc']],
+            order: [[1, 'asc']],
             language: {
                 search: "Cari:",
                 lengthMenu: "Tampilkan _MENU_ data",
