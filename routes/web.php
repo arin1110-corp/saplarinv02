@@ -18,6 +18,7 @@ use App\Http\Controllers\UserProgramPrioritasController;
 use App\Http\Controllers\AdminSPJController;
 use App\Http\Controllers\UserSPJController;
 use App\Http\Controllers\AdminSPJRequestController;
+use App\Http\Controllers\AdminLaporanSPJController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -158,7 +159,7 @@ Route::middleware(['admin'])
     Route::get('/laporan', [AdminController::class, 'laporan'])
         ->name('admin.laporan');
 
-    Route::get('/laporan-spj', [AdminController::class, 'laporanSPJ'])
+    Route::get('/laporan-spj', [AdminLaporanSPJController::class, 'index'])
         ->name('admin.laporan.spj');
 
     Route::get('/laporan-pwa', [LaporanPWAController::class, 'laporanPWA'])
