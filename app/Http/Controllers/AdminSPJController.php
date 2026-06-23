@@ -24,7 +24,7 @@ class AdminSPJController extends Controller
             'realisasi',
         ])
             ->orderBy('spj_pagu_tahun', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         $units = ModelSPJUnit::where('unit_status', 1)
