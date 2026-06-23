@@ -13,13 +13,27 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
     <style>
-        body { background: #0f172a; }
+        body {
+            background: #0f172a;
+        }
 
-        table.dataTable { color: #e2e8f0 !important; }
-        table.dataTable thead th { color: #cbd5e1 !important; white-space: nowrap; font-size: 12px; }
-        table.dataTable tbody td { vertical-align: top; }
+        table.dataTable {
+            color: #e2e8f0 !important;
+        }
 
-        .dataTables_wrapper { color: #cbd5e1; }
+        table.dataTable thead th {
+            color: #cbd5e1 !important;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        table.dataTable tbody td {
+            vertical-align: top;
+        }
+
+        .dataTables_wrapper {
+            color: #cbd5e1;
+        }
 
         .dataTables_filter input,
         .dataTables_length select {
@@ -37,10 +51,17 @@
             color: white !important;
         }
 
-        table.dataTable tbody tr { background-color: #1e293b !important; }
-        table.dataTable tbody tr:hover { background-color: #334155 !important; }
+        table.dataTable tbody tr {
+            background-color: #1e293b !important;
+        }
 
-        input, select, textarea {
+        table.dataTable tbody tr:hover {
+            background-color: #334155 !important;
+        }
+
+        input,
+        select,
+        textarea {
             background: #1e293b;
             border: 1px solid #334155;
             color: white;
@@ -50,641 +71,678 @@
 
 <body class="text-white">
 
-<div class="flex min-h-screen">
+    <div class="flex min-h-screen">
 
-    @include('administrator.partials.sidebar')
+        @include('administrator.partials.sidebar')
 
-    <div class="flex-1 p-6 overflow-x-hidden">
+        <div class="flex-1 p-6 overflow-x-hidden">
 
-        @include('administrator.partials.header')
+            @include('administrator.partials.header')
 
-        @if (session('success'))
-            <div class="mb-5 bg-green-600/20 border border-green-500 text-green-300 px-4 py-3 rounded-xl">
-                {{ session('success') }}
+            @if (session('success'))
+                <div class="mb-5 bg-green-600/20 border border-green-500 text-green-300 px-4 py-3 rounded-xl">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-5 bg-red-600/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-5 bg-red-600/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl">
+                    <ul class="list-disc list-inside text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">
+                        Data Pagu SPJ
+                    </h1>
+
+                    <p class="text-slate-400 text-sm">
+                        Kelola pagu induk dan pagu pergeseran berdasarkan unit, program, kegiatan, dan sub kegiatan.
+                    </p>
+                </div>
+
+                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-medium">
+                    + Tambah Pagu
+                </button>
             </div>
-        @endif
 
-        @if (session('error'))
-            <div class="mb-5 bg-red-600/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl">
-                {{ session('error') }}
-            </div>
-        @endif
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 overflow-x-auto">
 
-        @if ($errors->any())
-            <div class="mb-5 bg-red-600/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl">
-                <ul class="list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold">
-                    Data Pagu SPJ
-                </h1>
-
-                <p class="text-slate-400 text-sm">
-                    Kelola pagu induk dan pagu pergeseran berdasarkan unit, program, kegiatan, dan sub kegiatan.
-                </p>
-            </div>
-
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-medium">
-                + Tambah Pagu
-            </button>
-        </div>
-
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 overflow-x-auto">
-
-            <table id="spjTable" class="display nowrap w-full text-sm">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Tahun</th>
-                        <th>Unit</th>
-                        <th>Program</th>
-                        <th>Kegiatan</th>
-                        <th>Sub Kegiatan</th>
-                        <th>Pagu Final</th>
-                        <th>Realisasi</th>
-                        <th>Sisa</th>
-                        <th>Serapan</th>
-                        <th>Status</th>
-                        <th width="150">Aksi</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @forelse ($pagus as $item)
-                        @php
-                            $realisasi = $item->realisasi->where('spj_status', 'Aktif')->sum('spj_nominal');
-                            $sisa = $item->spj_pagu_final - $realisasi;
-                            $serapan = $item->spj_pagu_final > 0 ? ($realisasi / $item->spj_pagu_final) * 100 : 0;
-
-                            if ($serapan > 100) {
-                                $serapan = 100;
-                            }
-                        @endphp
-
+                <table id="spjTable" class="display nowrap w-full text-sm">
+                    <thead>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-
-                            <td>{{ $item->spj_pagu_tahun }}</td>
-
-                            <td>
-                                @if ($item->unit)
-                                    <div class="font-semibold text-blue-300">
-                                        {{ $item->unit->unit_kode }}
-                                    </div>
-                                    <div class="text-xs text-slate-400 max-w-[180px] whitespace-normal">
-                                        {{ $item->unit->unit_nama }}
-                                    </div>
-                                @else
-                                    <span class="text-slate-500">-</span>
-                                @endif
-                            </td>
-
-                            <td>
-                                <div class="font-semibold">
-                                    {{ $item->program->program_kode ?? '-' }}
-                                </div>
-                                <div class="text-xs text-slate-400 max-w-[220px] whitespace-normal">
-                                    {{ $item->program->program_nama ?? '-' }}
-                                </div>
-                            </td>
-
-                            <td>
-                                <div class="font-semibold">
-                                    {{ $item->kegiatan->kegiatan_kode ?? '-' }}
-                                </div>
-                                <div class="text-xs text-slate-400 max-w-[220px] whitespace-normal">
-                                    {{ $item->kegiatan->kegiatan_nama ?? '-' }}
-                                </div>
-                            </td>
-
-                            <td>
-                                <div class="font-semibold">
-                                    {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
-                                </div>
-                                <div class="text-xs text-slate-400 max-w-[240px] whitespace-normal">
-                                    {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
-                                </div>
-                            </td>
-
-                            <td class="font-semibold whitespace-nowrap">
-                                Rp {{ number_format($item->spj_pagu_final, 0, ',', '.') }}
-                            </td>
-
-                            <td class="whitespace-nowrap">
-                                Rp {{ number_format($realisasi, 0, ',', '.') }}
-                            </td>
-
-                            <td class="whitespace-nowrap">
-                                Rp {{ number_format($sisa, 0, ',', '.') }}
-                            </td>
-
-                            <td class="whitespace-nowrap">
-                                {{ number_format($serapan, 2, ',', '.') }}%
-                            </td>
-
-                            <td>
-                                @if ($item->spj_pagu_status == 1)
-                                    <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs">
-                                        Nonaktif
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td>
-                                <div class="flex flex-wrap gap-2">
-                                    <button type="button" onclick='openEditModal(@json($item))'
-                                        class="bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-lg text-xs">
-                                        Edit
-                                    </button>
-
-                                    <button type="button" onclick='openDetailModal(@json($item))'
-                                        class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-xs">
-                                        Detail
-                                    </button>
-
-                                    <form method="POST"
-                                        action="{{ route('admin.spj.status', $item->spj_pagu_uid) }}"
-                                        onsubmit="return confirm('Ubah status pagu ini?')">
-                                        @csrf
-
-                                        @if ($item->spj_pagu_status == 1)
-                                            <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs">
-                                                Nonaktif
-                                            </button>
-                                        @else
-                                            <button class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded-lg text-xs">
-                                                Aktifkan
-                                            </button>
-                                        @endif
-                                    </form>
-                                </div>
-                            </td>
+                            <th>No</th>
+                            <th>Tahun</th>
+                            <th>Unit</th>
+                            <th>Program</th>
+                            <th>Kegiatan</th>
+                            <th>Sub Kegiatan</th>
+                            <th>Pagu Final</th>
+                            <th>Realisasi</th>
+                            <th>Sisa</th>
+                            <th>Serapan</th>
+                            <th>Status</th>
+                            <th width="150">Aksi</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="12" class="text-center py-6 text-slate-400">
-                                Belum ada data pagu SPJ.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                        @forelse ($pagus as $item)
+                            @php
+                                $realisasi = $item->realisasi->where('spj_status', 'Aktif')->sum('spj_nominal');
+                                $sisa = $item->spj_pagu_final - $realisasi;
+                                $serapan = $item->spj_pagu_final > 0 ? ($realisasi / $item->spj_pagu_final) * 100 : 0;
+
+                                if ($serapan > 100) {
+                                    $serapan = 100;
+                                }
+                            @endphp
+
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+
+                                <td>{{ $item->spj_pagu_tahun }}</td>
+
+                                <td>
+                                    @if ($item->unit)
+                                        <div class="font-semibold text-blue-300">
+                                            {{ $item->unit->unit_kode }}
+                                        </div>
+                                        <div class="text-xs text-slate-400 max-w-[180px] whitespace-normal">
+                                            {{ $item->unit->unit_nama }}
+                                        </div>
+                                    @else
+                                        <span class="text-slate-500">-</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="font-semibold">
+                                        {{ $item->program->program_kode ?? '-' }}
+                                    </div>
+                                    <div class="text-xs text-slate-400 max-w-[220px] whitespace-normal">
+                                        {{ $item->program->program_nama ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="font-semibold">
+                                        {{ $item->kegiatan->kegiatan_kode ?? '-' }}
+                                    </div>
+                                    <div class="text-xs text-slate-400 max-w-[220px] whitespace-normal">
+                                        {{ $item->kegiatan->kegiatan_nama ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="font-semibold">
+                                        {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
+                                    </div>
+                                    <div class="text-xs text-slate-400 max-w-[240px] whitespace-normal">
+                                        {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td class="font-semibold whitespace-nowrap">
+                                    Rp {{ number_format($item->spj_pagu_final, 0, ',', '.') }}
+                                </td>
+
+                                <td class="whitespace-nowrap">
+                                    Rp {{ number_format($realisasi, 0, ',', '.') }}
+                                </td>
+
+                                <td class="whitespace-nowrap">
+                                    Rp {{ number_format($sisa, 0, ',', '.') }}
+                                </td>
+
+                                <td class="whitespace-nowrap">
+                                    {{ number_format($serapan, 2, ',', '.') }}%
+                                </td>
+
+                                <td>
+                                    @if ($item->spj_pagu_status == 1)
+                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs">
+                                            Nonaktif
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" onclick='openEditModal(@json($item))'
+                                            class="bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-lg text-xs">
+                                            Edit
+                                        </button>
+
+                                        <button type="button" onclick='openDetailModal(@json($item))'
+                                            class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-xs">
+                                            Detail
+                                        </button>
+
+                                        <form method="POST"
+                                            action="{{ route('admin.spj.status', $item->spj_pagu_uid) }}"
+                                            onsubmit="return confirm('Ubah status pagu ini?')">
+                                            @csrf
+
+                                            @if ($item->spj_pagu_status == 1)
+                                                <button
+                                                    class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs">
+                                                    Nonaktif
+                                                </button>
+                                            @else
+                                                <button
+                                                    class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded-lg text-xs">
+                                                    Aktifkan
+                                                </button>
+                                            @endif
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="12" class="text-center py-6 text-slate-400">
+                                    Belum ada data pagu SPJ.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+            </div>
 
         </div>
-
     </div>
-</div>
 
-{{-- MODAL TAMBAH --}}
-<div id="modalPagu" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
+    {{-- MODAL TAMBAH --}}
+    <div id="modalPagu" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+        <div
+            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
 
-        <div class="flex justify-between items-center mb-5">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h2 class="text-xl font-bold">
+                        Tambah Pagu SPJ
+                    </h2>
+                    <p class="text-sm text-slate-400">
+                        Pilih unit, program, kegiatan, sub kegiatan, lalu input pagu induk dan pergeseran.
+                    </p>
+                </div>
+
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <form method="POST" action="{{ route('admin.spj.store') }}">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Tahun Anggaran
+                        </label>
+
+                        <input type="number" name="spj_pagu_tahun" value="{{ date('Y') }}"
+                            class="w-full rounded-xl px-4 py-3" required>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Unit Pengampu
+                        </label>
+
+                        <select name="spj_pagu_unit_id" class="w-full rounded-xl px-4 py-3" required>
+                            <option value="">Pilih Unit</option>
+
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->unit_id }}">
+                                    {{ $unit->unit_kode }} - {{ $unit->unit_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Program
+                        </label>
+
+                        <select id="programSelect" onchange="filterKegiatan()" class="w-full rounded-xl px-4 py-3"
+                            required>
+                            <option value="">Pilih Program</option>
+
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->program_id }}">
+                                    {{ $program->program_kode ? $program->program_kode . ' - ' : '' }}
+                                    {{ $program->program_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Kegiatan
+                        </label>
+
+                        <select id="kegiatanSelect" onchange="filterSubKegiatan()" class="w-full rounded-xl px-4 py-3"
+                            required>
+                            <option value="">Pilih Kegiatan</option>
+
+                            @foreach ($kegiatans as $kegiatan)
+                                <option value="{{ $kegiatan->kegiatan_id }}"
+                                    data-program="{{ $kegiatan->kegiatan_program }}">
+                                    {{ $kegiatan->kegiatan_kode ? $kegiatan->kegiatan_kode . ' - ' : '' }}
+                                    {{ $kegiatan->kegiatan_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">
+                        Sub Kegiatan
+                    </label>
+
+                    <select name="spj_pagu_sub_kegiatan_id" id="subKegiatanSelect" onchange="setMasterHidden()"
+                        class="w-full rounded-xl px-4 py-3" required>
+                        <option value="">Pilih Sub Kegiatan</option>
+
+                        @foreach ($subKegiatans as $sub)
+                            <option value="{{ $sub->sub_kegiatan_id }}"
+                                data-kegiatan="{{ $sub->sub_kegiatan_kegiatan }}">
+                                {{ $sub->sub_kegiatan_kode ? $sub->sub_kegiatan_kode . ' - ' : '' }}
+                                {{ $sub->sub_kegiatan_nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <input type="hidden" name="spj_pagu_program_id" id="spj_pagu_program_id">
+                <input type="hidden" name="spj_pagu_kegiatan_id" id="spj_pagu_kegiatan_id">
+
+                <div class="mt-6 mb-3">
+                    <h3 class="font-semibold">
+                        Riwayat Pagu
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Pagu final akan mengikuti nominal pagu paling akhir.
+                    </p>
+                </div>
+
+                <div id="paguContainer">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                        <input type="text" name="pagu_jenis[]" value="Pagu Induk" class="rounded-xl px-4 py-3"
+                            required>
+
+                        <input type="text" name="pagu_nominal[]" class="rounded-xl px-4 py-3 nominal-rupiah"
+                            placeholder="Nominal" required>
+
+                        <input type="date" name="pagu_tanggal[]" class="rounded-xl px-4 py-3">
+
+                        <input type="text" name="pagu_keterangan[]" class="rounded-xl px-4 py-3"
+                            placeholder="Keterangan">
+                    </div>
+                </div>
+
+                <button type="button" onclick="tambahPagu()"
+                    class="mb-5 text-blue-400 hover:text-blue-300 font-semibold">
+                    + Tambah Pergeseran
+                </button>
+
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
+                        Batal
+                    </button>
+
+                    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    {{-- MODAL DETAIL --}}
+    <div id="detailModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+        <div
+            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
+
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h2 class="text-xl font-bold">
+                        Detail Pagu SPJ
+                    </h2>
+                    <p id="detailSubKegiatan" class="text-sm text-slate-400"></p>
+                    <p id="detailUnit" class="text-sm text-blue-300 mt-1"></p>
+                </div>
+
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
+                    <p class="text-xs text-slate-400">Pagu Final</p>
+                    <p id="detailPaguFinal" class="font-bold text-lg text-blue-300"></p>
+                </div>
+
+                <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
+                    <p class="text-xs text-slate-400">Total Realisasi</p>
+                    <p id="detailRealisasi" class="font-bold text-lg text-green-300"></p>
+                </div>
+
+                <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
+                    <p class="text-xs text-slate-400">Sisa Pagu</p>
+                    <p id="detailSisa" class="font-bold text-lg text-amber-300"></p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="font-bold mb-3">Riwayat Pagu</h3>
+                <div id="detailPaguList" class="space-y-2"></div>
+            </div>
+
             <div>
-                <h2 class="text-xl font-bold">
-                    Tambah Pagu SPJ
-                </h2>
-                <p class="text-sm text-slate-400">
-                    Pilih unit, program, kegiatan, sub kegiatan, lalu input pagu induk dan pergeseran.
-                </p>
+                <h3 class="font-bold mb-3">Riwayat SPJ</h3>
+                <div id="detailRealisasiList" class="space-y-2"></div>
             </div>
 
-            <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
         </div>
-
-        <form method="POST" action="{{ route('admin.spj.store') }}">
-            @csrf
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Tahun Anggaran
-                    </label>
-
-                    <input type="number" name="spj_pagu_tahun" value="{{ date('Y') }}"
-                        class="w-full rounded-xl px-4 py-3" required>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Unit Pengampu
-                    </label>
-
-                    <select name="spj_pagu_unit_id" class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Unit</option>
-
-                        @foreach ($units as $unit)
-                            <option value="{{ $unit->unit_id }}">
-                                {{ $unit->unit_kode }} - {{ $unit->unit_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Program
-                    </label>
-
-                    <select id="programSelect" onchange="filterKegiatan()" class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Program</option>
-
-                        @foreach ($programs as $program)
-                            <option value="{{ $program->program_id }}">
-                                {{ $program->program_kode ? $program->program_kode . ' - ' : '' }}
-                                {{ $program->program_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Kegiatan
-                    </label>
-
-                    <select id="kegiatanSelect" onchange="filterSubKegiatan()" class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Kegiatan</option>
-
-                        @foreach ($kegiatans as $kegiatan)
-                            <option value="{{ $kegiatan->kegiatan_id }}" data-program="{{ $kegiatan->kegiatan_program }}">
-                                {{ $kegiatan->kegiatan_kode ? $kegiatan->kegiatan_kode . ' - ' : '' }}
-                                {{ $kegiatan->kegiatan_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mb-4">
-                <label class="block mb-2 text-sm">
-                    Sub Kegiatan
-                </label>
-
-                <select name="spj_pagu_sub_kegiatan_id" id="subKegiatanSelect" onchange="setMasterHidden()"
-                    class="w-full rounded-xl px-4 py-3" required>
-                    <option value="">Pilih Sub Kegiatan</option>
-
-                    @foreach ($subKegiatans as $sub)
-                        <option value="{{ $sub->sub_kegiatan_id }}" data-kegiatan="{{ $sub->sub_kegiatan_kegiatan }}">
-                            {{ $sub->sub_kegiatan_kode ? $sub->sub_kegiatan_kode . ' - ' : '' }}
-                            {{ $sub->sub_kegiatan_nama }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <input type="hidden" name="spj_pagu_program_id" id="spj_pagu_program_id">
-            <input type="hidden" name="spj_pagu_kegiatan_id" id="spj_pagu_kegiatan_id">
-
-            <div class="mt-6 mb-3">
-                <h3 class="font-semibold">
-                    Riwayat Pagu
-                </h3>
-                <p class="text-xs text-slate-400">
-                    Pagu final akan mengikuti nominal pagu paling akhir.
-                </p>
-            </div>
-
-            <div id="paguContainer">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                    <input type="text" name="pagu_jenis[]" value="Pagu Induk" class="rounded-xl px-4 py-3" required>
-
-                    <input type="number" name="pagu_nominal[]" class="rounded-xl px-4 py-3" placeholder="Nominal" required>
-
-                    <input type="date" name="pagu_tanggal[]" class="rounded-xl px-4 py-3">
-
-                    <input type="text" name="pagu_keterangan[]" class="rounded-xl px-4 py-3" placeholder="Keterangan">
-                </div>
-            </div>
-
-            <button type="button" onclick="tambahPagu()" class="mb-5 text-blue-400 hover:text-blue-300 font-semibold">
-                + Tambah Pergeseran
-            </button>
-
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
-                    Batal
-                </button>
-
-                <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
-                    Simpan
-                </button>
-            </div>
-        </form>
-
     </div>
-</div>
 
-{{-- MODAL DETAIL --}}
-<div id="detailModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
+    {{-- MODAL EDIT --}}
+    <div id="editModalPagu" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+        <div
+            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
 
-        <div class="flex justify-between items-center mb-5">
-            <div>
-                <h2 class="text-xl font-bold">
-                    Detail Pagu SPJ
-                </h2>
-                <p id="detailSubKegiatan" class="text-sm text-slate-400"></p>
-                <p id="detailUnit" class="text-sm text-blue-300 mt-1"></p>
-            </div>
-
-            <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
-                <p class="text-xs text-slate-400">Pagu Final</p>
-                <p id="detailPaguFinal" class="font-bold text-lg text-blue-300"></p>
-            </div>
-
-            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
-                <p class="text-xs text-slate-400">Total Realisasi</p>
-                <p id="detailRealisasi" class="font-bold text-lg text-green-300"></p>
-            </div>
-
-            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
-                <p class="text-xs text-slate-400">Sisa Pagu</p>
-                <p id="detailSisa" class="font-bold text-lg text-amber-300"></p>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <h3 class="font-bold mb-3">Riwayat Pagu</h3>
-            <div id="detailPaguList" class="space-y-2"></div>
-        </div>
-
-        <div>
-            <h3 class="font-bold mb-3">Riwayat SPJ</h3>
-            <div id="detailRealisasiList" class="space-y-2"></div>
-        </div>
-
-    </div>
-</div>
-
-{{-- MODAL EDIT --}}
-<div id="editModalPagu" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
-
-        <div class="flex justify-between items-center mb-5">
-            <div>
-                <h2 class="text-xl font-bold">
-                    Edit Pagu SPJ
-                </h2>
-                <p class="text-sm text-slate-400">
-                    Perbarui unit, program, kegiatan, sub kegiatan, pagu, dan status.
-                </p>
-            </div>
-
-            <button onclick="closeEditModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
-        </div>
-
-        <form method="POST" action="{{ route('admin.spj.update') }}">
-            @csrf
-
-            <input type="hidden" name="spj_pagu_id" id="edit_spj_pagu_id">
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="flex justify-between items-center mb-5">
                 <div>
-                    <label class="block mb-2 text-sm">
-                        Tahun Anggaran
-                    </label>
-
-                    <input type="number" name="spj_pagu_tahun" id="edit_spj_pagu_tahun"
-                        class="w-full rounded-xl px-4 py-3" required>
+                    <h2 class="text-xl font-bold">
+                        Edit Pagu SPJ
+                    </h2>
+                    <p class="text-sm text-slate-400">
+                        Perbarui unit, program, kegiatan, sub kegiatan, pagu, dan status.
+                    </p>
                 </div>
 
-                <div>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <form method="POST" action="{{ route('admin.spj.update') }}">
+                @csrf
+
+                <input type="hidden" name="spj_pagu_id" id="edit_spj_pagu_id">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Tahun Anggaran
+                        </label>
+
+                        <input type="number" name="spj_pagu_tahun" id="edit_spj_pagu_tahun"
+                            class="w-full rounded-xl px-4 py-3" required>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Unit Pengampu
+                        </label>
+
+                        <select name="spj_pagu_unit_id" id="edit_spj_pagu_unit_id"
+                            class="w-full rounded-xl px-4 py-3" required>
+                            <option value="">Pilih Unit</option>
+
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->unit_id }}">
+                                    {{ $unit->unit_kode }} - {{ $unit->unit_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Status
+                        </label>
+
+                        <select name="spj_pagu_status" id="edit_spj_pagu_status" class="w-full rounded-xl px-4 py-3"
+                            required>
+                            <option value="1">Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Program
+                        </label>
+
+                        <select id="editProgramSelect" onchange="filterEditKegiatan()"
+                            class="w-full rounded-xl px-4 py-3" required>
+                            <option value="">Pilih Program</option>
+
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->program_id }}">
+                                    {{ $program->program_kode ? $program->program_kode . ' - ' : '' }}
+                                    {{ $program->program_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm">
+                            Kegiatan
+                        </label>
+
+                        <select id="editKegiatanSelect" onchange="filterEditSubKegiatan()"
+                            class="w-full rounded-xl px-4 py-3" required>
+                            <option value="">Pilih Kegiatan</option>
+
+                            @foreach ($kegiatans as $kegiatan)
+                                <option value="{{ $kegiatan->kegiatan_id }}"
+                                    data-program="{{ $kegiatan->kegiatan_program }}">
+                                    {{ $kegiatan->kegiatan_kode ? $kegiatan->kegiatan_kode . ' - ' : '' }}
+                                    {{ $kegiatan->kegiatan_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
                     <label class="block mb-2 text-sm">
-                        Unit Pengampu
+                        Sub Kegiatan
                     </label>
 
-                    <select name="spj_pagu_unit_id" id="edit_spj_pagu_unit_id" class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Unit</option>
+                    <select name="spj_pagu_sub_kegiatan_id" id="editSubKegiatanSelect"
+                        onchange="setEditMasterHidden()" class="w-full rounded-xl px-4 py-3" required>
+                        <option value="">Pilih Sub Kegiatan</option>
 
-                        @foreach ($units as $unit)
-                            <option value="{{ $unit->unit_id }}">
-                                {{ $unit->unit_kode }} - {{ $unit->unit_nama }}
+                        @foreach ($subKegiatans as $sub)
+                            <option value="{{ $sub->sub_kegiatan_id }}"
+                                data-kegiatan="{{ $sub->sub_kegiatan_kegiatan }}">
+                                {{ $sub->sub_kegiatan_kode ? $sub->sub_kegiatan_kode . ' - ' : '' }}
+                                {{ $sub->sub_kegiatan_nama }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Status
-                    </label>
+                <input type="hidden" name="spj_pagu_program_id" id="edit_spj_pagu_program_id">
+                <input type="hidden" name="spj_pagu_kegiatan_id" id="edit_spj_pagu_kegiatan_id">
 
-                    <select name="spj_pagu_status" id="edit_spj_pagu_status" class="w-full rounded-xl px-4 py-3" required>
-                        <option value="1">Aktif</option>
-                        <option value="0">Nonaktif</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Program
-                    </label>
-
-                    <select id="editProgramSelect" onchange="filterEditKegiatan()"
-                        class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Program</option>
-
-                        @foreach ($programs as $program)
-                            <option value="{{ $program->program_id }}">
-                                {{ $program->program_kode ? $program->program_kode . ' - ' : '' }}
-                                {{ $program->program_nama }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="mt-6 mb-3">
+                    <h3 class="font-semibold">
+                        Riwayat Pagu
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Pagu final akan mengikuti nominal pagu paling akhir.
+                    </p>
                 </div>
 
-                <div>
-                    <label class="block mb-2 text-sm">
-                        Kegiatan
-                    </label>
+                <div id="editPaguContainer"></div>
 
-                    <select id="editKegiatanSelect" onchange="filterEditSubKegiatan()"
-                        class="w-full rounded-xl px-4 py-3" required>
-                        <option value="">Pilih Kegiatan</option>
-
-                        @foreach ($kegiatans as $kegiatan)
-                            <option value="{{ $kegiatan->kegiatan_id }}" data-program="{{ $kegiatan->kegiatan_program }}">
-                                {{ $kegiatan->kegiatan_kode ? $kegiatan->kegiatan_kode . ' - ' : '' }}
-                                {{ $kegiatan->kegiatan_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="block mb-2 text-sm">
-                    Sub Kegiatan
-                </label>
-
-                <select name="spj_pagu_sub_kegiatan_id" id="editSubKegiatanSelect" onchange="setEditMasterHidden()"
-                    class="w-full rounded-xl px-4 py-3" required>
-                    <option value="">Pilih Sub Kegiatan</option>
-
-                    @foreach ($subKegiatans as $sub)
-                        <option value="{{ $sub->sub_kegiatan_id }}" data-kegiatan="{{ $sub->sub_kegiatan_kegiatan }}">
-                            {{ $sub->sub_kegiatan_kode ? $sub->sub_kegiatan_kode . ' - ' : '' }}
-                            {{ $sub->sub_kegiatan_nama }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <input type="hidden" name="spj_pagu_program_id" id="edit_spj_pagu_program_id">
-            <input type="hidden" name="spj_pagu_kegiatan_id" id="edit_spj_pagu_kegiatan_id">
-
-            <div class="mt-6 mb-3">
-                <h3 class="font-semibold">
-                    Riwayat Pagu
-                </h3>
-                <p class="text-xs text-slate-400">
-                    Pagu final akan mengikuti nominal pagu paling akhir.
-                </p>
-            </div>
-
-            <div id="editPaguContainer"></div>
-
-            <button type="button" onclick="tambahEditPagu()" class="mb-5 text-blue-400 hover:text-blue-300 font-semibold">
-                + Tambah Pergeseran
-            </button>
-
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeEditModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
-                    Batal
+                <button type="button" onclick="tambahEditPagu()"
+                    class="mb-5 text-blue-400 hover:text-blue-300 font-semibold">
+                    + Tambah Pergeseran
                 </button>
 
-                <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
-                    Update
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeEditModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
+                        Batal
+                    </button>
 
+                    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">
+                        Update
+                    </button>
+                </div>
+            </form>
+
+        </div>
     </div>
-</div>
 
-<script>
-    function openModal() {
-        $('#modalPagu').removeClass('hidden').addClass('flex');
-        filterKegiatan();
-    }
+    <script>
+        function formatRupiah(value) {
+            value = value.replace(/\D/g, '');
 
-    function closeModal() {
-        $('#modalPagu').addClass('hidden').removeClass('flex');
-    }
+            return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
 
-    function filterKegiatan() {
-        const programId = $('#programSelect').val();
-
-        $('#kegiatanSelect').val('');
-        $('#subKegiatanSelect').val('');
-
-        $('#spj_pagu_program_id').val(programId);
-        $('#spj_pagu_kegiatan_id').val('');
-
-        $('#kegiatanSelect option').each(function () {
-            const optionProgram = $(this).data('program');
-
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', String(optionProgram) !== String(programId));
-            }
+        $(document).on('input', '.nominal-rupiah', function() {
+            this.value = formatRupiah(this.value);
         });
 
-        $('#subKegiatanSelect option').each(function () {
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', true);
-            }
-        });
-    }
+        function formatRupiahJs(angka) {
+            angka = parseInt(angka || 0);
 
-    function filterSubKegiatan() {
-        const kegiatanId = $('#kegiatanSelect').val();
+            return angka.toLocaleString('id-ID');
+        }
 
-        $('#subKegiatanSelect').val('');
-        $('#spj_pagu_kegiatan_id').val(kegiatanId);
+        function openModal() {
+            $('#modalPagu').removeClass('hidden').addClass('flex');
+            filterKegiatan();
+        }
 
-        $('#subKegiatanSelect option').each(function () {
-            const optionKegiatan = $(this).data('kegiatan');
+        function closeModal() {
+            $('#modalPagu').addClass('hidden').removeClass('flex');
+        }
 
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', String(optionKegiatan) !== String(kegiatanId));
-            }
-        });
-    }
+        function filterKegiatan() {
+            const programId = $('#programSelect').val();
 
-    function setMasterHidden() {
-        $('#spj_pagu_program_id').val($('#programSelect').val());
-        $('#spj_pagu_kegiatan_id').val($('#kegiatanSelect').val());
-    }
+            $('#kegiatanSelect').val('');
+            $('#subKegiatanSelect').val('');
 
-    let nomorPergeseran = 1;
+            $('#spj_pagu_program_id').val(programId);
+            $('#spj_pagu_kegiatan_id').val('');
 
-    function tambahPagu() {
-        nomorPergeseran++;
+            $('#kegiatanSelect option').each(function() {
+                const optionProgram = $(this).data('program');
 
-        $('#paguContainer').append(`
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                <input type="text" name="pagu_jenis[]" value="Pergeseran ${nomorPergeseran}" class="rounded-xl px-4 py-3" required>
-                <input type="number" name="pagu_nominal[]" class="rounded-xl px-4 py-3" placeholder="Nominal" required>
-                <input type="date" name="pagu_tanggal[]" class="rounded-xl px-4 py-3">
-                <input type="text" name="pagu_keterangan[]" class="rounded-xl px-4 py-3" placeholder="Keterangan">
-            </div>
-        `);
-    }
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', String(optionProgram) !== String(programId));
+                }
+            });
 
-    function rupiah(angka) {
-        angka = Number(angka || 0);
-        return 'Rp ' + angka.toLocaleString('id-ID');
-    }
+            $('#subKegiatanSelect option').each(function() {
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', true);
+                }
+            });
+        }
 
-    function openDetailModal(item) {
-        const realisasi = (item.realisasi || [])
-            .filter(spj => spj.spj_status === 'Aktif')
-            .reduce((total, spj) => total + Number(spj.spj_nominal || 0), 0);
+        function filterSubKegiatan() {
+            const kegiatanId = $('#kegiatanSelect').val();
 
-        const sisa = Number(item.spj_pagu_final || 0) - realisasi;
+            $('#subKegiatanSelect').val('');
+            $('#spj_pagu_kegiatan_id').val(kegiatanId);
 
-        $('#detailSubKegiatan').text(item.sub_kegiatan?.sub_kegiatan_nama ?? '-');
-        $('#detailUnit').text((item.unit?.unit_kode ?? '-') + ' - ' + (item.unit?.unit_nama ?? '-'));
-        $('#detailPaguFinal').text(rupiah(item.spj_pagu_final));
-        $('#detailRealisasi').text(rupiah(realisasi));
-        $('#detailSisa').text(rupiah(sisa));
+            $('#subKegiatanSelect option').each(function() {
+                const optionKegiatan = $(this).data('kegiatan');
 
-        let paguHtml = '';
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', String(optionKegiatan) !== String(kegiatanId));
+                }
+            });
+        }
 
-        if (item.detail && item.detail.length > 0) {
-            item.detail.forEach((detail, index) => {
-                paguHtml += `
+        function setMasterHidden() {
+            $('#spj_pagu_program_id').val($('#programSelect').val());
+            $('#spj_pagu_kegiatan_id').val($('#kegiatanSelect').val());
+        }
+
+        let nomorPergeseran = 1;
+
+        function tambahPagu() {
+            nomorPergeseran++;
+
+            $('#paguContainer').append(`
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+            <input type="text" name="pagu_jenis[]" value="Pergeseran ${nomorPergeseran}" class="rounded-xl px-4 py-3" required>
+
+            <input type="text" name="pagu_nominal[]" class="rounded-xl px-4 py-3 nominal-rupiah" placeholder="Nominal" required>
+
+            <input type="date" name="pagu_tanggal[]" class="rounded-xl px-4 py-3">
+
+            <input type="text" name="pagu_keterangan[]" class="rounded-xl px-4 py-3" placeholder="Keterangan">
+        </div>
+    `);
+        }
+
+        function rupiah(angka) {
+            angka = Number(angka || 0);
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        function openDetailModal(item) {
+            const realisasi = (item.realisasi || [])
+                .filter(spj => spj.spj_status === 'Aktif')
+                .reduce((total, spj) => total + Number(spj.spj_nominal || 0), 0);
+
+            const sisa = Number(item.spj_pagu_final || 0) - realisasi;
+
+            $('#detailSubKegiatan').text(item.sub_kegiatan?.sub_kegiatan_nama ?? '-');
+            $('#detailUnit').text((item.unit?.unit_kode ?? '-') + ' - ' + (item.unit?.unit_nama ?? '-'));
+            $('#detailPaguFinal').text(rupiah(item.spj_pagu_final));
+            $('#detailRealisasi').text(rupiah(realisasi));
+            $('#detailSisa').text(rupiah(sisa));
+
+            let paguHtml = '';
+
+            if (item.detail && item.detail.length > 0) {
+                item.detail.forEach((detail, index) => {
+                    paguHtml += `
                     <div class="bg-slate-800 border border-slate-700 rounded-xl p-3">
                         <div class="flex justify-between gap-3">
                             <div>
@@ -695,20 +753,20 @@
                         </div>
                     </div>
                 `;
-            });
-        } else {
-            paguHtml = `<div class="text-slate-400">Belum ada riwayat pagu.</div>`;
-        }
+                });
+            } else {
+                paguHtml = `<div class="text-slate-400">Belum ada riwayat pagu.</div>`;
+            }
 
-        $('#detailPaguList').html(paguHtml);
+            $('#detailPaguList').html(paguHtml);
 
-        let realisasiHtml = '';
+            let realisasiHtml = '';
 
-        if (item.realisasi && item.realisasi.length > 0) {
-            item.realisasi
-                .filter(spj => spj.spj_status === 'Aktif')
-                .forEach((spj, index) => {
-                    realisasiHtml += `
+            if (item.realisasi && item.realisasi.length > 0) {
+                item.realisasi
+                    .filter(spj => spj.spj_status === 'Aktif')
+                    .forEach((spj, index) => {
+                        realisasiHtml += `
                         <div class="bg-slate-800 border border-slate-700 rounded-xl p-3">
                             <div class="flex justify-between gap-3">
                                 <div>
@@ -719,197 +777,218 @@
                             </div>
                         </div>
                     `;
-                });
+                    });
+            }
+
+            if (!realisasiHtml) {
+                realisasiHtml = `<div class="text-slate-400">Belum ada realisasi SPJ.</div>`;
+            }
+
+            $('#detailRealisasiList').html(realisasiHtml);
+
+            $('#detailModal').removeClass('hidden').addClass('flex');
         }
 
-        if (!realisasiHtml) {
-            realisasiHtml = `<div class="text-slate-400">Belum ada realisasi SPJ.</div>`;
+        function closeDetailModal() {
+            $('#detailModal').addClass('hidden').removeClass('flex');
         }
 
-        $('#detailRealisasiList').html(realisasiHtml);
+        let nomorEditPergeseran = 1;
 
-        $('#detailModal').removeClass('hidden').addClass('flex');
-    }
+        function openEditModal(item) {
+            $('#edit_spj_pagu_id').val(item.spj_pagu_id);
+            $('#edit_spj_pagu_tahun').val(item.spj_pagu_tahun);
+            $('#edit_spj_pagu_unit_id').val(item.spj_pagu_unit_id);
+            $('#edit_spj_pagu_status').val(item.spj_pagu_status);
 
-    function closeDetailModal() {
-        $('#detailModal').addClass('hidden').removeClass('flex');
-    }
+            $('#editProgramSelect').val(item.spj_pagu_program_id);
+            $('#edit_spj_pagu_program_id').val(item.spj_pagu_program_id);
 
-    let nomorEditPergeseran = 1;
+            filterEditKegiatan();
 
-    function openEditModal(item) {
-        $('#edit_spj_pagu_id').val(item.spj_pagu_id);
-        $('#edit_spj_pagu_tahun').val(item.spj_pagu_tahun);
-        $('#edit_spj_pagu_unit_id').val(item.spj_pagu_unit_id);
-        $('#edit_spj_pagu_status').val(item.spj_pagu_status);
+            $('#editKegiatanSelect').val(item.spj_pagu_kegiatan_id);
+            $('#edit_spj_pagu_kegiatan_id').val(item.spj_pagu_kegiatan_id);
 
-        $('#editProgramSelect').val(item.spj_pagu_program_id);
-        $('#edit_spj_pagu_program_id').val(item.spj_pagu_program_id);
+            filterEditSubKegiatan();
 
-        filterEditKegiatan();
+            $('#editSubKegiatanSelect').val(item.spj_pagu_sub_kegiatan_id);
 
-        $('#editKegiatanSelect').val(item.spj_pagu_kegiatan_id);
-        $('#edit_spj_pagu_kegiatan_id').val(item.spj_pagu_kegiatan_id);
+            $('#editPaguContainer').html('');
 
-        filterEditSubKegiatan();
+            nomorEditPergeseran = 0;
 
-        $('#editSubKegiatanSelect').val(item.spj_pagu_sub_kegiatan_id);
+            if (item.detail && item.detail.length > 0) {
+                item.detail
+                    .sort((a, b) => Number(a.spj_pagu_detail_urutan) - Number(b.spj_pagu_detail_urutan))
+                    .forEach((detail) => {
+                        nomorEditPergeseran++;
 
-        $('#editPaguContainer').html('');
+                        let tanggal = detail.spj_pagu_detail_tanggal ?? '';
 
-        nomorEditPergeseran = 0;
+                        if (tanggal && tanggal.includes('T')) {
+                            tanggal = tanggal.split('T')[0];
+                        }
 
-        if (item.detail && item.detail.length > 0) {
-            item.detail
-                .sort((a, b) => Number(a.spj_pagu_detail_urutan) - Number(b.spj_pagu_detail_urutan))
-                .forEach((detail) => {
-                    nomorEditPergeseran++;
+                        tambahEditPaguRow(
+                            detail.spj_pagu_detail_jenis ?? 'Pagu',
+                            detail.spj_pagu_detail_nominal ?? '',
+                            tanggal,
+                            detail.spj_pagu_detail_keterangan ?? ''
+                        );
+                    });
+            } else {
+                nomorEditPergeseran = 1;
 
-                    let tanggal = detail.spj_pagu_detail_tanggal ?? '';
+                tambahEditPaguRow(
+                    'Pagu Induk',
+                    item.spj_pagu_final ?? '',
+                    '',
+                    ''
+                );
+            }
 
-                    if (tanggal && tanggal.includes('T')) {
-                        tanggal = tanggal.split('T')[0];
-                    }
+            $('#editModalPagu').removeClass('hidden').addClass('flex');
+        }
 
-                    tambahEditPaguRow(
-                        detail.spj_pagu_detail_jenis ?? 'Pagu',
-                        detail.spj_pagu_detail_nominal ?? '',
-                        tanggal,
-                        detail.spj_pagu_detail_keterangan ?? ''
-                    );
-                });
-        } else {
-            nomorEditPergeseran = 1;
+
+        function closeEditModal() {
+            $('#editModalPagu').addClass('hidden').removeClass('flex');
+        }
+
+        function filterEditKegiatan() {
+            const programId = $('#editProgramSelect').val();
+
+            $('#editKegiatanSelect').val('');
+            $('#editSubKegiatanSelect').val('');
+
+            $('#edit_spj_pagu_program_id').val(programId);
+            $('#edit_spj_pagu_kegiatan_id').val('');
+
+            $('#editKegiatanSelect option').each(function() {
+                const optionProgram = $(this).data('program');
+
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', String(optionProgram) !== String(programId));
+                }
+            });
+
+            $('#editSubKegiatanSelect option').each(function() {
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', true);
+                }
+            });
+        }
+
+        function filterEditSubKegiatan() {
+            const kegiatanId = $('#editKegiatanSelect').val();
+
+            $('#editSubKegiatanSelect').val('');
+            $('#edit_spj_pagu_kegiatan_id').val(kegiatanId);
+
+            $('#editSubKegiatanSelect option').each(function() {
+                const optionKegiatan = $(this).data('kegiatan');
+
+                if (!$(this).val()) {
+                    $(this).prop('hidden', false);
+                } else {
+                    $(this).prop('hidden', String(optionKegiatan) !== String(kegiatanId));
+                }
+            });
+        }
+
+        function setEditMasterHidden() {
+            $('#edit_spj_pagu_program_id').val($('#editProgramSelect').val());
+            $('#edit_spj_pagu_kegiatan_id').val($('#editKegiatanSelect').val());
+        }
+
+        function tambahEditPagu() {
+            nomorEditPergeseran++;
 
             tambahEditPaguRow(
-                'Pagu Induk',
-                item.spj_pagu_final ?? '',
+                `Pergeseran ${nomorEditPergeseran}`,
+                '',
                 '',
                 ''
             );
         }
 
-        $('#editModalPagu').removeClass('hidden').addClass('flex');
-    }
+        function tambahEditPaguRow(jenis = '', nominal = '', tanggal = '', keterangan = '') {
+    $('#editPaguContainer').append(`
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 edit-pagu-row">
+            <input type="text"
+                name="pagu_jenis[]"
+                value="${escapeHtml(jenis)}"
+                class="rounded-xl px-4 py-3"
+                required>
 
-    function closeEditModal() {
-        $('#editModalPagu').addClass('hidden').removeClass('flex');
-    }
+            <input type="text"
+                name="pagu_nominal[]"
+                value="${formatRupiahJs(nominal)}"
+                class="rounded-xl px-4 py-3 nominal-rupiah"
+                placeholder="Nominal"
+                required>
 
-    function filterEditKegiatan() {
-        const programId = $('#editProgramSelect').val();
+            <input type="date"
+                name="pagu_tanggal[]"
+                value="${tanggal ?? ''}"
+                class="rounded-xl px-4 py-3">
 
-        $('#editKegiatanSelect').val('');
-        $('#editSubKegiatanSelect').val('');
+            <div class="flex gap-2">
+                <input type="text"
+                    name="pagu_keterangan[]"
+                    value="${escapeHtml(keterangan)}"
+                    class="rounded-xl px-4 py-3 w-full"
+                    placeholder="Keterangan">
 
-        $('#edit_spj_pagu_program_id').val(programId);
-        $('#edit_spj_pagu_kegiatan_id').val('');
-
-        $('#editKegiatanSelect option').each(function () {
-            const optionProgram = $(this).data('program');
-
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', String(optionProgram) !== String(programId));
-            }
-        });
-
-        $('#editSubKegiatanSelect option').each(function () {
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', true);
-            }
-        });
-    }
-
-    function filterEditSubKegiatan() {
-        const kegiatanId = $('#editKegiatanSelect').val();
-
-        $('#editSubKegiatanSelect').val('');
-        $('#edit_spj_pagu_kegiatan_id').val(kegiatanId);
-
-        $('#editSubKegiatanSelect option').each(function () {
-            const optionKegiatan = $(this).data('kegiatan');
-
-            if (!$(this).val()) {
-                $(this).prop('hidden', false);
-            } else {
-                $(this).prop('hidden', String(optionKegiatan) !== String(kegiatanId));
-            }
-        });
-    }
-
-    function setEditMasterHidden() {
-        $('#edit_spj_pagu_program_id').val($('#editProgramSelect').val());
-        $('#edit_spj_pagu_kegiatan_id').val($('#editKegiatanSelect').val());
-    }
-
-    function tambahEditPagu() {
-        nomorEditPergeseran++;
-
-        tambahEditPaguRow(
-            `Pergeseran ${nomorEditPergeseran}`,
-            '',
-            '',
-            ''
-        );
-    }
-
-    function tambahEditPaguRow(jenis = '', nominal = '', tanggal = '', keterangan = '') {
-        $('#editPaguContainer').append(`
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 edit-pagu-row">
-                <input type="text" name="pagu_jenis[]" value="${escapeHtml(jenis)}" class="rounded-xl px-4 py-3" required>
-                <input type="number" name="pagu_nominal[]" value="${nominal}" class="rounded-xl px-4 py-3" placeholder="Nominal" required>
-                <input type="date" name="pagu_tanggal[]" value="${tanggal ?? ''}" class="rounded-xl px-4 py-3">
-
-                <div class="flex gap-2">
-                    <input type="text" name="pagu_keterangan[]" value="${escapeHtml(keterangan)}"
-                        class="rounded-xl px-4 py-3 w-full" placeholder="Keterangan">
-
-                    <button type="button" onclick="$(this).closest('.edit-pagu-row').remove()"
-                        class="bg-red-600 hover:bg-red-700 px-3 rounded-xl text-sm">
-                        ✕
-                    </button>
-                </div>
+                <button type="button"
+                    onclick="$(this).closest('.edit-pagu-row').remove()"
+                    class="bg-red-600 hover:bg-red-700 px-3 rounded-xl text-sm">
+                    ✕
+                </button>
             </div>
-        `);
-    }
+        </div>
+    `);
+}
 
-    function escapeHtml(text) {
-        if (text === null || text === undefined) {
-            return '';
+        function escapeHtml(text) {
+            if (text === null || text === undefined) {
+                return '';
+            }
+
+            return String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
         }
 
-        return String(text)
-            .replaceAll('&', '&amp;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;');
-    }
-
-    $(document).ready(function () {
-        $('#spjTable').DataTable({
-            scrollX: true,
-            autoWidth: false,
-            pageLength: 10,
-            order: [[1, 'asc']],
-            language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ data",
-                info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-                emptyTable: "Belum ada data pagu SPJ",
-                zeroRecords: "Data tidak ditemukan",
-                paginate: {
-                    previous: "Sebelumnya",
-                    next: "Berikutnya"
+        $(document).ready(function() {
+            $('#spjTable').DataTable({
+                scrollX: true,
+                autoWidth: false,
+                pageLength: 10,
+                order: [
+                    [1, 'asc']
+                ],
+                language: {
+                    search: "Cari:",
+                    lengthMenu: "Tampilkan _MENU_ data",
+                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                    emptyTable: "Belum ada data pagu SPJ",
+                    zeroRecords: "Data tidak ditemukan",
+                    paginate: {
+                        previous: "Sebelumnya",
+                        next: "Berikutnya"
+                    }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
 
 </body>
 
