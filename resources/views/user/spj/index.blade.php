@@ -455,7 +455,7 @@
                     required>
 
                 <p class="text-xs text-slate-500 mt-2">
-                    Format: PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, XLSX. Maksimal 5 MB.
+                    Format: PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, XLSX. Maksimal 200 MB.
                 </p>
             </div>
 
