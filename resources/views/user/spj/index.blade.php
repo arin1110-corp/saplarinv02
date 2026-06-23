@@ -35,17 +35,14 @@
     @endif
 
     <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-lg p-6 text-white">
-        <h2 class="text-2xl font-bold">
-            Input SPJ
-        </h2>
-
+        <h2 class="text-2xl font-bold">Input SPJ</h2>
         <p class="text-blue-100 text-sm mt-2">
-            Operator menginput uraian SPJ, nominal, tanggal SPJ, dan file bukti SPJ.
+            Operator menginput uraian SPJ, nominal, tanggal SPJ, dan file bukti SPJ berdasarkan unit pengampu pagu.
         </p>
     </div>
 
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -57,8 +54,23 @@
                     <option value="">Semua Tahun</option>
 
                     @foreach ($tahunList as $tahun)
-                        <option value="{{ $tahun }}">
-                            {{ $tahun }}
+                        <option value="{{ $tahun }}">{{ $tahun }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Filter Unit
+                </label>
+
+                <select id="filterUnit"
+                    class="w-full rounded-2xl border border-slate-200 px-4 py-3 bg-white text-slate-800">
+                    <option value="">Semua Unit</option>
+
+                    @foreach ($units as $unit)
+                        <option value="{{ $unit->unit_id }}">
+                            {{ $unit->unit_kode }} - {{ $unit->unit_nama }}
                         </option>
                     @endforeach
                 </select>
@@ -66,13 +78,13 @@
 
             <div class="md:col-span-2">
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Cari Program / Kegiatan / Sub Kegiatan
+                    Cari Program / Kegiatan / Sub Kegiatan / Unit
                 </label>
 
                 <input type="text"
                     id="searchPagu"
                     class="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder="Ketik nama program, kegiatan, sub kegiatan, atau kode...">
+                    placeholder="Ketik nama unit, program, kegiatan, sub kegiatan, atau kode...">
             </div>
 
         </div>
@@ -117,6 +129,8 @@
                 }
 
                 $keywordSearch = strtolower(
+                    ($item->unit->unit_kode ?? '') . ' ' .
+                    ($item->unit->unit_nama ?? '') . ' ' .
                     ($item->spj_pagu_tahun ?? '') . ' ' .
                     ($item->program->program_kode ?? '') . ' ' .
                     ($item->program->program_nama ?? '') . ' ' .
@@ -128,14 +142,23 @@
             @endphp
 
             <div class="pagu-card bg-white rounded-3xl border border-slate-200 shadow-sm p-6"
+                data-unit="{{ $item->spj_pagu_unit_id }}"
                 data-tahun="{{ $item->spj_pagu_tahun }}"
                 data-search="{{ $keywordSearch }}">
 
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
 
                     <div>
-                        <div class="text-sm text-slate-500">
-                            Tahun Anggaran {{ $item->spj_pagu_tahun }}
+                        <div class="flex flex-wrap gap-2 mb-3">
+
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                Tahun {{ $item->spj_pagu_tahun }}
+                            </span>
+
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                {{ $item->unit->unit_kode ?? '-' }} - {{ $item->unit->unit_nama ?? '-' }}
+                            </span>
+
                         </div>
 
                         <h3 class="text-xl font-bold text-slate-900">
@@ -218,9 +241,7 @@
                             <tbody>
                                 @forelse ($item->detail->sortBy('spj_pagu_detail_urutan') as $detail)
                                     <tr class="border-b hover:bg-slate-50">
-                                        <td class="py-3 px-3">
-                                            {{ $loop->iteration }}
-                                        </td>
+                                        <td class="py-3 px-3">{{ $loop->iteration }}</td>
 
                                         <td class="py-3 px-3">
                                             {{ $detail->spj_pagu_detail_jenis }}
@@ -272,9 +293,7 @@
                             <tbody>
                                 @forelse ($item->realisasi->where('spj_status', 'Aktif')->sortByDesc('spj_tanggal') as $spj)
                                     <tr class="border-b hover:bg-slate-50">
-                                        <td class="py-3 px-3">
-                                            {{ $loop->iteration }}
-                                        </td>
+                                        <td class="py-3 px-3">{{ $loop->iteration }}</td>
 
                                         <td class="py-3 px-3">
                                             {{ $spj->spj_tanggal?->format('d/m/Y') }}
@@ -374,6 +393,9 @@
                 </h2>
 
                 <p id="modal_spj_subkegiatan" class="text-sm text-slate-500"></p>
+
+                <p id="modal_spj_unit"
+                    class="text-sm font-semibold text-blue-600 mt-1"></p>
             </div>
 
             <button type="button"
@@ -462,8 +484,10 @@
 <script>
     function openSPJModal(item) {
         let subKegiatan = item.sub_kegiatan ? item.sub_kegiatan.sub_kegiatan_nama : '-';
+        let unit = item.unit ? item.unit.unit_nama : '-';
 
         document.getElementById('modal_spj_subkegiatan').innerText = subKegiatan;
+        document.getElementById('modal_spj_unit').innerText = 'Unit Pengampu: ' + unit;
 
         let action = "{{ url('/user/spj') }}/" + item.spj_pagu_uid + "/store";
 
@@ -481,6 +505,7 @@
 
     const cards = Array.from(document.querySelectorAll('.pagu-card'));
     const filterTahun = document.getElementById('filterTahun');
+    const filterUnit = document.getElementById('filterUnit');
     const searchPagu = document.getElementById('searchPagu');
     const perPageSelect = document.getElementById('perPage');
     const emptyFilter = document.getElementById('emptyFilter');
@@ -493,16 +518,19 @@
 
     function getFilteredCards() {
         const tahun = filterTahun.value;
+        const unit = filterUnit.value;
         const keyword = searchPagu.value.toLowerCase().trim();
 
         return cards.filter(card => {
             const cardTahun = card.dataset.tahun || '';
+            const cardUnit = card.dataset.unit || '';
             const cardSearch = card.dataset.search || '';
 
             const matchTahun = !tahun || cardTahun === tahun;
+            const matchUnit = !unit || cardUnit === unit;
             const matchSearch = !keyword || cardSearch.includes(keyword);
 
-            return matchTahun && matchSearch;
+            return matchTahun && matchUnit && matchSearch;
         });
     }
 
@@ -539,6 +567,11 @@
     }
 
     filterTahun.addEventListener('change', function () {
+        currentPage = 1;
+        renderPagination();
+    });
+
+    filterUnit.addEventListener('change', function () {
         currentPage = 1;
         renderPagination();
     });

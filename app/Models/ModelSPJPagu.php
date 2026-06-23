@@ -19,6 +19,7 @@ class ModelSPJPagu extends Model
         'spj_pagu_status',
         'spj_pagu_created_by',
         'spj_pagu_created_by_nama',
+        'spj_pagu_unit_id',
     ];
 
     public function detail()
@@ -44,5 +45,9 @@ class ModelSPJPagu extends Model
     public function subKegiatan()
     {
         return $this->belongsTo(ModelSubKegiatan::class, 'spj_pagu_sub_kegiatan_id', 'sub_kegiatan_id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo(ModelSPJUnit::class, 'spj_pagu_unit_id', 'unit_id');
     }
 }
