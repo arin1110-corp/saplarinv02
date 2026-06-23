@@ -24,6 +24,18 @@
             color: #e2e8f0 !important;
         }
 
+        table.dataTable thead th {
+            color: #cbd5e1 !important;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        table.dataTable tbody td {
+            vertical-align: top;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+
         .dataTables_wrapper {
             color: #cbd5e1;
         }
@@ -68,7 +80,7 @@
 
         @include('administrator.partials.sidebar')
 
-        <div class="flex-1 p-6">
+        <div class="flex-1 p-6 overflow-x-hidden">
 
             @include('administrator.partials.header')
 
@@ -106,21 +118,21 @@
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 overflow-x-auto">
 
-                <table id="bbmTable" class="display w-full text-sm">
+                <table id="bbmTable" class="display nowrap w-full text-sm">
 
                     <thead>
                         <tr>
-                            <th>No</th>
+                            <th width="40">No</th>
                             <th>Pengaju</th>
                             <th>No Plat</th>
                             <th>Liter</th>
                             <th>Uraian</th>
                             <th>Status Pengajuan</th>
                             <th>Status Nota</th>
-                            <th>File</th>
-                            <th width="260">Aksi</th>
+                            <th width="120">File</th>
+                            <th width="240">Aksi</th>
                         </tr>
                     </thead>
 
@@ -131,53 +143,62 @@
                                     !$item->bbm_spt_sync ||
                                     !$item->bbm_acc_pimpinan_sync ||
                                     ($item->bbm_laporan_nota_file && !$item->bbm_laporan_nota_sync);
+
+                                $buktiTambahan = $item->bbm_bukti_tambahan_file;
+
+                                if (is_string($buktiTambahan)) {
+                                    $buktiTambahan = json_decode($buktiTambahan, true);
+                                }
+
+                                if (!is_array($buktiTambahan)) {
+                                    $buktiTambahan = [];
+                                }
                             @endphp
 
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
 
                                 <td>
-                                    <div class="font-semibold text-white">
+                                    <div class="font-semibold text-white whitespace-nowrap">
                                         {{ $item->bbm_pengaju_nama }}
                                     </div>
 
-                                    <div class="text-xs text-slate-400">
+                                    <div class="text-xs text-slate-400 whitespace-nowrap">
                                         {{ $item->bbm_pengaju_nip }}
                                     </div>
 
-                                    <div class="text-xs text-slate-400">
+                                    <div class="text-xs text-slate-400 max-w-[180px] truncate">
                                         {{ $item->bbm_bidang_nama }}
                                     </div>
                                 </td>
 
                                 <td>
-                                    <span
-                                        class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold">
+                                    <span class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
                                         {{ $item->bbm_no_plat ?? '-' }}
                                     </span>
                                 </td>
 
-                                <td>
+                                <td class="whitespace-nowrap">
                                     {{ number_format($item->bbm_liter, 2, ',', '.') }} L
                                 </td>
 
                                 <td>
-                                    <span title="{{ $item->bbm_uraian_kegiatan }}">
-                                        {{ \Illuminate\Support\Str::limit($item->bbm_uraian_kegiatan, 60) }}
-                                    </span>
+                                    <div class="max-w-[240px] whitespace-normal leading-relaxed" title="{{ $item->bbm_uraian_kegiatan }}">
+                                        {{ \Illuminate\Support\Str::limit($item->bbm_uraian_kegiatan, 70) }}
+                                    </div>
                                 </td>
 
                                 <td>
                                     @if ($item->bbm_status_pengajuan === 'Pengajuan Diterima')
-                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @elseif ($item->bbm_status_pengajuan === 'Pengajuan Ditolak')
-                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @else
-                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @endif
@@ -185,109 +206,40 @@
 
                                 <td>
                                     @if ($item->bbm_status_laporan === 'Laporan Nota Diterima')
-                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @elseif ($item->bbm_status_laporan === 'Laporan Nota Ditolak')
-                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @elseif ($item->bbm_status_laporan === 'Menunggu Verifikasi')
-                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @else
-                                        <span class="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs">
+                                        <span class="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @endif
                                 </td>
 
                                 <td>
-                                    <div class="flex flex-col gap-2">
+                                    <button type="button"
+                                        onclick='openFileModal(@json($item), @json($buktiTambahan))'
+                                        class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">
+                                        Lihat File
+                                    </button>
 
-                                        @if ($item->bbm_spt_file)
-                                            <div>
-                                                <a href="{{ $item->bbm_spt_sync ? $item->bbm_spt_file : asset($item->bbm_spt_file) }}"
-                                                    target="_blank"
-                                                    class="{{ $item->bbm_spt_sync ? 'text-green-400' : 'text-blue-400' }} hover:underline">
-                                                    {{ $item->bbm_spt_sync ? 'SPT Drive' : 'SPT Lokal' }}
-                                                </a>
-
-                                                @if ($item->bbm_spt_sync)
-                                                    <div class="text-[10px] text-green-400">
-                                                        Sudah Sinkron
-                                                    </div>
-                                                @else
-                                                    <div class="text-[10px] text-yellow-400">
-                                                        Belum Sinkron
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        @if ($item->bbm_acc_pimpinan_file)
-                                            <div>
-                                                <a href="{{ $item->bbm_acc_pimpinan_sync ? $item->bbm_acc_pimpinan_file : asset($item->bbm_acc_pimpinan_file) }}"
-                                                    target="_blank"
-                                                    class="{{ $item->bbm_acc_pimpinan_sync ? 'text-green-400' : 'text-purple-400' }} hover:underline">
-                                                    {{ $item->bbm_acc_pimpinan_sync ? 'ACC Drive' : 'ACC Lokal' }}
-                                                </a>
-
-                                                @if ($item->bbm_acc_pimpinan_sync)
-                                                    <div class="text-[10px] text-green-400">
-                                                        Sudah Sinkron
-                                                    </div>
-                                                @else
-                                                    <div class="text-[10px] text-yellow-400">
-                                                        Belum Sinkron
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        @if ($item->bbm_laporan_nota_file)
-                                            <div>
-                                                <a href="{{ $item->bbm_laporan_nota_sync ? $item->bbm_laporan_nota_file : asset($item->bbm_laporan_nota_file) }}"
-                                                    target="_blank"
-                                                    class="{{ $item->bbm_laporan_nota_sync ? 'text-green-400' : 'text-yellow-400' }} hover:underline">
-                                                    {{ $item->bbm_laporan_nota_sync ? 'Nota Drive' : 'Nota Lokal' }}
-                                                </a>
-
-                                                @if ($item->bbm_laporan_nota_sync)
-                                                    <div class="text-[10px] text-green-400">
-                                                        Sudah Sinkron
-                                                    </div>
-                                                @else
-                                                    <div class="text-[10px] text-yellow-400">
-                                                        Belum Sinkron
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        @if (!$item->bbm_spt_file && !$item->bbm_acc_pimpinan_file && !$item->bbm_laporan_nota_file)
-                                            <span class="text-slate-500">-</span>
-                                        @endif
-
-                                    </div>
-
-                                    <div>
-                                        <p class="text-slate-400 text-xs">Foto Mobil / Kendaraan</p>
-
-                                        @if ($item->bbm_foto_mobil_file)
-                                            <a href="{{ $item->bbm_foto_mobil_file }}" target="_blank"
-                                                class="text-blue-400 hover:underline">
-                                                Lihat Foto Mobil
-                                            </a>
-                                        @else
-                                            <p class="text-slate-500">Belum ada</p>
-                                        @endif
-                                    </div>
+                                    @if (!empty($buktiTambahan))
+                                        <div class="text-[10px] text-cyan-300 mt-1 whitespace-nowrap">
+                                            {{ count($buktiTambahan) }} bukti tambahan
+                                        </div>
+                                    @endif
                                 </td>
 
                                 <td>
-                                    <div class="flex flex-wrap gap-2">
+                                    <div class="flex flex-wrap gap-2 max-w-[240px]">
 
                                         @if ($item->bbm_status_pengajuan === 'Menunggu Verifikasi')
                                             <button type="button"
@@ -345,8 +297,7 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <span
-                                                    class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                                <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
                                                     Sudah Sinkron
                                                 </span>
                                             @endif
@@ -378,6 +329,30 @@
             </div>
 
         </div>
+    </div>
+
+    {{-- MODAL FILE --}}
+    <div id="fileModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
+
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h2 class="text-xl font-bold">
+                        Detail File BBM
+                    </h2>
+                    <p id="fileModalInfo" class="text-sm text-slate-400"></p>
+                </div>
+
+                <button type="button" onclick="closeFileModal()" class="text-slate-400 hover:text-white text-xl">
+                    ✕
+                </button>
+            </div>
+
+            <div id="fileList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+        </div>
+
     </div>
 
     {{-- MODAL TERIMA PENGAJUAN --}}
@@ -451,6 +426,80 @@
     </div>
 
     <script>
+        function safeValue(value) {
+            return value ?? '';
+        }
+
+        function fileButton(label, url, colorClass) {
+            if (!url) {
+                return '';
+            }
+
+            return `
+                <a href="${url}" target="_blank"
+                    class="block bg-slate-800 border border-slate-700 rounded-xl p-4 hover:bg-slate-700">
+                    <div class="${colorClass} font-semibold text-sm">
+                        📎 ${label}
+                    </div>
+                    <div class="text-xs text-slate-500 mt-1 truncate">
+                        Klik untuk membuka file
+                    </div>
+                </a>
+            `;
+        }
+
+        function openFileModal(item, buktiTambahan) {
+            let html = '';
+
+            html += fileButton('SPT', safeValue(item.bbm_spt_file), 'text-green-300');
+            html += fileButton('ACC Pimpinan', safeValue(item.bbm_acc_pimpinan_file), 'text-purple-300');
+            html += fileButton('Nota BBM', safeValue(item.bbm_laporan_nota_file), 'text-yellow-300');
+            html += fileButton('Foto Mobil / Kendaraan', safeValue(item.bbm_foto_mobil_file), 'text-blue-300');
+
+            if (buktiTambahan && buktiTambahan.length > 0) {
+                buktiTambahan.forEach(function(file, index) {
+                    let url = file.file ?? '#';
+                    let nama = file.nama ?? 'Bukti Tambahan ' + (index + 1);
+                    let jenis = file.jenis ? ' - ' + file.jenis : '';
+
+                    html += `
+                        <a href="${url}" target="_blank"
+                            class="block bg-slate-800 border border-slate-700 rounded-xl p-4 hover:bg-slate-700">
+                            <div class="text-cyan-300 font-semibold text-sm">
+                                📎 ${nama}
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1">
+                                Bukti Tambahan${jenis}
+                            </div>
+                        </a>
+                    `;
+                });
+            }
+
+            if (!html) {
+                html = `
+                    <div class="col-span-2 text-center text-slate-500 py-8">
+                        Tidak ada file.
+                    </div>
+                `;
+            }
+
+            $('#fileModalInfo').text((item.bbm_pengaju_nama ?? '-') + ' / ' + (item.bbm_no_plat ?? '-'));
+            $('#fileList').html(html);
+
+            $('#fileModal')
+                .removeClass('hidden')
+                .addClass('flex');
+        }
+
+        function closeFileModal() {
+            $('#fileModal')
+                .addClass('hidden')
+                .removeClass('flex');
+
+            $('#fileList').html('');
+        }
+
         function openTerimaModal(item) {
             $('#modal_pengaju').val(item.bbm_pengaju_nama + ' - ' + item.bbm_pengaju_nip);
             $('#modal_no_plat').val(item.bbm_no_plat ?? '-');
@@ -475,7 +524,8 @@
         $(document).ready(function() {
             $('#bbmTable').DataTable({
                 pageLength: 10,
-                responsive: true,
+                autoWidth: false,
+                scrollX: true,
                 language: {
                     search: "Cari:",
                     lengthMenu: "Tampilkan _MENU_ data",
@@ -486,7 +536,26 @@
                         previous: "Sebelumnya",
                         next: "Berikutnya"
                     }
-                }
+                },
+                columnDefs: [{
+                        targets: 0,
+                        width: "40px"
+                    },
+                    {
+                        targets: 4,
+                        width: "240px"
+                    },
+                    {
+                        targets: 7,
+                        width: "120px",
+                        orderable: false
+                    },
+                    {
+                        targets: 8,
+                        width: "240px",
+                        orderable: false
+                    }
+                ]
             });
         });
     </script>

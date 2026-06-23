@@ -41,6 +41,8 @@ class ModelBBM extends Model
         'bbm_catatan_admin',
         'bbm_foto_mobil_file',
         'bbm_foto_mobil_sync',
+        'bbm_bukti_tambahan_file',
+        'bbm_bukti_tambahan_sync',
     ];
 
     protected $casts = [
@@ -50,5 +52,7 @@ class ModelBBM extends Model
         'bbm_acc_pimpinan_sync' => 'boolean',
         'bbm_laporan_nota_sync' => 'boolean',
         'bbm_foto_mobil_sync' => 'boolean',
+        'bbm_bukti_tambahan_file' => 'array',
+        'bbm_bukti_tambahan_sync' => 'boolean',
     ];
 }

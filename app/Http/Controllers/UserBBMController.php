@@ -32,6 +32,7 @@ class UserBBMController extends Controller
             'bbm_liter' => 'required|numeric|min:0.01',
             'bbm_spt_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
             'bbm_foto_mobil_file' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
+            'bbm_bukti_tambahan.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,doc,docx|max:5120',
         ]);
 
         $uid = (string) Str::uuid();
@@ -48,6 +49,13 @@ class UserBBMController extends Controller
             'bbm_foto_mobil',
             $uid . '_FOTO_MOBIL.' . $request->file('bbm_foto_mobil_file')->getClientOriginalExtension(),
             $uid
+        );
+
+        $buktiTambahan = $this->uploadBuktiTambahan(
+            $request,
+            $arinDrive,
+            $uid,
+            'PENGAJUAN'
         );
 
         $bbm = ModelBBM::create([
@@ -69,6 +77,9 @@ class UserBBMController extends Controller
             'bbm_foto_mobil_file' => $fotoMobilFile,
             'bbm_foto_mobil_sync' => true,
 
+            'bbm_bukti_tambahan_file' => $buktiTambahan,
+            'bbm_bukti_tambahan_sync' => count($buktiTambahan) > 0,
+
             'bbm_status_pengajuan' => 'Menunggu Verifikasi',
             'bbm_status_laporan' => 'Belum Upload',
         ]);
@@ -82,8 +93,8 @@ class UserBBMController extends Controller
                 "Bidang       : {$bbm->bbm_bidang_nama}\n" .
                 "No Plat      : {$bbm->bbm_no_plat}\n" .
                 "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" .
-                "Status       : {$bbm->bbm_status_pengajuan}\n\n" .
-                "Foto kendaraan telah dilampirkan pada pengajuan.\n\n" .
+                "Status       : {$bbm->bbm_status_pengajuan}\n" .
+                "Bukti Tambahan: " . count($buktiTambahan) . " file\n\n" .
                 "Silakan login ke SAPLARIN untuk melakukan verifikasi.\n\n" .
                 "SAPLARIN"
         );
@@ -119,6 +130,7 @@ class UserBBMController extends Controller
         $request->validate([
             'bbm_tanggal_nota' => 'required|date',
             'bbm_laporan_nota_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
+            'bbm_bukti_tambahan.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,doc,docx|max:5120',
         ]);
 
         $bbm = ModelBBM::where('bbm_uid', $uid)
@@ -142,10 +154,31 @@ class UserBBMController extends Controller
             $bbm->bbm_uid
         );
 
+        $buktiLama = $bbm->bbm_bukti_tambahan_file ?? [];
+
+        if (is_string($buktiLama)) {
+            $buktiLama = json_decode($buktiLama, true) ?: [];
+        }
+
+        if (!is_array($buktiLama)) {
+            $buktiLama = [];
+        }
+
+        $buktiBaru = $this->uploadBuktiTambahan(
+            $request,
+            $arinDrive,
+            $bbm->bbm_uid,
+            'NOTA'
+        );
+
+        $buktiGabungan = array_merge($buktiLama, $buktiBaru);
+
         $bbm->update([
             'bbm_tanggal_nota' => $request->bbm_tanggal_nota,
             'bbm_laporan_nota_file' => $notaFile,
             'bbm_laporan_nota_sync' => true,
+            'bbm_bukti_tambahan_file' => $buktiGabungan,
+            'bbm_bukti_tambahan_sync' => count($buktiGabungan) > 0,
             'bbm_status_laporan' => 'Menunggu Verifikasi',
         ]);
 
@@ -159,11 +192,46 @@ class UserBBMController extends Controller
                 "No Plat      : {$bbm->bbm_no_plat}\n" .
                 "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" .
                 "Tanggal Nota : {$request->bbm_tanggal_nota}\n" .
-                "Status Nota  : Menunggu Verifikasi\n\n" .
+                "Status Nota  : Menunggu Verifikasi\n" .
+                "Bukti Tambahan Baru: " . count($buktiBaru) . " file\n\n" .
                 "Silakan login ke SAPLARIN untuk melakukan verifikasi laporan nota.\n\n" .
                 "SAPLARIN"
         );
 
         return back()->with('success', 'Laporan nota berhasil diupload.');
+    }
+
+    private function uploadBuktiTambahan(Request $request, ArinDriveService $arinDrive, string $uid, string $jenis): array
+    {
+        $buktiTambahan = [];
+
+        if (!$request->hasFile('bbm_bukti_tambahan')) {
+            return $buktiTambahan;
+        }
+
+        foreach ($request->file('bbm_bukti_tambahan') as $index => $file) {
+            if (!$file) {
+                continue;
+            }
+
+            $namaAsli = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+
+            $url = $arinDrive->upload(
+                $file,
+                'bbm_bukti',
+                $uid . '_BUKTI_' . $jenis . '_' . ($index + 1) . '_' . time() . '.' . $extension,
+                $uid
+            );
+
+            $buktiTambahan[] = [
+                'jenis' => $jenis,
+                'nama' => $namaAsli,
+                'file' => $url,
+                'uploaded_at' => now()->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        return $buktiTambahan;
     }
 }
