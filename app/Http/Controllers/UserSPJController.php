@@ -40,7 +40,7 @@ class UserSPJController extends Controller
             'spj_uraian' => 'required|string',
             'spj_nominal' => 'required|numeric|min:1',
             'spj_tanggal' => 'required|date',
-            'spj_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'spj_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:204800',
         ]);
 
         $pagu = ModelSPJPagu::with(['unit', 'realisasi'])
