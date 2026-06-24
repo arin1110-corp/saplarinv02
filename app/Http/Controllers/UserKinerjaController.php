@@ -45,7 +45,7 @@ class UserKinerjaController extends Controller
             'progress_persentase' => 'required|numeric|min:0.01|max:100',
             'progress_keterangan' => 'nullable|string',
             'bukti_file' => 'required|array|max:5',
-            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:204800',
         ]);
 
         $bidangId = session('pegawai_bidang_id');

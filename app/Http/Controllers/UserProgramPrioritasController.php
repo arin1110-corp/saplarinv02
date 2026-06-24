@@ -60,7 +60,7 @@ class UserProgramPrioritasController extends Controller
             'capaian_tanggal_mulai' => 'required|date',
             'capaian_tanggal_selesai' => 'required|date|after_or_equal:capaian_tanggal_mulai',
             'capaian_file' => 'required|array|max:5',
-            'capaian_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'capaian_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:204800',
         ]);
 
         $rencana = ModelProgramPrioritasRencana::where('rencana_uid', $uid)
