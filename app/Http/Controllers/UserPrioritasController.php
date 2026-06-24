@@ -28,7 +28,7 @@ class UserPrioritasController extends Controller
             'bukti_deskripsi_kegiatan' => 'required|string',
             'bukti_tanggal_kegiatan' => 'required|date',
             'bukti_file' => 'required|array|max:5',
-            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:204800',
         ]);
 
         $prioritas = ModelPrioritas::where('prioritas_uid', $uid)

@@ -86,7 +86,7 @@ class UserLaporanAktivitasController extends Controller
             'aktivitas_tanggal_mulai' => 'required|date',
             'aktivitas_tanggal_selesai' => 'required|date|after_or_equal:aktivitas_tanggal_mulai',
             'bukti_file' => 'required|array|max:5',
-            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'bukti_file.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:204800',
         ]);
 
         $kegiatan = ModelLaporanKegiatan::where('laporan_kegiatan_uid', $uid)
