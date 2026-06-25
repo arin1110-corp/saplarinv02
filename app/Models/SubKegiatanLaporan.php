@@ -9,8 +9,18 @@ class SubKegiatanLaporan extends Model
     protected $table = 'saplarin_sub_kegiatan_laporan';
     protected $primaryKey = 'laporan_id';
 
-    protected $fillable = ['laporan_uid', 'laporan_sub_kegiatan_id', 'laporan_bulan', 'laporan_tahun', 'laporan_status', 'laporan_created_by', 'laporan_created_by_nama', 'laporan_created_by_nip'];
-
+    protected $fillable = [
+        'laporan_uid',
+        'laporan_unit_kode',
+        'laporan_unit_nama',
+        'laporan_sub_kegiatan_id',
+        'laporan_bulan',
+        'laporan_tahun',
+        'laporan_status',
+        'laporan_created_by',
+        'laporan_created_by_nama',
+        'laporan_created_by_nip',
+    ];
     public function subKegiatan()
     {
         return $this->belongsTo(ModelSubKegiatan::class, 'laporan_sub_kegiatan_id', 'sub_kegiatan_id');
