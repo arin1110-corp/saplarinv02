@@ -443,4 +443,17 @@ Route::prefix('user')
 
     Route::post('/laporan-sub-kegiatan/store', [UserSubKegiatanLaporanController::class, 'store'])
         ->name('laporan-sub-kegiatan.store');
+    Route::get('/laporan-sub-kegiatan', [UserSubKegiatanLaporanController::class, 'index'])
+        ->name('laporan-sub-kegiatan.index');
+
+    Route::get('/laporan-sub-kegiatan/create', [UserSubKegiatanLaporanController::class, 'create'])
+        ->name('laporan-sub-kegiatan.create');
+
+    Route::get('/laporan-sub-kegiatan/indikator', [UserSubKegiatanLaporanController::class, 'getIndikator'])
+        ->name('laporan-sub-kegiatan.indikator');
+
+    Route::post('/laporan-sub-kegiatan/store', [UserSubKegiatanLaporanController::class, 'store'])
+        ->name('laporan-sub-kegiatan.store');
+    Route::get('/laporan-sub-kegiatan/sub-kegiatan-by-unit', [UserSubKegiatanLaporanController::class, 'getSubKegiatanByUnit'])
+        ->name('laporan-sub-kegiatan.sub-by-unit');
     });

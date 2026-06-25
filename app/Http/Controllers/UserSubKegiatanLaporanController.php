@@ -40,9 +40,15 @@ class UserSubKegiatanLaporanController extends Controller
         return view('user.laporan-sub-kegiatan.create', compact('subKegiatans'));
     }
 
-    public function getIndikator($subKegiatanId)
+    public function getIndikator(Request $request)
     {
-        $indikators = SubKegiatanIndikator::where('indikator_sub_kegiatan_id', $subKegiatanId)
+        $request->validate([
+            'unit' => 'required|string|max:50',
+            'sub_kegiatan_id' => 'required|exists:saplarin_sub_kegiatan,sub_kegiatan_id',
+        ]);
+
+        $indikators = SubKegiatanIndikator::where('indikator_unit_kode', $request->unit)
+            ->where('indikator_sub_kegiatan_id', $request->sub_kegiatan_id)
             ->where('indikator_status', 1)
             ->orderBy('indikator_id')
             ->get();
@@ -53,6 +59,8 @@ class UserSubKegiatanLaporanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'laporan_unit_kode' => 'required|string|max:50',
+            'laporan_unit_nama' => 'required|string|max:255',
             'laporan_sub_kegiatan_id' => 'required|exists:saplarin_sub_kegiatan,sub_kegiatan_id',
             'laporan_bulan' => 'required|integer|min:1|max:12',
             'laporan_tahun' => 'required|digits:4',
@@ -70,7 +78,8 @@ class UserSubKegiatanLaporanController extends Controller
             'tindak_lanjut.*' => 'nullable|string',
         ]);
 
-        $sudahAda = SubKegiatanLaporan::where('laporan_sub_kegiatan_id', $request->laporan_sub_kegiatan_id)
+        $sudahAda = SubKegiatanLaporan::where('laporan_unit_kode', $request->laporan_unit_kode)
+            ->where('laporan_sub_kegiatan_id', $request->laporan_sub_kegiatan_id)
             ->where('laporan_bulan', $request->laporan_bulan)
             ->where('laporan_tahun', $request->laporan_tahun)
             ->exists();
@@ -78,23 +87,32 @@ class UserSubKegiatanLaporanController extends Controller
         if ($sudahAda) {
             return back()
                 ->withInput()
-                ->with('error', 'Laporan untuk sub kegiatan, bulan, dan tahun tersebut sudah ada.');
+                ->with('error', 'Laporan untuk unit, sub kegiatan, bulan, dan tahun tersebut sudah ada.');
         }
 
         DB::transaction(function () use ($request) {
             $laporan = SubKegiatanLaporan::create([
                 'laporan_uid' => Str::uuid(),
+
+                'laporan_unit_kode' => $request->laporan_unit_kode,
+                'laporan_unit_nama' => $request->laporan_unit_nama,
+
                 'laporan_sub_kegiatan_id' => $request->laporan_sub_kegiatan_id,
                 'laporan_bulan' => $request->laporan_bulan,
                 'laporan_tahun' => $request->laporan_tahun,
                 'laporan_status' => 'Aktif',
+
                 'laporan_created_by' => session('pegawai_id'),
                 'laporan_created_by_nama' => session('pegawai_nama'),
                 'laporan_created_by_nip' => session('pegawai_nip'),
             ]);
 
             foreach ($request->realisasi as $indikatorId => $nilaiRealisasi) {
-                $indikator = SubKegiatanIndikator::findOrFail($indikatorId);
+                $indikator = SubKegiatanIndikator::where('indikator_id', $indikatorId)
+                    ->where('indikator_unit_kode', $request->laporan_unit_kode)
+                    ->where('indikator_sub_kegiatan_id', $request->laporan_sub_kegiatan_id)
+                    ->where('indikator_status', 1)
+                    ->firstOrFail();
 
                 SubKegiatanLaporanDetail::create([
                     'detail_laporan_id' => $laporan->laporan_id,
@@ -137,5 +155,22 @@ class UserSubKegiatanLaporanController extends Controller
         return redirect()
             ->route('user.laporan-sub-kegiatan.index')
             ->with('success', 'Laporan sub kegiatan berhasil disimpan.');
+    }
+    public function getSubKegiatanByUnit(Request $request)
+    {
+        $request->validate([
+            'unit' => 'required|string|max:50',
+        ]);
+
+        $subKegiatans = SubKegiatanIndikator::with('subKegiatan')
+            ->where('indikator_unit_kode', $request->unit)
+            ->where('indikator_status', 1)
+            ->get()
+            ->pluck('subKegiatan')
+            ->filter()
+            ->unique('sub_kegiatan_id')
+            ->values();
+
+        return response()->json($subKegiatans);
     }
 }

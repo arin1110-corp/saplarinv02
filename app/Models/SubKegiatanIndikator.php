@@ -16,6 +16,8 @@ class SubKegiatanIndikator extends Model
         'indikator_target',
         'indikator_satuan',
         'indikator_status',
+        'indikator_unit_kode',
+        'indikator_unit_nama',
     ];
 
     public function subKegiatan()

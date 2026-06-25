@@ -32,6 +32,8 @@ class AdminSubKegiatanIndikatorController extends Controller
             'indikator_nama' => 'required|string',
             'indikator_target' => 'required|numeric|min:0',
             'indikator_satuan' => 'required|string|max:100',
+            'indikator_unit_kode' => 'required|string|max:50',
+            'indikator_unit_nama' => 'required|string|max:255',
         ]);
 
         SubKegiatanIndikator::create([
@@ -41,6 +43,8 @@ class AdminSubKegiatanIndikatorController extends Controller
             'indikator_target' => $request->indikator_target,
             'indikator_satuan' => $request->indikator_satuan,
             'indikator_status' => 1,
+            'indikator_unit_kode' => $request->indikator_unit_kode,
+            'indikator_unit_nama' => $request->indikator_unit_nama,
         ]);
 
         return back()->with('success', 'Indikator sub kegiatan berhasil ditambahkan.');
@@ -55,6 +59,8 @@ class AdminSubKegiatanIndikatorController extends Controller
             'indikator_target' => 'required|numeric|min:0',
             'indikator_satuan' => 'required|string|max:100',
             'indikator_status' => 'required|in:0,1',
+            'indikator_unit_kode' => 'required|string|max:50',
+            'indikator_unit_nama' => 'required|string|max:255',
         ]);
 
         $indikator = SubKegiatanIndikator::findOrFail($request->indikator_id);
@@ -65,6 +71,8 @@ class AdminSubKegiatanIndikatorController extends Controller
             'indikator_target' => $request->indikator_target,
             'indikator_satuan' => $request->indikator_satuan,
             'indikator_status' => $request->indikator_status,
+            'indikator_unit_kode' => $request->indikator_unit_kode,
+            'indikator_unit_nama' => $request->indikator_unit_nama,
         ]);
 
         return back()->with('success', 'Indikator sub kegiatan berhasil diperbarui.');
