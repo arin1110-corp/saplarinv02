@@ -19,6 +19,9 @@ use App\Http\Controllers\AdminSPJController;
 use App\Http\Controllers\UserSPJController;
 use App\Http\Controllers\AdminSPJRequestController;
 use App\Http\Controllers\AdminLaporanSPJController;
+use App\Http\Controllers\AdminSubKegiatanIndikatorController;
+use App\Http\Controllers\UserSubKegiatanLaporanController;
+use App\Http\Controllers\AdminLaporanSubKegiatanController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -286,6 +289,25 @@ Route::middleware(['admin'])
 
     Route::post('/spj/permintaan/{uid}/toggle', [AdminSPJRequestController::class, 'toggle'])
         ->name('admin.permintaan.spj.toggle');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Permintaan Sub Kegiatan
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/sub-kegiatan-indikator', [AdminSubKegiatanIndikatorController::class, 'index'])
+        ->name('admin.sub-kegiatan-indikator.index');
+
+    Route::post('/sub-kegiatan-indikator/store', [AdminSubKegiatanIndikatorController::class, 'store'])
+        ->name('admin.sub-kegiatan-indikator.store');
+
+    Route::post('/sub-kegiatan-indikator/update', [AdminSubKegiatanIndikatorController::class, 'update'])
+        ->name('admin.sub-kegiatan-indikator.update');
+
+    Route::post('/sub-kegiatan-indikator/{uid}/delete', [AdminSubKegiatanIndikatorController::class, 'delete'])
+        ->name('admin.sub-kegiatan-indikator.delete');
+    Route::get('/laporan-sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'index'])
+        ->name('admin.laporan.subkegiatan');
     });
 
 Route::prefix('user')
@@ -404,4 +426,21 @@ Route::prefix('user')
 
     Route::post('/spj/{uid}/store', [UserSPJController::class, 'store'])
         ->name('spj.store');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Permintaan Sub Kegiatan
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/laporan-sub-kegiatan', [UserSubKegiatanLaporanController::class, 'index'])
+        ->name('laporan-sub-kegiatan.index');
+
+    Route::get('/laporan-sub-kegiatan/create', [UserSubKegiatanLaporanController::class, 'create'])
+        ->name('laporan-sub-kegiatan.create');
+
+    Route::get('/laporan-sub-kegiatan/indikator/{subKegiatanId}', [UserSubKegiatanLaporanController::class, 'getIndikator'])
+        ->name('laporan-sub-kegiatan.indikator');
+
+    Route::post('/laporan-sub-kegiatan/store', [UserSubKegiatanLaporanController::class, 'store'])
+        ->name('laporan-sub-kegiatan.store');
     });

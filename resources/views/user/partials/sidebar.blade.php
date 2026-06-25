@@ -6,6 +6,7 @@
     $canBBMKegiatan = in_array($activeRole, ['Pegawai', 'Operator']);
     $canKinerjaPrioritas = $isOperator;
     $canLaporanAktivitas = $isOperator;
+    $canLaporanSubKegiatan = $isOperator;
     $canInputSPJ = $isOperator;
 @endphp
 
@@ -29,8 +30,7 @@
             </div>
         </div>
 
-        <div
-            class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
+        <div class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
             <p class="text-xs opacity-80">Login sebagai</p>
 
             <button onclick="openRoleModal()" class="mt-1 text-left w-full">
@@ -89,6 +89,17 @@
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>📋</span>
                 <span>Laporan Aktivitas</span>
+            </a>
+        @endif
+
+        @if ($canLaporanSubKegiatan)
+            <a href="{{ route('user.laporan-sub-kegiatan.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+                {{ request()->routeIs('user.laporan-sub-kegiatan*')
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📈</span>
+                <span>Laporan Sub Kegiatan</span>
             </a>
         @endif
 
