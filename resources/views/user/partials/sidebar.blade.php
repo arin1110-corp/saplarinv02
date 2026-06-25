@@ -8,6 +8,7 @@
     $canLaporanAktivitas = $isOperator;
     $canLaporanSubKegiatan = $isOperator;
     $canInputSPJ = $isOperator;
+    $canSHS = $isOperator;
 @endphp
 
 <aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
@@ -30,7 +31,8 @@
             </div>
         </div>
 
-        <div class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
+        <div
+            class="mt-6 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg shadow-blue-100">
             <p class="text-xs opacity-80">Login sebagai</p>
 
             <button onclick="openRoleModal()" class="mt-1 text-left w-full">
@@ -111,6 +113,17 @@
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>💰</span>
                 <span>Input SPJ</span>
+            </a>
+        @endif
+
+        @if ($canSHS)
+            <a href="{{ route('user.shs.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+        {{ request()->routeIs('user.shs*')
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <span>📦</span>
+                <span>Usulan SHS</span>
             </a>
         @endif
 

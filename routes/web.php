@@ -22,6 +22,10 @@ use App\Http\Controllers\AdminLaporanSPJController;
 use App\Http\Controllers\AdminSubKegiatanIndikatorController;
 use App\Http\Controllers\UserSubKegiatanLaporanController;
 use App\Http\Controllers\AdminLaporanSubKegiatanController;
+use App\Http\Controllers\UserSHSController;
+use App\Http\Controllers\AdminLaporanSHSController;
+use App\Http\Controllers\AdminSHSKelompokController;
+use App\Http\Controllers\Administrator\AdminSHSSatuanController;
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -241,6 +245,52 @@ Route::middleware(['admin'])
 
     Route::post('/sub-kegiatan-indikator/{uid}/delete', [AdminSubKegiatanIndikatorController::class, 'delete'])->name('admin.sub-kegiatan-indikator.delete');
     Route::get('/laporan-sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'index'])->name('admin.laporan.subkegiatan');
+
+    /*
+            |--------------------------------------------------------------------------
+            | SHS
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/shs', [AdminLaporanSHSController::class, 'index'])->name('admin.shs.index');
+
+    Route::post('/shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.shs.aktif');
+
+    Route::post('/shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.shs.nonaktif');
+    Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan.shs');
+
+    Route::get('/laporan-shs/{uid}', [AdminLaporanSHSController::class, 'show'])->name('admin.laporan.shs.show');
+
+    Route::post('/laporan-shs/{uid}/verifikasi', [AdminLaporanSHSController::class, 'verifikasi'])->name('admin.laporan.shs.verifikasi');
+
+    Route::post('/laporan-shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.laporan.shs.aktif');
+
+    Route::post('/laporan-shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.laporan.shs.nonaktif');
+    /*
+        |--------------------------------------------------------------------------
+        | Master Kelompok Barang SHS
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/shs-kelompok', [AdminSHSKelompokController::class, 'index'])->name('admin.shs-kelompok.index');
+
+    Route::post('/shs-kelompok/store', [AdminSHSKelompokController::class, 'store'])->name('admin.shs-kelompok.store');
+
+    Route::post('/shs-kelompok/update', [AdminSHSKelompokController::class, 'update'])->name('admin.shs-kelompok.update');
+
+    Route::post('/shs-kelompok/{uid}/status', [AdminSHSKelompokController::class, 'status'])->name('admin.shs-kelompok.status');
+
+    /*
+            |--------------------------------------------------------------------------
+            | Satuan SHS
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/shs-satuan', [AdminSHSSatuanController::class, 'index'])->name('admin.shs.satuan');
+
+    Route::post('/shs-satuan', [AdminSHSSatuanController::class, 'store'])->name('admin.shs.satuan.store');
+
+    Route::put('/shs-satuan/{uid}', [AdminSHSSatuanController::class, 'update'])->name('admin.shs.satuan.update');
+
+    Route::post('/shs-satuan/{uid}/status', [AdminSHSSatuanController::class, 'status'])->name('admin.shs.satuan.status');
     });
 
 Route::prefix('user')
@@ -359,4 +409,21 @@ Route::prefix('user')
     Route::get('/laporan-sub-kegiatan/sub-kegiatan', [UserSubKegiatanLaporanController::class, 'getSubKegiatanByUnit'])->name('laporan-sub-kegiatan.sub-kegiatan');
 
     Route::get('/laporan-sub-kegiatan/indikator', [UserSubKegiatanLaporanController::class, 'getIndikator'])->name('laporan-sub-kegiatan.indikator');
+
+    /*
+            |--------------------------------------------------------------------------
+            | SHS
+            |--------------------------------------------------------------------------
+            */
+    Route::get('/shs', [UserSHSController::class, 'index'])->name('shs.index');
+
+    Route::get('/shs/create', [UserSHSController::class, 'create'])->name('shs.create');
+
+    Route::post('/shs/store', [UserSHSController::class, 'store'])->name('shs.store');
+    Route::get('/shs/{uid}/edit', [UserSHSController::class, 'edit'])->name('shs.edit');
+
+    Route::put('/shs/{uid}', [UserSHSController::class, 'update'])
+        ->name('shs.update');
+
+    Route::post('/shs/{uid}/delete', [UserSHSController::class, 'delete'])->name('shs.delete');
     });

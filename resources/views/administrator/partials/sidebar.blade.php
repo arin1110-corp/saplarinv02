@@ -13,18 +13,17 @@
     $canPermintaanSPJ = $isAdminFull || $isAdminArsiparis;
     $canPermintaanKAK = $isAdminFull || $isAdminArsiparis;
     $canPermintaanSubKegiatan = $isAdminFull || $isAdminArsiparis;
+    $canPermintaanSHS = $isAdminFull || $isAdminArsiparis;
 
     $canDataPermintaan =
-        $canPermintaanBBM ||
-        $canPermintaanSPJ ||
-        $canPermintaanKAK ||
-        $canPermintaanSubKegiatan;
+        $canPermintaanBBM || $canPermintaanSPJ || $canPermintaanKAK || $canPermintaanSubKegiatan || $canPermintaanSHS;
 
     $canKinerjaPrioritas = $isAdminFull || $isAdminArsiparis;
     $canLaporanAktivitas = $isAdminFull || $isAdminArsiparis;
     $canDataPaguSPJ = $isAdminFull || $isAdminArsiparis;
     $canLaporanSPJ = $isAdminFull || $isAdminArsiparis;
     $canLaporanSubKegiatan = $isAdminFull || $isAdminArsiparis;
+    $canLaporanSHS = $isAdminFull || $isAdminArsiparis;
     $canLaporanKAK = $isAdminFull || $isAdminArsiparis;
 
     $canDataLaporan =
@@ -33,6 +32,7 @@
         $canDataPaguSPJ ||
         $canLaporanSPJ ||
         $canLaporanSubKegiatan ||
+        $canLaporanSHS ||
         $canLaporanKAK;
 @endphp
 
@@ -83,9 +83,7 @@
         @if ($canUser)
             <a href="{{ route('admin.users') }}"
                 class="block px-4 py-2 rounded-lg transition duration-200
-                {{ request()->routeIs('admin.users')
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'hover:bg-slate-800 text-slate-300' }}">
+                {{ request()->routeIs('admin.users') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-300' }}">
                 Data User
             </a>
         @endif
@@ -103,8 +101,7 @@
                         class="w-4 h-4 transition-transform duration-300
                         {{ request()->routeIs('admin.drive*') ? 'rotate-180' : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -147,12 +144,13 @@
                         class="w-4 h-4 transition-transform duration-300
                         {{ request()->routeIs('admin.program') ||
                         request()->routeIs('admin.kegiatan') ||
-                        request()->routeIs('admin.subkegiatan')
+                        request()->routeIs('admin.subkegiatan') ||
+                        request()->routeIs('admin.shs-kelompok*') ||
+                        request()->routeIs('admin.shs.satuan*')
                             ? 'rotate-180'
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -161,7 +159,7 @@
                     {{ request()->routeIs('admin.program') ||
                     request()->routeIs('admin.kegiatan') ||
                     request()->routeIs('admin.subkegiatan')
-                        ? 'max-h-40'
+                        ? 'max-h-72'
                         : 'max-h-0' }}">
 
                     <a href="{{ route('admin.program') }}"
@@ -187,6 +185,23 @@
                             : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         Sub Kegiatan
                     </a>
+                    <a href="{{ route('admin.shs-kelompok.index') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+    {{ request()->routeIs('admin.shs-kelompok*')
+        ? 'bg-slate-700 text-white'
+        : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Kelompok Barang SHS
+                    </a>
+
+                    <a href="{{ route('admin.shs.satuan') }}"
+                        class="block px-4 py-2 rounded-lg text-sm transition
+{{ request()->routeIs('admin.shs.satuan*')
+    ? 'bg-slate-700 text-white'
+    : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+
+                        Satuan SHS
+
+                    </a>
 
                 </div>
             </div>
@@ -207,12 +222,12 @@
                         class="w-4 h-4 transition-transform duration-300
                         {{ request()->routeIs('admin.bbm*') ||
                         request()->routeIs('admin.permintaan*') ||
-                        request()->routeIs('admin.sub-kegiatan-indikator*')
+                        request()->routeIs('admin.sub-kegiatan-indikator*') ||
+                        request()->routeIs('admin.shs*')
                             ? 'rotate-180'
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -241,6 +256,16 @@
                                 ? 'bg-slate-700 text-white'
                                 : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             Permintaan SPJ
+                        </a>
+                    @endif
+
+                    @if ($canPermintaanSHS)
+                        <a href="{{ route('admin.shs.index') }}"
+                            class="block px-4 py-2 rounded-lg text-sm transition
+        {{ request()->routeIs('admin.shs*')
+            ? 'bg-slate-700 text-white'
+            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                            Permintaan SHS
                         </a>
                     @endif
 
@@ -285,12 +310,12 @@
                         {{ request()->routeIs('admin.laporan-aktivitas*') ||
                         request()->routeIs('admin.program-prioritas*') ||
                         request()->routeIs('admin.spj*') ||
-                        request()->routeIs('admin.laporan*')
+                        request()->routeIs('admin.laporan*') ||
+                        request()->routeIs('admin.laporan.shs')
                             ? 'rotate-180'
                             : '' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -353,6 +378,16 @@
                         </a>
                     @endif
 
+                    @if ($canLaporanSHS)
+                        <a href="{{ route('admin.laporan.shs') }}"
+                            class="block px-4 py-2 rounded-lg text-sm transition
+        {{ request()->routeIs('admin.laporan.shs')
+            ? 'bg-slate-700 text-white'
+            : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                            Laporan SHS
+                        </a>
+                    @endif
+
                     @if ($canLaporanKAK)
                         <a href="{{ route('admin.laporan.kak') }}"
                             class="block px-4 py-2 rounded-lg text-sm transition
@@ -382,7 +417,7 @@
 
     function toggleMasterMenu() {
         document.getElementById('masterMenu')?.classList.toggle('max-h-0');
-        document.getElementById('masterMenu')?.classList.toggle('max-h-40');
+        document.getElementById('masterMenu')?.classList.toggle('max-h-72');
         document.getElementById('masterArrow')?.classList.toggle('rotate-180');
     }
 
