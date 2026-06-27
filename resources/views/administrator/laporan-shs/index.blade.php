@@ -120,8 +120,8 @@
                 </div>
 
             @endif
-
-            <div class="flex justify-between items-center mb-6">
+            <br>
+            <div class="flex justify-between items-center mb-8">
 
                 <div>
 
@@ -136,6 +136,15 @@
                         Verifikasi usulan Standar Harga Satuan dari seluruh operator.
 
                     </p>
+
+                </div>
+
+                <div class="flex gap-2 items-center">
+
+                    <button onclick="openExportModal()"
+                        class="bg-emerald-600 hover:bg-emerald-700 px-5 py-3 rounded-xl font-semibold">
+                        Export Excel
+                    </button>
 
                 </div>
 
@@ -549,7 +558,137 @@
     </div>
 
 
+    <div id="modalExport" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-5">
 
+        <div class="bg-slate-900 rounded-2xl w-full max-w-3xl p-6">
+
+            <div class="flex justify-between items-center mb-6">
+
+                <h2 class="text-xl font-bold">
+                    Export Usulan SHS
+                </h2>
+
+                <button type="button" onclick="closeExportModal()" class="text-slate-400 hover:text-white">
+
+                    ✕
+
+                </button>
+
+            </div>
+
+            <form action="{{ route('admin.laporan.shs.export') }}" method="GET">
+
+                <div class="mb-6">
+
+                    <label class="block mb-2 font-semibold">
+                        Filter Status
+                    </label>
+
+                    <select name="status" class="w-full rounded-xl bg-slate-800 border border-slate-700 px-4 py-3">
+
+                        <option value="">
+                            Semua Data
+                        </option>
+
+                        <option value="Diajukan">
+                            Diajukan
+                        </option>
+
+                        <option value="Tidak Diajukan">
+                            Tidak Diajukan
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="flex gap-3 mb-4">
+
+                    <button type="button" id="checkAll" class="bg-blue-600 px-4 py-2 rounded-xl">
+
+                        Centang Semua
+
+                    </button>
+
+                    <button type="button" id="uncheckAll" class="bg-slate-700 px-4 py-2 rounded-xl">
+
+                        Hapus Semua
+
+                    </button>
+
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_tahun" checked>
+                        Tahun</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_unit_nama" checked>
+                        Unit</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_kode_kelompok" checked>
+                        Kode Kelompok</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_kelompok_barang" checked>
+                        Kelompok Barang</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_barang" checked> Nama
+                        Barang</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_merek"> Merek</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_tipe"> Tipe /
+                        Model</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_spesifikasi">
+                        Spesifikasi</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_satuan"> Satuan</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_harga"> Harga</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_tkdn"> TKDN</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_kelompok"> Kelompok
+                        SHS</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_dasar_usulan"> Dasar
+                        Usulan</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_keterangan">
+                        Keterangan</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_status"> Status</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="shs_operator_nama">
+                        Operator</label>
+
+                    <label><input type="checkbox" class="field" name="field[]" value="created_at"> Tanggal
+                        Input</label>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8">
+
+                    <button type="button" onclick="closeExportModal()" class="bg-slate-700 px-5 py-2 rounded-xl">
+
+                        Batal
+
+                    </button>
+
+                    <button class="bg-emerald-600 hover:bg-emerald-700 px-5 py-2 rounded-xl">
+
+                        Export Excel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
     {{-- ======================= MODAL VERIFIKASI ======================= --}}
@@ -706,7 +845,21 @@
 
         }
 
+        function openExportModal() {
+            $('#modalExport').removeClass('hidden').addClass('flex');
+        }
 
+        function closeExportModal() {
+            $('#modalExport').removeClass('flex').addClass('hidden');
+        }
+
+        $('#checkAll').click(function() {
+            $('.field').prop('checked', true);
+        });
+
+        $('#uncheckAll').click(function() {
+            $('.field').prop('checked', false);
+        });
 
         function closeDetail() {
 

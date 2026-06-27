@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ModelSHS;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SHSExport;
 
 class AdminLaporanSHSController extends Controller
 {
@@ -60,5 +62,14 @@ class AdminLaporanSHSController extends Controller
         ]);
 
         return back()->with('success', 'SHS berhasil dinonaktifkan.');
+    }
+
+    public function export(Request $request)
+    {
+        $status = $request->status ? str_replace(' ', '_', $request->status) : 'Semua';
+
+        $namaFile = 'Usulan_SHS_' . $status . '_' . now()->format('d-m-Y') . '.xlsx';
+
+        return Excel::download(new SHSExport($request->field, $request->status), $namaFile);
     }
 }

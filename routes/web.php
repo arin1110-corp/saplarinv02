@@ -31,7 +31,6 @@ Route::get('/', function () {
     return view('homepage/home');
 })->name('homepage');
 
-
 Route::post('/login-submit', [AuthController::class, 'loginSubmit'])->name('login.submit');
 Route::get('/login-admin', [AuthController::class, 'loginAdmin'])->name('login.admin');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -259,6 +258,8 @@ Route::middleware(['admin'])
     Route::post('/shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.shs.nonaktif');
     Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan.shs');
 
+    Route::get('/laporan-shs/export', [AdminLaporanSHSController::class, 'export'])->name('admin.laporan.shs.export');
+
     Route::get('/laporan-shs/{uid}', [AdminLaporanSHSController::class, 'show'])->name('admin.laporan.shs.show');
 
     Route::post('/laporan-shs/{uid}/verifikasi', [AdminLaporanSHSController::class, 'verifikasi'])->name('admin.laporan.shs.verifikasi');
@@ -423,8 +424,7 @@ Route::prefix('user')
     Route::post('/shs/store', [UserSHSController::class, 'store'])->name('shs.store');
     Route::get('/shs/{uid}/edit', [UserSHSController::class, 'edit'])->name('shs.edit');
 
-    Route::put('/shs/{uid}', [UserSHSController::class, 'update'])
-        ->name('shs.update');
+    Route::put('/shs/{uid}', [UserSHSController::class, 'update'])->name('shs.update');
 
     Route::post('/shs/{uid}/delete', [UserSHSController::class, 'delete'])->name('shs.delete');
     });
