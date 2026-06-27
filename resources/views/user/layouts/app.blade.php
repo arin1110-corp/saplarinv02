@@ -16,6 +16,8 @@
 <body class="bg-[#F5F7FB] text-slate-800">
 
     @include('user.partials.sidebar')
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden">
+    </div>
 
     <div class="min-h-screen lg:pl-72">
 
@@ -31,6 +33,61 @@
 
     @stack('scripts')
 
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const btn = document.getElementById('btnSidebar');
+
+    if (btn) {
+
+        btn.addEventListener('click', function() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        });
+
+    }
+
+    overlay.addEventListener('click', function() {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    });
+
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const btn = document.getElementById('btnSidebar');
+    const btnClose = document.getElementById('btnCloseSidebar');
+
+    function openSidebar() {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    }
+
+    function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    }
+
+    btn?.addEventListener('click', openSidebar);
+    btnClose?.addEventListener('click', closeSidebar);
+    overlay?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('#sidebar a').forEach(function(el) {
+        el.addEventListener('click', function() {
+            if (window.innerWidth < 1024) {
+                closeSidebar();
+            }
+        });
+    });
+
+});
+</script>
 </body>
 
 </html>

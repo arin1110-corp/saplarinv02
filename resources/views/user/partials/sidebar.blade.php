@@ -11,11 +11,14 @@
     $canSHS = $isOperator;
 @endphp
 
-<aside class="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
+<aside id="sidebar"
+    class="fixed left-0 top-0 bottom-0 z-50 w-72 flex flex-col bg-white border-r border-slate-200
+    transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
 
     <div class="p-6">
 
         <div class="flex items-center gap-3">
+
             <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
                 <img src="{{ asset('image/pemprov.png') }}" class="w-9 h-9 object-contain">
             </div>
@@ -28,6 +31,15 @@
                 <p class="text-xs text-slate-500">
                     Pelaporan Internal
                 </p>
+            </div>
+            <div class="flex justify-end p-4 lg:hidden">
+
+                <button id="btnCloseSidebar" class="w-10 h-10 rounded-xl hover:bg-slate-100 text-slate-700">
+
+                    ✕
+
+                </button>
+
             </div>
         </div>
 
