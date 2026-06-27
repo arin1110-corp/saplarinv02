@@ -14,9 +14,9 @@
 
         $totalDraft = $shs->where('shs_status', 'Draft')->count();
 
-        $totalAktif = $shs->where('shs_status', 'Aktif')->count();
+        $totalAktif = $shs->where('shs_status', 'Diajukan')->count();
 
-        $totalNonaktif = $shs->where('shs_status', 'Nonaktif')->count();
+        $totalNonaktif = $shs->where('shs_status', 'Tidak Diajukan')->count();
 
     @endphp
 
@@ -92,7 +92,7 @@
 
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-5">
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
 
                 <p class="text-sm text-slate-500">
@@ -105,22 +105,10 @@
 
             </div>
 
-            <div class="bg-yellow-50 rounded-3xl border border-yellow-200 shadow-sm p-5">
-
-                <p class="text-sm text-yellow-700">
-                    Draft
-                </p>
-
-                <h3 class="text-4xl font-bold text-yellow-700 mt-3">
-                    {{ $totalDraft }}
-                </h3>
-
-            </div>
-
             <div class="bg-green-50 rounded-3xl border border-green-200 shadow-sm p-5">
 
                 <p class="text-sm text-green-700">
-                    Aktif
+                    Diajukan
                 </p>
 
                 <h3 class="text-4xl font-bold text-green-700 mt-3">
@@ -132,7 +120,7 @@
             <div class="bg-red-50 rounded-3xl border border-red-200 shadow-sm p-5">
 
                 <p class="text-sm text-red-700">
-                    Nonaktif
+                    Tidak Diajukan
                 </p>
 
                 <h3 class="text-4xl font-bold text-red-700 mt-3">
@@ -185,6 +173,34 @@
                             Semua Unit
                         </option>
 
+                        <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali"
+                            {{ old('shs_unit_kode') == 'DISBUD' ? 'selected' : '' }}>
+
+                            Dinas Kebudayaan Provinsi Bali
+
+                        </option>
+
+                        <option value="UPTD-TB" data-nama="UPTD Taman Budaya"
+                            {{ old('shs_unit_kode') == 'UPTD-TB' ? 'selected' : '' }}>
+
+                            UPTD Taman Budaya
+
+                        </option>
+
+                        <option value="UPTD-MB" data-nama="UPTD Museum Bali"
+                            {{ old('shs_unit_kode') == 'UPTD-MB' ? 'selected' : '' }}>
+
+                            UPTD Museum Bali
+
+                        </option>
+
+                        <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali"
+                            {{ old('shs_unit_kode') == 'UPTD-MPRB' ? 'selected' : '' }}>
+
+                            UPTD Monumen Perjuangan Rakyat Bali
+
+                        </option>
+
                     </select>
 
                 </div>
@@ -203,16 +219,13 @@
                             Semua Status
                         </option>
 
-                        <option value="Draft">
-                            Draft
+
+                        <option value="Diajukan">
+                            Diajukan
                         </option>
 
-                        <option value="Aktif">
-                            Aktif
-                        </option>
-
-                        <option value="Nonaktif">
-                            Nonaktif
+                        <option value="Tidak Diajukan">
+                            Tidak Diajukan
                         </option>
 
                     </select>
@@ -343,15 +356,14 @@
                                         Draft
 
                                     </span>
-                                @elseif($item->shs_status == 'Aktif')
+                                @elseif($item->shs_status == 'Diajukan')
                                     <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
 
-                                        Aktif
+                                        Diajukan
 
                                     </span>
-                                    @elseif($item->shs_status == 'Diverifikasi')
-                                    <span
-                                        class="bg-blue-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                @elseif($item->shs_status == 'Diverifikasi')
+                                    <span class="bg-blue-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
 
                                         Diverifikasi
 
@@ -359,7 +371,7 @@
                                 @else
                                     <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
 
-                                        Nonaktif
+                                        Tidak Diajukan
 
                                     </span>
                                 @endif
@@ -490,28 +502,6 @@
                             Detail
 
                         </button>
-
-                        @if ($item->shs_operator_nip == session('pegawai_nip') && $item->shs_status == 'Draft')
-                            <a href="{{ route('user.shs.edit', $item->shs_uid) }}"
-                                class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold">
-
-                                Edit
-
-                            </a>
-
-                            <form action="{{ route('user.shs.delete', $item->shs_uid) }}" method="POST"
-                                onsubmit="return confirm('Hapus usulan SHS ini?')">
-
-                                @csrf
-
-                                <button class="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-semibold">
-
-                                    Hapus
-
-                                </button>
-
-                            </form>
-                        @endif
 
                     </div>
 

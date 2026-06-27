@@ -98,7 +98,7 @@ class UserSHSController extends Controller
 
             'shs_kelompok' => $request->shs_kelompok,
 
-            'shs_status' => 'Draft',
+            'shs_status' => 'Diajukan',
 
             'shs_operator_id' => session('pegawai_id'),
 

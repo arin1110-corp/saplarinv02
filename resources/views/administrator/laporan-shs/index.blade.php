@@ -243,32 +243,18 @@
                                 </td>
 
                                 <td>
-                                    @if ($item->shs_status == 'Draft')
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs font-semibold">
-
-                                            Draft
-
-                                        </span>
-                                    @elseif($item->shs_status == 'Diverifikasi')
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">
-
-                                            Diverifikasi
-
-                                        </span>
-                                    @elseif($item->shs_status == 'Aktif')
+                                    @if ($item->shs_status == 'Diajukan')
                                         <span
                                             class="inline-flex items-center px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs font-semibold">
 
-                                            Aktif
+                                            Diajukan
 
                                         </span>
                                     @else
                                         <span
                                             class="inline-flex items-center px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs font-semibold">
 
-                                            Nonaktif
+                                            Tidak Diajukan
 
                                         </span>
                                     @endif
@@ -293,7 +279,7 @@
                                                 Verifikasi
 
                                             </button>
-                                        @elseif($item->shs_status == 'Diverifikasi')
+                                        @elseif($item->shs_status == 'Tidak Diajukan')
                                             <form method="POST"
                                                 action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
 
@@ -302,12 +288,12 @@
                                                 <button
                                                     class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
 
-                                                    Aktifkan
+                                                    Diajukan
 
                                                 </button>
 
                                             </form>
-                                        @elseif($item->shs_status == 'Aktif')
+                                        @elseif($item->shs_status == 'Diajukan')
                                             <form method="POST"
                                                 action="{{ route('admin.laporan.shs.nonaktif', $item->shs_uid) }}">
 
@@ -316,7 +302,7 @@
                                                 <button
                                                     class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm">
 
-                                                    Nonaktif
+                                                    Tidak Diajukan
 
                                                 </button>
 
@@ -330,7 +316,7 @@
                                                 <button
                                                     class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
 
-                                                    Aktifkan
+                                                    Diajukan
 
                                                 </button>
 
@@ -357,11 +343,11 @@
     </div>
     {{-- ======================= MODAL DETAIL ======================= --}}
 
-    <div id="modalDetail" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-5 overflow-y-auto">
+    <div id="modalDetail" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-5">
 
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-6xl">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col">
 
-            <div class="flex justify-between items-center px-6 py-5 border-b border-slate-700">
+            <div class="flex justify-between items-center px-6 py-5 border-b border-slate-700 flex-shrink-0">
 
                 <div>
 
@@ -387,7 +373,7 @@
 
             </div>
 
-            <div class="p-6">
+            <div class="p-6 overflow-y-auto flex-1">
 
                 <div class="grid grid-cols-2 gap-6">
 

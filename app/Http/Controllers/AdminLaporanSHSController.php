@@ -44,7 +44,7 @@ class AdminLaporanSHSController extends Controller
         $shs = ModelSHS::where('shs_uid', $uid)->firstOrFail();
 
         $shs->update([
-            'shs_status' => 'Aktif',
+            'shs_status' => 'Diajukan',
         ]);
 
         return back()->with('success', 'SHS berhasil diaktifkan.');
@@ -54,7 +54,7 @@ class AdminLaporanSHSController extends Controller
         $shs = ModelSHS::where('shs_uid', $uid)->firstOrFail();
 
         $shs->update([
-            'shs_status' => 'Nonaktif',
+            'shs_status' => 'Tidak Diajukan',
 
             'shs_catatan_admin' => $request->shs_catatan_admin,
         ]);

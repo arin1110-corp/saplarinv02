@@ -74,7 +74,7 @@ class AdminSHSController extends Controller
 
         $shs->update([
 
-            'shs_status' => 'Aktif'
+            'shs_status' => 'Diajukan',
 
         ]);
 
@@ -93,7 +93,7 @@ class AdminSHSController extends Controller
 
         $shs->update([
 
-            'shs_status' => 'Nonaktif',
+            'shs_status' => 'Tidak Diajukan',
 
             'shs_catatan_admin' => $request->shs_catatan_admin
 
