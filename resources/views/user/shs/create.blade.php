@@ -456,25 +456,22 @@
 
                     <div id="wrapperLink">
 
-                        @if (old('shs_link_survei'))
+                        @forelse ((array) old('shs_link_survei') as $link)
+                            <div class="flex gap-3 mb-3 link-item">
 
-                            @foreach (old('link') as $link)
-                                <div class="flex gap-3 mb-3 link-item">
+                                <input type="url" name="shs_link_survei[]" value="{{ $link }}"
+                                    class="flex-1 rounded-2xl border border-slate-200 px-5 py-3"
+                                    placeholder="https://.....">
 
-                                    <input type="url" name="shs_link_survei[]" value="{{ $link }}"
-                                        class="flex-1 rounded-2xl border border-slate-200 px-5 py-3"
-                                        placeholder="https://.....">
+                                <button type="button"
+                                    class="hapusLink bg-red-600 hover:bg-red-700 text-white px-4 rounded-xl">
 
-                                    <button type="button"
-                                        class="hapusLink bg-red-600 hover:bg-red-700 text-white px-4 rounded-xl">
+                                    Hapus
 
-                                        Hapus
+                                </button>
 
-                                    </button>
-
-                                </div>
-                            @endforeach
-                        @else
+                            </div>
+                        @empty
                             <div class="flex gap-3 mb-3 link-item">
 
                                 <input type="url" name="shs_link_survei[]"
@@ -489,8 +486,7 @@
                                 </button>
 
                             </div>
-
-                        @endif
+                        @endforelse
 
                     </div>
 
@@ -648,13 +644,13 @@
             this.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
         });
-        $('form').on('submit', function () {
-    let harga = $('#shs_harga').val();
+        $('form').on('submit', function() {
+            let harga = $('#shs_harga').val();
 
-    harga = harga.replace(/\./g, '');
+            harga = harga.replace(/\./g, '');
 
-    $('#shs_harga').val(harga);
-});
+            $('#shs_harga').val(harga);
+        });
         $('#satuan').select2({
 
             placeholder: 'Pilih Satuan',
