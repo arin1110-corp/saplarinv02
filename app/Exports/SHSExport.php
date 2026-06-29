@@ -5,8 +5,9 @@ namespace App\Exports;
 use App\Models\ModelSHS;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
-class SHSExport implements FromCollection, WithHeadings
+class SHSExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $field;
     protected $status;
@@ -31,5 +32,23 @@ class SHSExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return $this->field;
+    }
+    public function map($row): array
+    {
+        $data = [];
+
+        foreach ($this->field as $field) {
+            $value = $row->{$field};
+
+            if ($field === 'shs_link_survei') {
+                $links = json_decode($value, true);
+
+                $value = is_array($links) ? implode("\n", $links) : $value;
+            }
+
+            $data[] = $value;
+        }
+
+        return $data;
     }
 }

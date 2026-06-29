@@ -648,6 +648,10 @@
                     <label><input type="checkbox" class="field" name="field[]" value="shs_harga"> Harga</label>
 
                     <label><input type="checkbox" class="field" name="field[]" value="shs_tkdn"> TKDN</label>
+                    <label>
+                        <input type="checkbox" class="field" name="field[]" value="shs_link_survei">
+                        Link Survei
+                    </label>
 
                     <label><input type="checkbox" class="field" name="field[]" value="shs_kelompok"> Kelompok
                         SHS</label>
