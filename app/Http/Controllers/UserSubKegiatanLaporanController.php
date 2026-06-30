@@ -17,21 +17,12 @@ class UserSubKegiatanLaporanController extends Controller
 {
     public function index()
     {
-        $laporans = SubKegiatanLaporan::with([
-                'subKegiatan',
-                'detail',
-                'permasalahan',
-                'solusi',
-                'tindakLanjut',
-            ])
+        $laporans = SubKegiatanLaporan::with(['subKegiatan', 'detail', 'permasalahan', 'solusi', 'tindakLanjut'])
             ->latest('laporan_tahun')
             ->latest('laporan_bulan')
             ->get();
 
-        return view(
-            'user.laporan-sub-kegiatan.index',
-            compact('laporans')
-        );
+        return view('user.laporan-sub-kegiatan.index', compact('laporans'));
     }
 
     public function create()
@@ -48,17 +39,10 @@ class UserSubKegiatanLaporanController extends Controller
     public function getSubKegiatanByUnit(Request $request)
     {
         $request->validate([
-            'unit' => 'required'
+            'unit' => 'required',
         ]);
 
-        $subKegiatans = SubKegiatanIndikator::with('subKegiatan')
-            ->where('indikator_unit_kode', $request->unit)
-            ->where('indikator_status', 1)
-            ->get()
-            ->pluck('subKegiatan')
-            ->filter()
-            ->unique('sub_kegiatan_id')
-            ->values();
+        $subKegiatans = SubKegiatanIndikator::with('subKegiatan')->where('indikator_unit_kode', $request->unit)->where('indikator_status', 1)->get()->pluck('subKegiatan')->filter()->unique('sub_kegiatan_id')->values();
 
         return response()->json($subKegiatans);
     }
@@ -73,20 +57,22 @@ class UserSubKegiatanLaporanController extends Controller
     {
         $request->validate([
             'unit' => 'required',
-            'sub_kegiatan_id' => 'required'
+            'sub_kegiatan_id' => 'required',
         ]);
 
-        $indikators = SubKegiatanIndikator::where(
-            'indikator_unit_kode',
-            $request->unit
-        )
-            ->where(
-                'indikator_sub_kegiatan_id',
-                $request->sub_kegiatan_id
-            )
-            ->where('indikator_status', 1)
-            ->orderBy('indikator_id')
-            ->get();
+        $indikators = SubKegiatanIndikator::where('indikator_unit_kode', $request->unit)->where('indikator_sub_kegiatan_id', $request->sub_kegiatan_id)->where('indikator_status', 1)->orderBy('indikator_id')->get();
+
+        $indikators->transform(function ($item) {
+            $realisasi = SubKegiatanLaporanDetail::where('detail_indikator_id', $item->indikator_id)->sum('detail_realisasi');
+
+            $item->realisasi_sebelumnya = $realisasi;
+
+            $item->sisa_target = max(0, $item->indikator_target - $realisasi);
+
+            $item->selesai = $realisasi >= $item->indikator_target;
+
+            return $item;
+        });
 
         return response()->json($indikators);
     }
@@ -103,153 +89,176 @@ class UserSubKegiatanLaporanController extends Controller
             'laporan_unit_kode' => 'required',
             'laporan_unit_nama' => 'required',
 
-            'laporan_sub_kegiatan_id' =>
-            'required|exists:saplarin_sub_kegiatan,sub_kegiatan_id',
+            'laporan_sub_kegiatan_id' => 'required|exists:saplarin_sub_kegiatan,sub_kegiatan_id',
 
-            'laporan_bulan' =>
-            'required|integer|min:1|max:12',
+            'laporan_bulan' => 'required|integer|min:1|max:12',
 
-            'laporan_tahun' =>
-            'required|digits:4',
+            'laporan_tahun' => 'required|digits:4',
 
-            'realisasi' =>
-            'required|array|min:1',
+            'realisasi' => 'required|array|min:1',
 
-            'realisasi.*' =>
-            'required|numeric|min:0',
+            'realisasi.*' => 'required|numeric|min:0',
 
-            'permasalahan' =>
-            'nullable|array',
+            'permasalahan' => 'nullable|array',
 
-            'solusi' =>
-            'nullable|array',
+            'solusi' => 'nullable|array',
 
-            'tindak_lanjut' =>
-            'nullable|array',
+            'tindak_lanjut' => 'nullable|array',
         ]);
 
-        $sudahAda = SubKegiatanLaporan::where(
-            'laporan_unit_kode',
-            $request->laporan_unit_kode
-        )
-            ->where(
-                'laporan_sub_kegiatan_id',
-                $request->laporan_sub_kegiatan_id
-            )
-            ->where(
-                'laporan_bulan',
-                $request->laporan_bulan
-            )
-            ->where(
-                'laporan_tahun',
-                $request->laporan_tahun
-            )
-            ->exists();
+        $sudahAda = SubKegiatanLaporan::where('laporan_unit_kode', $request->laporan_unit_kode)->where('laporan_sub_kegiatan_id', $request->laporan_sub_kegiatan_id)->where('laporan_bulan', $request->laporan_bulan)->where('laporan_tahun', $request->laporan_tahun)->exists();
 
         if ($sudahAda) {
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Laporan bulan tersebut sudah diinput.'
-                );
+            return back()->withInput()->with('error', 'Laporan bulan tersebut sudah diinput.');
         }
 
         DB::transaction(function () use ($request) {
-
             $laporan = SubKegiatanLaporan::create([
                 'laporan_uid' => Str::uuid(),
 
-                'laporan_unit_kode' =>
-                $request->laporan_unit_kode,
+                'laporan_unit_kode' => $request->laporan_unit_kode,
 
-                'laporan_unit_nama' =>
-                $request->laporan_unit_nama,
+                'laporan_unit_nama' => $request->laporan_unit_nama,
 
-                'laporan_sub_kegiatan_id' =>
-                $request->laporan_sub_kegiatan_id,
+                'laporan_sub_kegiatan_id' => $request->laporan_sub_kegiatan_id,
 
-                'laporan_bulan' =>
-                $request->laporan_bulan,
+                'laporan_bulan' => $request->laporan_bulan,
 
-                'laporan_tahun' =>
-                $request->laporan_tahun,
+                'laporan_tahun' => $request->laporan_tahun,
 
-                'laporan_status' =>
-                'Aktif',
+                'laporan_status' => 'Aktif',
 
-                'laporan_created_by' =>
-                session('pegawai_id'),
+                'laporan_created_by' => session('pegawai_id'),
 
-                'laporan_created_by_nama' =>
-                session('pegawai_nama'),
+                'laporan_created_by_nama' => session('pegawai_nama'),
 
-                'laporan_created_by_nip' =>
-                session('pegawai_nip'),
+                'laporan_created_by_nip' => session('pegawai_nip'),
             ]);
 
             foreach ($request->realisasi as $indikatorId => $nilai) {
-
-                $indikator = SubKegiatanIndikator::findOrFail(
-                    $indikatorId
-                );
+                $indikator = SubKegiatanIndikator::findOrFail($indikatorId);
 
                 SubKegiatanLaporanDetail::create([
-                    'detail_laporan_id' =>
-                    $laporan->laporan_id,
+                    'detail_laporan_id' => $laporan->laporan_id,
 
-                    'detail_indikator_id' =>
-                    $indikator->indikator_id,
+                    'detail_indikator_id' => $indikator->indikator_id,
 
-                    'detail_indikator_nama' =>
-                    $indikator->indikator_nama,
+                    'detail_indikator_nama' => $indikator->indikator_nama,
 
-                    'detail_target' =>
-                    $indikator->indikator_target,
+                    'detail_target' => $indikator->indikator_target,
 
-                    'detail_realisasi' =>
-                    $nilai,
+                    'detail_realisasi' => $nilai,
 
-                    'detail_satuan' =>
-                    $indikator->indikator_satuan,
+                    'detail_satuan' => $indikator->indikator_satuan,
                 ]);
             }
 
             foreach ($request->permasalahan ?? [] as $item) {
-
                 if ($item) {
                     SubKegiatanPermasalahan::create([
-                        'permasalahan_laporan_id' =>
-                        $laporan->laporan_id,
+                        'permasalahan_laporan_id' => $laporan->laporan_id,
 
-                        'permasalahan_uraian' =>
-                        $item,
+                        'permasalahan_uraian' => $item,
                     ]);
                 }
             }
 
             foreach ($request->solusi ?? [] as $item) {
-
                 if ($item) {
                     SubKegiatanSolusi::create([
-                        'solusi_laporan_id' =>
-                        $laporan->laporan_id,
+                        'solusi_laporan_id' => $laporan->laporan_id,
 
-                        'solusi_uraian' =>
-                        $item,
+                        'solusi_uraian' => $item,
                     ]);
                 }
             }
 
             foreach ($request->tindak_lanjut ?? [] as $item) {
-
                 if ($item) {
                     SubKegiatanTindakLanjut::create([
-                        'tindak_lanjut_laporan_id' =>
-                        $laporan->laporan_id,
+                        'tindak_lanjut_laporan_id' => $laporan->laporan_id,
 
-                        'tindak_lanjut_uraian' =>
-                        $item,
+                        'tindak_lanjut_uraian' => $item,
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('user.laporan-sub-kegiatan.index')->with('success', 'Laporan sub kegiatan berhasil disimpan.');
+    }
+    public function edit($uid)
+    {
+        $laporan = SubKegiatanLaporan::with([
+            'detail',
+            'permasalahan',
+            'solusi',
+            'tindakLanjut'
+        ])
+            ->where('laporan_uid', $uid)
+            ->firstOrFail();
+
+        if ($laporan->laporan_created_by != session('pegawai_id')) {
+            abort(403);
+        }
+
+        return view(
+            'user.laporan-sub-kegiatan.edit',
+            compact('laporan')
+        );
+    }
+    public function update(Request $request, $uid)
+    {
+        $laporan = SubKegiatanLaporan::with([
+            'detail',
+            'permasalahan',
+            'solusi',
+            'tindakLanjut'
+        ])
+            ->where('laporan_uid', $uid)
+            ->firstOrFail();
+
+        if ($laporan->laporan_created_by != session('pegawai_id')) {
+            abort(403);
+        }
+
+        DB::transaction(function () use ($request, $laporan) {
+
+            foreach ($request->realisasi as $detailId => $nilai) {
+
+                SubKegiatanLaporanDetail::where(
+                    'detail_id',
+                    $detailId
+                )->update([
+                    'detail_realisasi' => $nilai,
+                ]);
+            }
+
+            $laporan->permasalahan()->delete();
+            foreach ($request->permasalahan ?? [] as $item) {
+                if ($item) {
+                    SubKegiatanPermasalahan::create([
+                        'permasalahan_laporan_id' => $laporan->laporan_id,
+                        'permasalahan_uraian' => $item,
+                    ]);
+                }
+            }
+
+            $laporan->solusi()->delete();
+            foreach ($request->solusi ?? [] as $item) {
+                if ($item) {
+                    SubKegiatanSolusi::create([
+                        'solusi_laporan_id' => $laporan->laporan_id,
+                        'solusi_uraian' => $item,
+                    ]);
+                }
+            }
+
+            $laporan->tindakLanjut()->delete();
+            foreach ($request->tindak_lanjut ?? [] as $item) {
+                if ($item) {
+                    SubKegiatanTindakLanjut::create([
+                        'tindak_lanjut_laporan_id' => $laporan->laporan_id,
+                        'tindak_lanjut_uraian' => $item,
                     ]);
                 }
             }
@@ -259,7 +268,7 @@ class UserSubKegiatanLaporanController extends Controller
             ->route('user.laporan-sub-kegiatan.index')
             ->with(
                 'success',
-                'Laporan sub kegiatan berhasil disimpan.'
+                'Laporan berhasil diperbarui.'
             );
     }
 }

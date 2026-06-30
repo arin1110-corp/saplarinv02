@@ -411,6 +411,15 @@ Route::prefix('user')
     Route::get('/laporan-sub-kegiatan/sub-kegiatan', [UserSubKegiatanLaporanController::class, 'getSubKegiatanByUnit'])->name('laporan-sub-kegiatan.sub-kegiatan');
 
     Route::get('/laporan-sub-kegiatan/indikator', [UserSubKegiatanLaporanController::class, 'getIndikator'])->name('laporan-sub-kegiatan.indikator');
+    Route::get(
+        '/laporan-sub-kegiatan/{uid}/edit',
+        [UserSubKegiatanLaporanController::class, 'edit']
+    )->name('laporan-sub-kegiatan.edit');
+
+    Route::put(
+        '/laporan-sub-kegiatan/{uid}',
+        [UserSubKegiatanLaporanController::class, 'update']
+    )->name('laporan-sub-kegiatan.update');
 
     /*
             |--------------------------------------------------------------------------

@@ -306,9 +306,17 @@
                                     </p>
 
                                     <p class="text-sm text-slate-500 mt-1">
-                                        Target:
-                                        <span class="font-semibold text-blue-700">
-                                            ${Number(item.indikator_target).toLocaleString('id-ID')}
+                                        Realisasi Sebelumnya:
+                                        <span class="font-semibold text-green-700">
+                                            ${Number(item.realisasi_sebelumnya || 0).toLocaleString('id-ID')}
+                                            ${item.indikator_satuan}
+                                        </span>
+                                    </p>
+
+                                    <p class="text-sm text-slate-500 mt-1">
+                                        Sisa Target:
+                                        <span class="font-semibold text-orange-600">
+                                            ${Number(item.sisa_target || 0).toLocaleString('id-ID')}
                                             ${item.indikator_satuan}
                                         </span>
                                     </p>
