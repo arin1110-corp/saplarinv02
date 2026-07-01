@@ -18,11 +18,29 @@
 
             @include('administrator.partials.header')
 
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold">Laporan Sub Kegiatan</h1>
-                <p class="text-slate-400 text-sm">
-                    Rekap laporan realisasi indikator, permasalahan, solusi, dan tindak lanjut dari operator.
-                </p>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+                <div>
+                    <h1 class="text-2xl font-bold">
+                        Laporan Sub Kegiatan
+                    </h1>
+
+                    <p class="text-slate-400 text-sm">
+                        Rekap laporan realisasi indikator, permasalahan, solusi, dan tindak lanjut dari operator.
+                    </p>
+                </div>
+
+                <div class="flex gap-2">
+
+                    <a href="{{ route('admin.laporan-sub-kegiatan.export.excel') }}"
+                        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm">
+
+                        Export Excel
+
+                    </a>
+
+                </div>
+
             </div>
 
             <div class="space-y-6">
@@ -48,9 +66,10 @@
                         $jumlahIndikator = $item->detail->count();
 
                         foreach ($item->detail as $detail) {
-                            $persen = $detail->detail_target > 0
-                                ? ($detail->detail_realisasi / $detail->detail_target) * 100
-                                : 0;
+                            $persen =
+                                $detail->detail_target > 0
+                                    ? ($detail->detail_realisasi / $detail->detail_target) * 100
+                                    : 0;
 
                             if ($persen > 100) {
                                 $persen = 100;
@@ -59,9 +78,7 @@
                             $totalPersen += $persen;
                         }
 
-                        $rataCapaian = $jumlahIndikator > 0
-                            ? $totalPersen / $jumlahIndikator
-                            : 0;
+                        $rataCapaian = $jumlahIndikator > 0 ? $totalPersen / $jumlahIndikator : 0;
                     @endphp
 
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
@@ -95,7 +112,8 @@
                             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 min-w-[220px]">
                                 <p class="text-xs text-slate-400">Rata-rata Capaian</p>
 
-                                <div class="text-3xl font-black mt-1
+                                <div
+                                    class="text-3xl font-black mt-1
                                     {{ $rataCapaian >= 100 ? 'text-green-300' : ($rataCapaian >= 60 ? 'text-yellow-300' : 'text-red-300') }}">
                                     {{ number_format($rataCapaian, 2, ',', '.') }}%
                                 </div>
@@ -128,9 +146,10 @@
                                     <tbody>
                                         @forelse ($item->detail as $detail)
                                             @php
-                                                $persen = $detail->detail_target > 0
-                                                    ? ($detail->detail_realisasi / $detail->detail_target) * 100
-                                                    : 0;
+                                                $persen =
+                                                    $detail->detail_target > 0
+                                                        ? ($detail->detail_realisasi / $detail->detail_target) * 100
+                                                        : 0;
 
                                                 if ($persen > 100) {
                                                     $persen = 100;
@@ -209,8 +228,26 @@
                             </div>
 
                         </div>
+                        <br>
+                        <div class="flex gap-2">
 
+                            <a href="{{ route('admin.laporan-sub-kegiatan.pdf', $item->laporan_uid) }}" target="_blank"
+                                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-sm">
+
+                                PDF
+
+                            </a>
+
+                            <button onclick="openCatatan('{{ $item->laporan_uid }}')"
+                                class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-xl text-sm">
+
+                                Catatan
+
+                            </button>
+
+                        </div>
                     </div>
+
                 @empty
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400">
                         Belum ada laporan sub kegiatan.
@@ -222,7 +259,70 @@
         </div>
 
     </div>
+    <div id="modalCatatan" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
 
+        <div class="bg-slate-900 rounded-2xl p-6 w-full max-w-lg">
+
+            <h3 class="text-lg font-bold mb-4">
+                Catatan Admin
+            </h3>
+
+            <form method="POST" id="formCatatan">
+
+                @csrf
+
+                <textarea name="catatan" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3"
+                    placeholder="Masukkan catatan admin..."></textarea>
+
+                <div class="flex justify-end gap-2 mt-5">
+
+                    <button type="button" onclick="closeCatatan()" class="bg-slate-700 px-4 py-2 rounded-xl">
+
+                        Batal
+
+                    </button>
+
+                    <button class="bg-blue-600 px-4 py-2 rounded-xl">
+
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+    <script>
+        function openCatatan(uid) {
+            document
+                .getElementById('modalCatatan')
+                .classList.remove('hidden');
+
+            document
+                .getElementById('modalCatatan')
+                .classList.add('flex');
+
+            document
+                .getElementById('formCatatan')
+                .action =
+                '/admin/laporan-sub-kegiatan/' +
+                uid +
+                '/catatan';
+        }
+
+        function closeCatatan() {
+            document
+                .getElementById('modalCatatan')
+                .classList.add('hidden');
+
+            document
+                .getElementById('modalCatatan')
+                .classList.remove('flex');
+        }
+    </script>
 </body>
 
 </html>

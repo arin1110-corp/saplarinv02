@@ -17,4 +17,21 @@ class ModelKegiatan extends Model
         'kegiatan_nama',
         'kegiatan_status',
     ];
+    public function program()
+    {
+        return $this->belongsTo(
+            ModelProgram::class,
+            'kegiatan_program_id',
+            'program_id'
+        );
+    }
+
+    public function subKegiatan()
+    {
+        return $this->hasMany(
+            ModelSubKegiatan::class,
+            'sub_kegiatan_kegiatan_id',
+            'kegiatan_id'
+        );
+    }
 }

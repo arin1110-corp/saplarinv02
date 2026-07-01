@@ -38,4 +38,12 @@ class ModelSubKegiatan extends Model
             'sub_kegiatan_id'
         );
     }
+    public function kegiatan()
+    {
+        return $this->belongsTo(
+            ModelKegiatan::class,
+            'sub_kegiatan_kegiatan_id',
+            'kegiatan_id'
+        );
+    }
 }

@@ -245,6 +245,11 @@ Route::middleware(['admin'])
 
     Route::post('/sub-kegiatan-indikator/{uid}/delete', [AdminSubKegiatanIndikatorController::class, 'delete'])->name('admin.sub-kegiatan-indikator.delete');
     Route::get('/laporan-sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'index'])->name('admin.laporan.subkegiatan');
+    Route::get('/admin/laporan-sub-kegiatan/export/excel', [AdminLaporanSubKegiatanController::class, 'exportExcel'])->name('admin.laporan-sub-kegiatan.export.excel');
+
+    Route::get('/admin/laporan-sub-kegiatan/{uid}/pdf', [AdminLaporanSubKegiatanController::class, 'pdf'])->name('admin.laporan-sub-kegiatan.pdf');
+
+    Route::post('/admin/laporan-sub-kegiatan/{uid}/catatan', [AdminLaporanSubKegiatanController::class, 'catatan'])->name('admin.laporan-sub-kegiatan.catatan');
 
     /*
             |--------------------------------------------------------------------------
@@ -411,15 +416,9 @@ Route::prefix('user')
     Route::get('/laporan-sub-kegiatan/sub-kegiatan', [UserSubKegiatanLaporanController::class, 'getSubKegiatanByUnit'])->name('laporan-sub-kegiatan.sub-kegiatan');
 
     Route::get('/laporan-sub-kegiatan/indikator', [UserSubKegiatanLaporanController::class, 'getIndikator'])->name('laporan-sub-kegiatan.indikator');
-    Route::get(
-        '/laporan-sub-kegiatan/{uid}/edit',
-        [UserSubKegiatanLaporanController::class, 'edit']
-    )->name('laporan-sub-kegiatan.edit');
+    Route::get('/laporan-sub-kegiatan/{uid}/edit', [UserSubKegiatanLaporanController::class, 'edit'])->name('laporan-sub-kegiatan.edit');
 
-    Route::put(
-        '/laporan-sub-kegiatan/{uid}',
-        [UserSubKegiatanLaporanController::class, 'update']
-    )->name('laporan-sub-kegiatan.update');
+    Route::put('/laporan-sub-kegiatan/{uid}', [UserSubKegiatanLaporanController::class, 'update'])->name('laporan-sub-kegiatan.update');
 
     /*
             |--------------------------------------------------------------------------
