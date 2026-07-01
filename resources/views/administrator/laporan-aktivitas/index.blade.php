@@ -33,6 +33,54 @@
             </p>
         </div>
 
+
+        <div class="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <select name="tahun"
+                    class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3">
+                    <option value="">Semua Tahun</option>
+                    @foreach($tahun ?? [] as $t)
+                        <option value="{{ $t }}" @selected(request('tahun') == $t)>
+                            {{ $t }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <select name="sub_kegiatan"
+                    class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3">
+                    <option value="">Semua Sub Kegiatan</option>
+
+                    @foreach($subKegiatans ?? [] as $sub)
+                        <option value="{{ $sub->sub_kegiatan_id }}"
+                            @selected(request('sub_kegiatan') == $sub->sub_kegiatan_id)>
+                            {{ $sub->sub_kegiatan_nama }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <select name="status"
+                    class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3">
+                    <option value="">Semua Status</option>
+                    <option value="Aktif" @selected(request('status') == 'Aktif')>Aktif</option>
+                    <option value="Nonaktif" @selected(request('status') == 'Nonaktif')>Nonaktif</option>
+                </select>
+
+                <div class="flex gap-2">
+                    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl">
+                        Filter
+                    </button>
+
+                    <a href="{{ route('admin.laporan-aktivitas.index') }}"
+                        class="bg-slate-700 px-4 py-3 rounded-xl">
+                        Reset
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+
         <div class="space-y-6">
 
             @forelse ($kegiatans as $kegiatan)
@@ -223,6 +271,12 @@
             @endforelse
 
         </div>
+
+        @if(method_exists($kegiatans, 'links'))
+            <div class="mt-6">
+                {{ $kegiatans->links() }}
+            </div>
+        @endif
 
     </div>
 
