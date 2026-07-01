@@ -21,7 +21,7 @@ class ModelKegiatan extends Model
     {
         return $this->belongsTo(
             ModelProgram::class,
-            'kegiatan_program_id',
+            'kegiatan_program',
             'program_id'
         );
     }
@@ -30,7 +30,7 @@ class ModelKegiatan extends Model
     {
         return $this->hasMany(
             ModelSubKegiatan::class,
-            'sub_kegiatan_kegiatan_id',
+            'sub_kegiatan_kegiatan',
             'kegiatan_id'
         );
     }

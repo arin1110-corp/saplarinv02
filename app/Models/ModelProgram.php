@@ -21,7 +21,7 @@ class ModelProgram extends Model
     {
         return $this->hasMany(
             ModelKegiatan::class,
-            'kegiatan_program_id',
+            'kegiatan_program',
             'program_id'
         );
     }

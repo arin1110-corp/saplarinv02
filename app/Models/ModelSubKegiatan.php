@@ -42,7 +42,7 @@ class ModelSubKegiatan extends Model
     {
         return $this->belongsTo(
             ModelKegiatan::class,
-            'sub_kegiatan_kegiatan_id',
+            'sub_kegiatan_kegiatan',
             'kegiatan_id'
         );
     }
