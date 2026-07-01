@@ -297,20 +297,18 @@
     </div>
     <script>
         function openCatatan(uid) {
-            document
-                .getElementById('modalCatatan')
+            let url =
+                "{{ route('admin.laporan-sub-kegiatan.catatan', ':uid') }}";
+
+            url = url.replace(':uid', uid);
+
+            document.getElementById('formCatatan').action = url;
+
+            document.getElementById('modalCatatan')
                 .classList.remove('hidden');
 
-            document
-                .getElementById('modalCatatan')
+            document.getElementById('modalCatatan')
                 .classList.add('flex');
-
-            document
-                .getElementById('formCatatan')
-                .action =
-                '/admin/laporan-sub-kegiatan/' +
-                uid +
-                '/catatan';
         }
 
         function closeCatatan() {

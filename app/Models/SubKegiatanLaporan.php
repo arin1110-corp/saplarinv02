@@ -20,6 +20,10 @@ class SubKegiatanLaporan extends Model
         'laporan_created_by',
         'laporan_created_by_nama',
         'laporan_created_by_nip',
+        // tambahkan ini
+        'laporan_catatan_admin',
+        'laporan_catatan_at',
+        'laporan_catatan_by',
     ];
     public function subKegiatan()
     {
