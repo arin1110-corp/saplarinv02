@@ -296,29 +296,29 @@
             });
 
             function lihatCatatan(catatan, by, tanggal) {
-                document.getElementById('catatanIsi')
-                    .innerHTML = catatan;
 
-                ddocument.getElementById('catatanInfo')
-                    .innerHTML =
+                document.getElementById('catatanIsi').innerHTML =
+                    catatan ?? '-';
+
+                document.getElementById('catatanInfo').innerHTML =
                     'Dikirim oleh ' +
                     (by ?? '-') +
                     ' pada ' +
                     (tanggal ?? '-');
 
-                document.getElementById('modalCatatan')
-                    .classList.remove('hidden');
+                const modal =
+                    document.getElementById('modalCatatan');
 
-                document.getElementById('modalCatatan')
-                    .classList.add('flex');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
             function closeCatatan() {
-                document.getElementById('modalCatatan')
-                    .classList.add('hidden');
+                const modal =
+                    document.getElementById('modalCatatan');
 
-                document.getElementById('modalCatatan')
-                    .classList.remove('flex');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
         </script>
         <script>
