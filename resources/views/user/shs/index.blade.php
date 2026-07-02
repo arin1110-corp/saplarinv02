@@ -783,7 +783,7 @@
                     if (keyword != '' && !cSearch.includes(keyword))
                         show = false;
 
-                    card.style.display = show ? '' : 'none';
+                    card.dataset.filtered = show;
 
                 });
 
@@ -796,8 +796,11 @@
             function applyPagination() {
 
                 perPage = parseInt(document.getElementById('perPage').value);
+                cards().forEach(card => {
+                    card.style.display = 'none';
+                });
 
-                const visible = getVisibleCards();
+                const visible = getFilteredCards();
 
                 visible.forEach(x => x.style.display = 'none');
 
@@ -847,28 +850,20 @@
             });
 
             document.getElementById('prevPage').onclick = function() {
-
                 if (currentPage > 1) {
-
                     currentPage--;
-
                     applyPagination();
-
                     window.scrollTo({
-
                         top: 0,
-
                         behavior: 'smooth'
-
                     });
-
                 }
-
             };
 
             document.getElementById('nextPage').onclick = function() {
 
-                const total = Math.ceil(getVisibleCards().length / perPage);
+                const total =
+                    Math.ceil(getFilteredCards().length / perPage);
 
                 if (currentPage < total) {
 
@@ -947,6 +942,12 @@
                 document.getElementById('detailModal')
                     .classList.add('hidden');
 
+            }
+
+            function getFilteredCards() {
+                return cards().filter(card =>
+                    card.dataset.filtered !== 'false'
+                );
             }
 
             document.addEventListener('DOMContentLoaded', function() {
