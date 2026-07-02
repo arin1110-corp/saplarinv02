@@ -168,7 +168,6 @@ class UserSHSController extends Controller
 
             // setelah diedit kembali Draft
 
-            'shs_status' => 'Draft',
         ]);
 
         return redirect()->route('user.shs.index')->with('success', 'Usulan berhasil diperbarui.');
