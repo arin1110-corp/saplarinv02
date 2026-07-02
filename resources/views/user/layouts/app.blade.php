@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css">
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    @stack('styles')
 </head>
 
 <body class="bg-[#F5F7FB] text-slate-800">
@@ -34,60 +35,38 @@
     @stack('scripts')
 
     <script>
-document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
 
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const btn = document.getElementById('btnSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const btn = document.getElementById('btnSidebar');
+            const btnClose = document.getElementById('btnCloseSidebar');
 
-    if (btn) {
-
-        btn.addEventListener('click', function() {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        });
-
-    }
-
-    overlay.addEventListener('click', function() {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-    });
-
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const btn = document.getElementById('btnSidebar');
-    const btnClose = document.getElementById('btnCloseSidebar');
-
-    function openSidebar() {
-        sidebar.classList.remove('-translate-x-full');
-        overlay.classList.remove('hidden');
-    }
-
-    function closeSidebar() {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-    }
-
-    btn?.addEventListener('click', openSidebar);
-    btnClose?.addEventListener('click', closeSidebar);
-    overlay?.addEventListener('click', closeSidebar);
-
-    document.querySelectorAll('#sidebar a').forEach(function(el) {
-        el.addEventListener('click', function() {
-            if (window.innerWidth < 1024) {
-                closeSidebar();
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
             }
-        });
-    });
 
-});
-</script>
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+
+            btn?.addEventListener('click', openSidebar);
+            btnClose?.addEventListener('click', closeSidebar);
+            overlay?.addEventListener('click', closeSidebar);
+
+            document.querySelectorAll('#sidebar a').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+        });
+    </script>
+    @stack('scripts')
 </body>
 
 </html>
