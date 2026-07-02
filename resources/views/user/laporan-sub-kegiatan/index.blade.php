@@ -277,7 +277,7 @@
                     pageLength: 10,
                     responsive: true,
                     order: [
-                        [1, 'desc']
+                        [1, 'asc']
                     ],
                     language: {
                         search: "Cari:",
