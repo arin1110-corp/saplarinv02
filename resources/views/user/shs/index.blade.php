@@ -503,6 +503,15 @@
 
                         </button>
 
+                        @if ($item->shs_operator_id == session('pegawai_id') && $item->shs_status == 'Draft')
+                            <a href="{{ route('user.shs.edit', $item->shs_uid) }}"
+                                class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold">
+
+                                Edit
+
+                            </a>
+                        @endif
+
                     </div>
 
                 </div>
