@@ -6,6 +6,7 @@
     <title>Admin Saplarin - Laporan Sub Kegiatan</title>
     <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body class="bg-slate-950 text-white">
@@ -62,7 +63,7 @@
 
                     </select>
 
-                    <select name="program" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+                    <select id="program" name="program" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
 
                         <option value="">
                             Semua Program
@@ -70,43 +71,42 @@
 
                         @foreach ($programs as $program)
                             <option value="{{ $program->program_id }}" @selected(request('program') == $program->program_id)>
-
                                 {{ $program->program_nama }}
-
                             </option>
                         @endforeach
 
                     </select>
 
-                    <select name="kegiatan" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+                    <select id="kegiatan" name="kegiatan" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
 
                         <option value="">
                             Semua Kegiatan
                         </option>
 
-                        @foreach ($kegiatans as $kegiatan)
-                            <option value="{{ $kegiatan->kegiatan_id }}" @selected(request('kegiatan') == $kegiatan->kegiatan_id)>
-
-                                {{ $kegiatan->kegiatan_nama }}
-
-                            </option>
-                        @endforeach
+                        @if (isset($kegiatans))
+                            @foreach ($kegiatans as $kegiatan)
+                                <option value="{{ $kegiatan->kegiatan_id }}" @selected(request('kegiatan') == $kegiatan->kegiatan_id)>
+                                    {{ $kegiatan->kegiatan_nama }}
+                                </option>
+                            @endforeach
+                        @endif
 
                     </select>
 
-                    <select name="sub_kegiatan" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+                    <select id="sub_kegiatan" name="sub_kegiatan"
+                        class="bg-slate-800 border border-slate-700 rounded-xl p-3">
 
                         <option value="">
                             Semua Sub Kegiatan
                         </option>
 
-                        @foreach ($subKegiatans as $sub)
-                            <option value="{{ $sub->sub_kegiatan_id }}" @selected(request('sub_kegiatan') == $sub->sub_kegiatan_id)>
-
-                                {{ $sub->sub_kegiatan_nama }}
-
-                            </option>
-                        @endforeach
+                        @if (isset($subKegiatans))
+                            @foreach ($subKegiatans as $sub)
+                                <option value="{{ $sub->sub_kegiatan_id }}" @selected(request('sub_kegiatan') == $sub->sub_kegiatan_id)>
+                                    {{ $sub->sub_kegiatan_nama }}
+                                </option>
+                            @endforeach
+                        @endif
 
                     </select>
 
@@ -140,8 +140,7 @@
 
                     </button>
 
-                    <a href="{{ route('admin.laporan.subkegiatan') }}"
-                        class="bg-slate-700 px-4 py-2 rounded-xl">
+                    <a href="{{ route('admin.laporan.subkegiatan') }}" class="bg-slate-700 px-4 py-2 rounded-xl">
 
                         Reset
 
@@ -457,6 +456,68 @@
                 .getElementById('modalCatatan')
                 .classList.remove('flex');
         }
+        $('#program').change(function() {
+
+            let programId = $(this).val();
+
+            $('#kegiatan').html(
+                '<option value="">Loading...</option>'
+            );
+
+            $('#sub_kegiatan').html(
+                '<option value="">Semua Sub Kegiatan</option>'
+            );
+
+            $.get(
+                '/admin/master/kegiatan', {
+                    program_id: programId
+                },
+                function(data) {
+
+                    let html =
+                        '<option value="">Semua Kegiatan</option>';
+
+                    data.forEach(function(item) {
+
+                        html +=
+                            `<option value="${item.kegiatan_id}">
+                        ${item.kegiatan_nama}
+                    </option>`;
+                    });
+
+                    $('#kegiatan').html(html);
+                }
+            );
+        });
+        $('#kegiatan').change(function() {
+
+            let kegiatanId = $(this).val();
+
+            $('#sub_kegiatan').html(
+                '<option value="">Loading...</option>'
+            );
+
+            $.get(
+                '/admin/master/sub-kegiatan', {
+                    kegiatan_id: kegiatanId
+                },
+                function(data) {
+
+                    let html =
+                        '<option value="">Semua Sub Kegiatan</option>';
+
+                    data.forEach(function(item) {
+
+                        html +=
+                            `<option value="${item.sub_kegiatan_id}">
+                        ${item.sub_kegiatan_nama}
+                    </option>`;
+                    });
+
+                    $('#sub_kegiatan').html(html);
+                }
+            );
+        });
     </script>
 </body>
 

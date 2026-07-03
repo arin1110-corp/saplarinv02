@@ -269,6 +269,15 @@ Route::middleware(['admin'])
     )->name(
         'admin.laporan-sub-kegiatan.aktif'
     );
+    Route::get(
+        '/master/kegiatan',
+        [AdminLaporanSubKegiatanController::class, 'getKegiatan']
+    );
+
+    Route::get(
+        '/master/sub-kegiatan',
+        [AdminLaporanSubKegiatanController::class, 'getSubKegiatan']
+    );
 
     /*
             |--------------------------------------------------------------------------

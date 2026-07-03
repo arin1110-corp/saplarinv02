@@ -43,31 +43,50 @@ class AdminLaporanSubKegiatanController extends Controller
         if ($request->filled('status')) {
             $query->where('laporan_status', $request->status);
         }
-        $units = SubKegiatanIndikator::select(
-            'indikator_unit_kode',
-            'indikator_unit_nama'
-        )
-            ->distinct()
-            ->orderBy('indikator_unit_nama')
-            ->get();
+        $units = SubKegiatanIndikator::select('indikator_unit_kode', 'indikator_unit_nama')->distinct()->orderBy('indikator_unit_nama')->get();
+        $kegiatans = collect();
+        $subKegiatans = collect();
+
+        if ($request->filled('program')) {
+            $kegiatans = ModelKegiatan::where('kegiatan_program', $request->program)->get();
+        }
+
+        if ($request->filled('kegiatan')) {
+            $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_kegiatan', $request->kegiatan)->get();
+        }
+        if ($request->filled('unit')) {
+            $query->where('laporan_unit_kode', $request->unit);
+        }
+
+        if ($request->filled('sub_kegiatan')) {
+            $query->where('laporan_sub_kegiatan_id', $request->sub_kegiatan);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('laporan_status', $request->status);
+        }
 
         $laporan = $query->latest()->get();
+
         $programs = ModelProgram::orderBy('program_nama')->get();
 
         $kegiatans = ModelKegiatan::orderBy('kegiatan_nama')->get();
 
         $subKegiatans = ModelSubKegiatan::orderBy('sub_kegiatan_nama')->get();
 
-        return view(
-            'administrator.laporan-sub-kegiatan.index',
-            compact(
-                'laporan',
-                'units',
-                'programs',
-                'kegiatans',
-                'subKegiatans'
-            )
-        );
+        return view('administrator.laporan-sub-kegiatan.index', compact('laporan', 'units', 'programs', 'kegiatans', 'subKegiatans'));
+    }
+    public function getKegiatan(Request $request)
+    {
+        $kegiatan = ModelKegiatan::where('kegiatan_program', $request->program_id)->orderBy('kegiatan_nama')->get();
+
+        return response()->json($kegiatan);
+    }
+    public function getSubKegiatan(Request $request)
+    {
+        $sub = ModelSubKegiatan::where('sub_kegiatan_kegiatan', $request->kegiatan_id)->orderBy('sub_kegiatan_nama')->get();
+
+        return response()->json($sub);
     }
     public function exportExcel()
     {
