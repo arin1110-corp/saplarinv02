@@ -117,6 +117,14 @@
                     </p>
                 </div>
             </div>
+            <div class="flex gap-2 mb-6">
+                <button onclick="openExportModal()"
+                    class="bg-emerald-600 hover:bg-emerald-700 px-4 py-3 rounded-xl text-white font-semibold">
+
+                    Export Excel
+
+                </button>
+            </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 overflow-x-auto">
 
@@ -173,7 +181,8 @@
                                 </td>
 
                                 <td>
-                                    <span class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
+                                    <span
+                                        class="bg-slate-700 text-slate-100 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
                                         {{ $item->bbm_no_plat ?? '-' }}
                                     </span>
                                 </td>
@@ -183,22 +192,26 @@
                                 </td>
 
                                 <td>
-                                    <div class="max-w-[240px] whitespace-normal leading-relaxed" title="{{ $item->bbm_uraian_kegiatan }}">
+                                    <div class="max-w-[240px] whitespace-normal leading-relaxed"
+                                        title="{{ $item->bbm_uraian_kegiatan }}">
                                         {{ \Illuminate\Support\Str::limit($item->bbm_uraian_kegiatan, 70) }}
                                     </div>
                                 </td>
 
                                 <td>
                                     @if ($item->bbm_status_pengajuan === 'Pengajuan Diterima')
-                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @elseif ($item->bbm_status_pengajuan === 'Pengajuan Ditolak')
-                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @else
-                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_pengajuan }}
                                         </span>
                                     @endif
@@ -206,19 +219,23 @@
 
                                 <td>
                                     @if ($item->bbm_status_laporan === 'Laporan Nota Diterima')
-                                        <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @elseif ($item->bbm_status_laporan === 'Laporan Nota Ditolak')
-                                        <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @elseif ($item->bbm_status_laporan === 'Menunggu Verifikasi')
-                                        <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @else
-                                        <span class="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <span
+                                            class="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs whitespace-nowrap">
                                             {{ $item->bbm_status_laporan }}
                                         </span>
                                     @endif
@@ -297,7 +314,8 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
+                                                <span
+                                                    class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs">
                                                     Sudah Sinkron
                                                 </span>
                                             @endif
@@ -424,6 +442,110 @@
         </div>
 
     </div>
+    <div id="exportModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+
+        <div class="bg-slate-900 rounded-2xl w-full max-w-2xl p-6">
+
+            <div class="flex justify-between mb-5">
+                <h3 class="text-xl font-bold">
+                    Export Excel
+                </h3>
+
+                <button onclick="closeExportModal()" class="text-slate-400 text-xl">
+                    ✕
+                </button>
+            </div>
+
+            <form action="{{ route('admin.bbm.export') }}" method="GET">
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="pengaju_nama" checked>
+                        Nama Pengaju
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="pengaju_nip" checked>
+                        NIP
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="bidang">
+                        Bidang
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="plat" checked>
+                        No Plat
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="liter" checked>
+                        Liter
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="uraian">
+                        Uraian
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="status_pengajuan">
+                        Status Pengajuan
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="status_laporan">
+                        Status Laporan
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="tanggal_pengajuan">
+                        Tanggal Pengajuan
+                    </label>
+                    <label>
+                        <input type="checkbox" name="fields[]" value="file_spt">
+                        File SPT
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="file_acc">
+                        File ACC Pimpinan
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="file_nota">
+                        File Nota
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="fields[]" value="bukti_tambahan">
+                        Bukti Tambahan
+                    </label>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+
+                    <button type="button" onclick="closeExportModal()" class="bg-slate-700 px-4 py-2 rounded-xl">
+
+                        Batal
+
+                    </button>
+
+                    <button class="bg-emerald-600 px-4 py-2 rounded-xl">
+
+                        Download Excel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
 
     <script>
         function safeValue(value) {
@@ -490,6 +612,18 @@
             $('#fileModal')
                 .removeClass('hidden')
                 .addClass('flex');
+        }
+
+        function openExportModal() {
+            $('#exportModal')
+                .removeClass('hidden')
+                .addClass('flex');
+        }
+
+        function closeExportModal() {
+            $('#exportModal')
+                .addClass('hidden')
+                .removeClass('flex');
         }
 
         function closeFileModal() {
@@ -559,6 +693,7 @@
             });
         });
     </script>
+
 
 </body>
 

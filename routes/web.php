@@ -110,6 +110,7 @@ Route::middleware(['admin'])
     Route::post('/bbm/{uid}/tolak-laporan', [AdminBBMController::class, 'tolakLaporan'])->name('admin.bbm.tolakLaporan');
 
     Route::post('/bbm/{uid}/sinkron', [AdminBBMController::class, 'sinkronPengajuan'])->name('admin.bbm.sinkron');
+    Route::get('/admin/bbm/export', [AdminBBMController::class, 'export'])->name('admin.bbm.export');
 
     /*
         |--------------------------------------------------------------------------

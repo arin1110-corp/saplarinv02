@@ -7,6 +7,8 @@ use App\Services\ArinDriveService;
 use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BBMExport;
 
 class AdminBBMController extends Controller
 {
@@ -216,5 +218,15 @@ class AdminBBMController extends Controller
         if (File::exists($fullPath)) {
             File::delete($fullPath);
         }
+    }
+    public function export(Request $request)
+    {
+        $fields = $request->fields ?? [];
+        $tgl = date('Y-m-d_H-i-s');
+
+        return Excel::download(
+            new BBMExport($fields),
+            "pengajuan-bbm-$tgl.xlsx"
+        );
     }
 }
