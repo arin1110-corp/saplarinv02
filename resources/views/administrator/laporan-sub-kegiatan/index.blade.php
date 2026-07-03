@@ -42,6 +42,114 @@
                 </div>
 
             </div>
+            <form method="GET" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+                    <select name="unit" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+
+                        <option value="">
+                            Semua Unit
+                        </option>
+
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->indikator_unit_kode }}" @selected(request('unit') == $unit->indikator_unit_kode)>
+
+                                {{ $unit->indikator_unit_nama }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <select name="program" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+
+                        <option value="">
+                            Semua Program
+                        </option>
+
+                        @foreach ($programs as $program)
+                            <option value="{{ $program->program_id }}" @selected(request('program') == $program->program_id)>
+
+                                {{ $program->program_nama }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <select name="kegiatan" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+
+                        <option value="">
+                            Semua Kegiatan
+                        </option>
+
+                        @foreach ($kegiatans as $kegiatan)
+                            <option value="{{ $kegiatan->kegiatan_id }}" @selected(request('kegiatan') == $kegiatan->kegiatan_id)>
+
+                                {{ $kegiatan->kegiatan_nama }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <select name="sub_kegiatan" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+
+                        <option value="">
+                            Semua Sub Kegiatan
+                        </option>
+
+                        @foreach ($subKegiatans as $sub)
+                            <option value="{{ $sub->sub_kegiatan_id }}" @selected(request('sub_kegiatan') == $sub->sub_kegiatan_id)>
+
+                                {{ $sub->sub_kegiatan_nama }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <select name="status" class="bg-slate-800 border border-slate-700 rounded-xl p-3">
+
+                        <option value="">
+                            Semua Status
+                        </option>
+
+                        <option value="Aktif" @selected(request('status') == 'Aktif')>
+
+                            Aktif
+
+                        </option>
+
+                        <option value="Nonaktif" @selected(request('status') == 'Nonaktif')>
+
+                            Nonaktif
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="mt-4 flex gap-2">
+
+                    <button class="bg-blue-600 px-4 py-2 rounded-xl">
+
+                        Filter
+
+                    </button>
+
+                    <a href="{{ route('admin.laporan.subkegiatan') }}"
+                        class="bg-slate-700 px-4 py-2 rounded-xl">
+
+                        Reset
+
+                    </a>
+
+                </div>
+
+            </form>
 
             <div class="space-y-6">
 
@@ -237,6 +345,35 @@
                                 PDF
 
                             </a>
+                            @if ($item->laporan_status == 'Aktif')
+                                <form method="POST"
+                                    action="{{ route('admin.laporan-sub-kegiatan.nonaktif', $item->laporan_uid) }}">
+
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-sm">
+
+                                        Nonaktifkan
+
+                                    </button>
+
+                                </form>
+                            @else
+                                <form method="POST"
+                                    action="{{ route('admin.laporan-sub-kegiatan.aktif', $item->laporan_uid) }}">
+
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm">
+
+                                        Aktifkan
+
+                                    </button>
+
+                                </form>
+                            @endif
 
                             <button onclick="openCatatan('{{ $item->laporan_uid }}')"
                                 class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-xl text-sm">

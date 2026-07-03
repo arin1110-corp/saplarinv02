@@ -9,16 +9,65 @@ use App\Exports\LaporanSubKegiatanExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\PegawaiApiService;
 use App\Services\SubKegiatanEmailService;
+use App\Models\SubKegiatanIndikator;
+use App\Models\ModelProgram;
+use App\Models\ModelKegiatan;
+use App\Models\ModelSubKegiatan;
 
 class AdminLaporanSubKegiatanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $laporan = SubKegiatanLaporan::with(['subKegiatan', 'indikator', 'permasalahan', 'solusi', 'tindakLanjut'])
-            ->latest()
+        $query = SubKegiatanLaporan::with(['subKegiatan.kegiatan.program', 'detail', 'permasalahan', 'solusi', 'tindakLanjut']);
+
+        if ($request->filled('unit')) {
+            $query->where('laporan_unit_kode', $request->unit);
+        }
+
+        if ($request->filled('program')) {
+            $query->whereHas('subKegiatan.kegiatan.program', function ($q) use ($request) {
+                $q->where('program_id', $request->program);
+            });
+        }
+
+        if ($request->filled('kegiatan')) {
+            $query->whereHas('subKegiatan.kegiatan', function ($q) use ($request) {
+                $q->where('kegiatan_id', $request->kegiatan);
+            });
+        }
+
+        if ($request->filled('sub_kegiatan')) {
+            $query->where('laporan_sub_kegiatan_id', $request->sub_kegiatan);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('laporan_status', $request->status);
+        }
+        $units = SubKegiatanIndikator::select(
+            'indikator_unit_kode',
+            'indikator_unit_nama'
+        )
+            ->distinct()
+            ->orderBy('indikator_unit_nama')
             ->get();
 
-        return view('administrator.laporan-sub-kegiatan.index', compact('laporan'));
+        $laporan = $query->latest()->get();
+        $programs = ModelProgram::orderBy('program_nama')->get();
+
+        $kegiatans = ModelKegiatan::orderBy('kegiatan_nama')->get();
+
+        $subKegiatans = ModelSubKegiatan::orderBy('sub_kegiatan_nama')->get();
+
+        return view(
+            'administrator.laporan-sub-kegiatan.index',
+            compact(
+                'laporan',
+                'units',
+                'programs',
+                'kegiatans',
+                'subKegiatans'
+            )
+        );
     }
     public function exportExcel()
     {
@@ -61,5 +110,26 @@ class AdminLaporanSubKegiatanController extends Controller
         }
 
         return back()->with('success', 'Catatan berhasil disimpan dan email berhasil dikirim.');
+    }
+    public function nonaktif($uid)
+    {
+        $laporan = SubKegiatanLaporan::where('laporan_uid', $uid)->firstOrFail();
+
+        $laporan->update([
+            'laporan_status' => 'Nonaktif',
+        ]);
+
+        return back()->with('success', 'Laporan berhasil dinonaktifkan.');
+    }
+
+    public function aktif($uid)
+    {
+        $laporan = SubKegiatanLaporan::where('laporan_uid', $uid)->firstOrFail();
+
+        $laporan->update([
+            'laporan_status' => 'Aktif',
+        ]);
+
+        return back()->with('success', 'Laporan berhasil diaktifkan.');
     }
 }

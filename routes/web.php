@@ -250,6 +250,25 @@ Route::middleware(['admin'])
 
     Route::get('/laporan-sub-kegiatan/{uid}/pdf', [AdminLaporanSubKegiatanController::class, 'pdf'])->name('admin.laporan-sub-kegiatan.pdf');
     Route::post('/laporan-sub-kegiatan/{uid}/catatan', [AdminLaporanSubKegiatanController::class, 'catatan'])->name('admin.laporan-sub-kegiatan.catatan');
+    Route::patch(
+        '/laporan-sub-kegiatan/{uid}/nonaktif',
+        [
+            AdminLaporanSubKegiatanController::class,
+            'nonaktif'
+        ]
+    )->name(
+        'admin.laporan-sub-kegiatan.nonaktif'
+    );
+
+    Route::patch(
+        '/laporan-sub-kegiatan/{uid}/aktif',
+        [
+            AdminLaporanSubKegiatanController::class,
+            'aktif'
+        ]
+    )->name(
+        'admin.laporan-sub-kegiatan.aktif'
+    );
 
     /*
             |--------------------------------------------------------------------------
