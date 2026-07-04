@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\SubKegiatanLaporan;
+use App\Models\SubKegiatanIndikator;
 use App\Models\ModelSubKegiatan;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -64,38 +65,33 @@ class LaporanSubKegiatanExport implements WithEvents
                 $row = 3;
                 $no = 1;
 
-                $data = ModelSubKegiatan::with(['kegiatan.program', 'indikator', 'laporan.detail', 'laporan.permasalahan', 'laporan.solusi', 'laporan.tindakLanjut'])
-                    ->get()
-                    ->sortBy(function ($item) {
-                        $indikator = $item->indikator->first();
-
-                        $unitKode = $indikator->indikator_unit_kode ?? '';
-
-                        $programNama = optional(optional($item->kegiatan)->program)->program_nama ?? '';
-
-                        $kegiatanNama = optional($item->kegiatan)->kegiatan_nama ?? '';
-
-                        $subNama = $item->sub_kegiatan_nama ?? '';
-
-                        return $unitKode . '|' . $programNama . '|' . $kegiatanNama . '|' . $subNama;
-                    });
+                $data = SubKegiatanIndikator::with(['subKegiatan.kegiatan.program', 'subKegiatan.laporan.detail', 'subKegiatan.laporan.permasalahan', 'subKegiatan.laporan.solusi', 'subKegiatan.laporan.tindakLanjut'])
+                    ->orderBy('indikator_unit_kode')
+                    ->orderBy('indikator_sub_kegiatan_id')
+                    ->get();
 
                 $lastUnit = '';
                 $lastProgram = '';
                 $lastKegiatan = '';
 
-                foreach ($data as $sub) {
+                foreach ($data as $indikator) {
+                    $sub = $indikator->subKegiatan;
+
+                    if (!$sub) {
+                        continue;
+                    }
+
+                    $kegiatan = $sub->kegiatan;
+                    $program = $kegiatan?->program;
+
+                    $unitKode = $indikator->indikator_unit_kode ?? '-';
+                    $unitNama = $indikator->indikator_unit_nama ?? 'TANPA UNIT';
+
                     /*
     |--------------------------------------------------------------------------
     | UNIT
     |--------------------------------------------------------------------------
     */
-                    $indikator = $sub->indikator->first();
-
-                    $unitKode = $indikator->indikator_unit_kode ?? '-';
-
-                    $unitNama = $indikator->indikator_unit_nama ?? 'TANPA UNIT';
-
                     if ($lastUnit != $unitKode) {
                         $sheet->mergeCells("A{$row}:O{$row}");
 
@@ -125,13 +121,11 @@ class LaporanSubKegiatanExport implements WithEvents
     | PROGRAM
     |--------------------------------------------------------------------------
     */
-                    $programId = optional(optional($sub->kegiatan)->program)->program_id;
-
-                    $programNama = optional(optional($sub->kegiatan)->program)->program_nama;
+                    $programId = $program?->program_id;
+                    $programNama = $program?->program_nama;
 
                     if ($lastProgram != $programId) {
                         $sheet->setCellValue("A{$row}", 'PROGRAM');
-
                         $sheet->setCellValue("B{$row}", $programNama);
 
                         $sheet
@@ -157,13 +151,11 @@ class LaporanSubKegiatanExport implements WithEvents
     | KEGIATAN
     |--------------------------------------------------------------------------
     */
-                    $kegiatanId = optional($sub->kegiatan)->kegiatan_id;
-
-                    $kegiatanNama = optional($sub->kegiatan)->kegiatan_nama;
+                    $kegiatanId = $kegiatan?->kegiatan_id;
+                    $kegiatanNama = $kegiatan?->kegiatan_nama;
 
                     if ($lastKegiatan != $kegiatanId) {
                         $sheet->setCellValue("A{$row}", 'KEGIATAN');
-
                         $sheet->setCellValue("B{$row}", $kegiatanNama);
 
                         $sheet
@@ -185,10 +177,13 @@ class LaporanSubKegiatanExport implements WithEvents
 
                     /*
     |--------------------------------------------------------------------------
-    | AMBIL LAPORAN
+    | LAPORAN PER UNIT
     |--------------------------------------------------------------------------
     */
-                    $item = $sub->laporan->sortByDesc('laporan_tahun')->first();
+                    $item = $sub->laporan->where('laporan_unit_kode', $unitKode)->sortByDesc('laporan_tahun')->first();
+
+                    // lanjutkan pakai kode BELUM INPUT dan SUDAH INPUT milik Anda,
+                    // tidak perlu diubah lagi.
 
                     /*
     |--------------------------------------------------------------------------
