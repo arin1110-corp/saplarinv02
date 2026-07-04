@@ -209,7 +209,7 @@ class LaporanSubKegiatanExport implements WithEvents
 
                         $sheet->setCellValue('H' . $row, 0);
 
-                        $sheet->setCellValue('I' . $row, '-');
+                        $sheet->setCellValue('I' . $row, $item->detail->pluck('indikator_satuan')->implode("\n"));
 
                         $sheet->setCellValue(
                             'J' . $row,
