@@ -158,9 +158,12 @@
 
                         <tr>
 
-                            <th>No</th>
+                            <th width="240">
 
-                            <th>Tahun</th>
+                                Aksi
+
+                            </th>
+                            <th>No</th>
 
                             <th>Unit</th>
 
@@ -174,11 +177,6 @@
 
                             <th>Status</th>
 
-                            <th width="240">
-
-                                Aksi
-
-                            </th>
 
                         </tr>
 
@@ -189,15 +187,75 @@
                         @foreach ($shs as $item)
                             <tr>
 
+
+                                <td>
+
+                                    <div class="flex flex-wrap gap-2">
+
+                                        <button onclick='detailSHS(@json($item))'
+                                            class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-sm">
+
+                                            Detail
+
+                                        </button>
+
+                                        @if ($item->shs_status == 'Draft')
+                                            <button onclick='verifikasiSHS(@json($item))'
+                                                class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm">
+
+                                                Verifikasi
+
+                                            </button>
+                                        @elseif($item->shs_status == 'Tidak Diajukan')
+                                            <form method="POST"
+                                                action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
+
+                                                @csrf
+
+                                                <button
+                                                    class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
+
+                                                    Diajukan
+
+                                                </button>
+
+                                            </form>
+                                        @elseif($item->shs_status == 'Diajukan')
+                                            <form method="POST"
+                                                action="{{ route('admin.laporan.shs.nonaktif', $item->shs_uid) }}">
+
+                                                @csrf
+
+                                                <button
+                                                    class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm">
+
+                                                    Tidak Diajukan
+
+                                                </button>
+
+                                            </form>
+                                        @else
+                                            <form method="POST"
+                                                action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
+
+                                                @csrf
+
+                                                <button
+                                                    class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
+
+                                                    Diajukan
+
+                                                </button>
+
+                                            </form>
+                                        @endif
+
+                                    </div>
+
+                                </td>
                                 <td>
 
                                     {{ $loop->iteration }}
-
-                                </td>
-
-                                <td>
-
-                                    {{ $item->shs_tahun }}
 
                                 </td>
 
@@ -267,72 +325,6 @@
 
                                         </span>
                                     @endif
-
-                                </td>
-
-                                <td>
-
-                                    <div class="flex flex-wrap gap-2">
-
-                                        <button onclick='detailSHS(@json($item))'
-                                            class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-sm">
-
-                                            Detail
-
-                                        </button>
-
-                                        @if ($item->shs_status == 'Draft')
-                                            <button onclick='verifikasiSHS(@json($item))'
-                                                class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm">
-
-                                                Verifikasi
-
-                                            </button>
-                                        @elseif($item->shs_status == 'Tidak Diajukan')
-                                            <form method="POST"
-                                                action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
-
-                                                @csrf
-
-                                                <button
-                                                    class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
-
-                                                    Diajukan
-
-                                                </button>
-
-                                            </form>
-                                        @elseif($item->shs_status == 'Diajukan')
-                                            <form method="POST"
-                                                action="{{ route('admin.laporan.shs.nonaktif', $item->shs_uid) }}">
-
-                                                @csrf
-
-                                                <button
-                                                    class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm">
-
-                                                    Tidak Diajukan
-
-                                                </button>
-
-                                            </form>
-                                        @else
-                                            <form method="POST"
-                                                action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
-
-                                                @csrf
-
-                                                <button
-                                                    class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm">
-
-                                                    Diajukan
-
-                                                </button>
-
-                                            </form>
-                                        @endif
-
-                                    </div>
 
                                 </td>
 
