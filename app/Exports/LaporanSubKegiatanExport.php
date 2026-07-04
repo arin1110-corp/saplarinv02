@@ -195,9 +195,11 @@ class LaporanSubKegiatanExport implements WithEvents
 
                         $sheet->setCellValue('B' . $row, $sub->sub_kegiatan_nama);
 
-                        $sheet->setCellValue('C' . $row, $sub->indikator->pluck('indikator_nama')->implode("\n"));
+                        $indikatorSub = $sub->indikator->where('indikator_unit_kode', $unitKode);
 
-                        $sheet->setCellValue('D' . $row, $sub->indikator->sum('indikator_target'));
+                        $sheet->setCellValue('C' . $row, $indikatorSub->pluck('indikator_nama')->unique()->implode("\n"));
+
+                        $sheet->setCellValue('D' . $row, $indikatorSub->sum('indikator_target'));
 
                         $sheet->setCellValue('E' . $row, 0);
 
@@ -209,9 +211,15 @@ class LaporanSubKegiatanExport implements WithEvents
 
                         $sheet->setCellValue('I' . $row, '-');
 
-                        $sheet->setCellValue('J' . $row, '-');
+                        $sheet->setCellValue(
+                            'J' . $row,
+                            'Belum diinput'
+                        );
 
-                        $sheet->setCellValue('K' . $row, '-');
+                        $sheet->setCellValue(
+                            'K' . $row,
+                            'Belum diinput'
+                        );
 
                         $sheet->setCellValue('L' . $row, 'Belum diinput');
 
