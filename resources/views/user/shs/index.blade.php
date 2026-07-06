@@ -72,19 +72,29 @@
 
                 <div>
 
-                    <a href="{{ route('user.shs.create') }}"
-                        class="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 font-semibold px-6 py-3 rounded-2xl shadow">
+                    @php
+                        $batasWaktu = \Carbon\Carbon::today()->setTime(10, 0, 0);
+                        $sudahDitutup = now()->gte($batasWaktu);
+                    @endphp
 
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
+                    @if (!$sudahDitutup)
+                        <a href="{{ route('user.shs.create') }}"
+                            class="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 font-semibold px-6 py-3 rounded-2xl shadow">
 
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
 
-                        </svg>
+                            Tambah Usulan SHS
+                        </a>
+                    @else
+                        <button type="button" disabled
+                            class="inline-flex items-center gap-2 bg-slate-300 text-slate-500 cursor-not-allowed font-semibold px-6 py-3 rounded-2xl shadow">
 
-                        Tambah Usulan SHS
-
-                    </a>
+                            🔒 Pengajuan SHS Ditutup
+                        </button>
+                    @endif
 
                 </div>
 
