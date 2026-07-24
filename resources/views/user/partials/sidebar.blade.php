@@ -7,7 +7,7 @@
     $canKinerjaPrioritas = $isOperator;
     $canLaporanAktivitas = $isOperator;
     $canLaporanSubKegiatan = $isOperator;
-    $canInputSPJ = $isOperator;
+    $canInputSPJ = in_array($activeRole, ['Operator', 'Operator SPJ']);
     $canSHS = $isOperator;
 @endphp
 

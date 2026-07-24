@@ -6,6 +6,8 @@
 
 @php
     $tahunList = $pagus->pluck('spj_pagu_tahun')->unique()->sortDesc()->values();
+
+    $canInputSPJ = session('active_role') === 'Operator SPJ';
 @endphp
 
 @section('content')
@@ -202,10 +204,12 @@
                             </p>
                         </div>
 
-                        <button type="button" onclick='openSPJModal(@json($item))'
-                            class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
-                            + Input SPJ
-                        </button>
+                        @if ($canInputSPJ)
+                            <button type="button" onclick='openSPJModal(@json($item))'
+                                class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+                                + Input SPJ
+                            </button>
+                        @endif
 
                     </div>
 
@@ -359,6 +363,12 @@
                                         <th class="py-3 px-3">Operator</th>
                                         <th class="py-3 px-3">File</th>
                                         <th class="py-3 px-3">Tanggal Input</th>
+
+                                        @if ($canInputSPJ)
+                                            <th class="py-3 px-3 text-center">
+                                                Aksi
+                                            </th>
+                                        @endif
                                     </tr>
                                 </thead>
 
@@ -390,19 +400,48 @@
                                             </td>
 
                                             <td class="py-3 px-3">
-                                                @if ($spj->spj_file)
-                                                    <a href="{{ asset($spj->spj_file) }}" target="_blank"
-                                                        class="text-blue-600 hover:underline">
-                                                        Lihat File
-                                                    </a>
+                                                @if ($canInputSPJ)
+                                                    @if ($spj->spj_file)
+                                                        <a href="{{ asset($spj->spj_file) }}" target="_blank"
+                                                            class="text-blue-600 hover:underline">
+                                                            Lihat File
+                                                        </a>
+                                                    @else
+                                                        -
+                                                    @endif
                                                 @else
-                                                    -
+                                                    <span class="text-slate-400 italic">
+                                                        Tidak memiliki akses
+                                                    </span>
                                                 @endif
                                             </td>
-
                                             <td class="py-3 px-3">
-                                                {{ $spj->spj_tanggal_input?->format('d/m/Y H:i') }}
+                                                {{ $spj->spj_tanggal_input?->format('d/m/Y H:i') ?? '-' }}
                                             </td>
+
+                                            @if ($canInputSPJ)
+                                                <td class="py-3 px-3">
+
+                                                    <div class="flex gap-2">
+
+                                                        <button type="button" onclick="editSPJ('{{ $spj->spj_uid }}')"
+                                                            class="px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">
+
+                                                            Edit
+
+                                                        </button>
+
+                                                        <button type="button" onclick="hapusSPJ('{{ $spj->spj_uid }}')"
+                                                            class="px-3 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
+
+                                                            Hapus
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </td>
+                                            @endif
                                         </tr>
                                     @empty
                                         <tr>
@@ -457,8 +496,10 @@
 
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">
+                    <h2 id="modalTitle" class="text-xl font-bold text-slate-900">
+
                         Input SPJ
+
                     </h2>
 
                     <p id="modal_spj_subkegiatan" class="text-sm text-slate-500"></p>
@@ -473,14 +514,16 @@
 
             <form id="spjForm" method="POST" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" id="methodField" name="_method" value="POST">
 
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
                         Uraian SPJ
                     </label>
 
-                    <textarea name="spj_uraian" rows="4" class="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                        placeholder="Contoh: Pembayaran konsumsi rapat..." required></textarea>
+                    <textarea name="spj_uraian" id="spj_uraian" rows="4"
+                        class="w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Contoh: Pembayaran konsumsi rapat..."
+                        required></textarea>
                 </div>
 
                 <div class="mb-4">
@@ -488,7 +531,7 @@
                         Nominal SPJ
                     </label>
 
-                    <input type="number" name="spj_nominal" min="1"
+                    <input type="number" name="spj_nominal" id="spj_nominal" min="1"
                         class="w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Contoh: 1500000"
                         required>
                 </div>
@@ -498,8 +541,8 @@
                         Tanggal SPJ
                     </label>
 
-                    <input type="date" name="spj_tanggal" class="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                        required>
+                    <input type="date" name="spj_tanggal" id="spj_tanggal"
+                        class="w-full rounded-2xl border border-slate-200 px-4 py-3" required>
                 </div>
 
                 <div class="mb-4">
@@ -507,8 +550,16 @@
                         File SPJ
                     </label>
 
-                    <input type="file" name="spj_file"
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-3 bg-white" required>
+                    <input type="file" name="spj_file" id="spj_file"
+                        class="w-full rounded-2xl border border-slate-200 px-4 py-3 bg-white">
+                    <div id="oldFileArea" class="mt-2 hidden">
+                        File sekarang :
+                        <a id="oldFileLink" href="" target="_blank" class="text-blue-600 underline">
+
+                            Lihat File
+
+                        </a>
+                    </div>
 
                     <p class="text-xs text-slate-500 mt-2">
                         Format: PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, XLSX. Maksimal 200 MB.
@@ -535,18 +586,35 @@
 
         </div>
     </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function openSPJModal(item) {
-            let subKegiatan = item.sub_kegiatan ? item.sub_kegiatan.sub_kegiatan_nama : '-';
-            let unit = item.unit ? item.unit.unit_nama : '-';
+
+            let subKegiatan = item.sub_kegiatan ?
+                item.sub_kegiatan.sub_kegiatan_nama :
+                '-';
+
+            let unit = item.unit ?
+                item.unit.unit_nama :
+                '-';
 
             document.getElementById('modal_spj_subkegiatan').innerText = subKegiatan;
             document.getElementById('modal_spj_unit').innerText = 'Unit Pengampu: ' + unit;
 
-            let action = "{{ url('/user/spj') }}/" + item.spj_pagu_uid + "/store";
+            // Reset form
+            document.getElementById('spjForm').reset();
 
-            document.getElementById('spjForm').setAttribute('action', action);
+            // Judul modal
+            document.getElementById('modalTitle').innerText = 'Input SPJ';
+
+            // Method POST
+            document.getElementById('methodField').value = 'POST';
+            document.getElementById("oldFileArea")
+                .classList.add("hidden");
+
+            // Action form
+            document.getElementById('spjForm').action =
+                "{{ url('/user/spj') }}/" + item.spj_pagu_uid + "/store";
 
             document.getElementById('spjModal').classList.remove('hidden');
             document.getElementById('spjModal').classList.add('flex');
@@ -556,6 +624,96 @@
             document.getElementById('spjModal').classList.add('hidden');
             document.getElementById('spjModal').classList.remove('flex');
             document.getElementById('spjForm').reset();
+        }
+
+        function editSPJ(uid) {
+
+            fetch("/user/spj/" + uid + "/edit")
+
+                .then(res => res.json())
+
+                .then(res => {
+
+                    let spj = res.data;
+
+                    document.getElementById("modalTitle").innerHTML = "Edit SPJ";
+
+                    document.getElementById("spj_uraian").value = spj.spj_uraian;
+
+                    document.getElementById("spj_nominal").value = spj.spj_nominal;
+
+                    document.getElementById("spj_tanggal").value = spj.spj_tanggal;
+                    if (spj.spj_file) {
+
+                        document.getElementById("oldFileArea")
+                            .classList.remove("hidden");
+
+                        document.getElementById("oldFileLink")
+                            .href = spj.spj_file;
+
+                    } else {
+
+                        document.getElementById("oldFileArea")
+                            .classList.add("hidden");
+
+                    }
+
+                    document.getElementById("methodField").value = "PUT";
+
+                    document.getElementById("spjForm")
+                        .action = "/user/spj/" + uid;
+
+                    document
+                        .getElementById("spjModal")
+                        .classList.remove("hidden");
+
+                    document
+                        .getElementById("spjModal")
+                        .classList.add("flex");
+
+                });
+
+        }
+
+        function hapusSPJ(uid) {
+
+            Swal.fire({
+
+                    title: "Hapus SPJ?",
+
+                    text: "File Google Drive juga akan dihapus.",
+
+                    icon: "warning",
+
+                    showCancelButton: true,
+
+                    confirmButtonText: "Ya Hapus"
+
+                })
+
+                .then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        let form = document.createElement("form");
+
+                        form.method = "POST";
+
+                        form.action = "/user/spj/" + uid;
+
+                        form.innerHTML = `
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<input type="hidden" name="_method" value="DELETE">
+`;
+
+                        document.body.appendChild(form);
+
+                        form.submit();
+
+                    }
+
+                });
+
         }
 
         const cards = Array.from(document.querySelectorAll('.pagu-card'));

@@ -149,6 +149,7 @@ class AdminController extends Controller
             'Admin Arsiparis',
             'Pegawai',
             'Operator',
+            'Operator SPJ',
         ];
 
         $users = ModelUser::select('user_uid', 'user_role')->get()->groupBy('user_uid');

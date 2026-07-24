@@ -9,9 +9,7 @@ class ArinDriveService
 {
     public function upload($file, string $folderPrefix, string $filename, ?string $referenceId = null): string
     {
-        $folder = ModelDriveFolder::where('folder_prefix', $folderPrefix)
-            ->where('folder_status', 1)
-            ->first();
+        $folder = ModelDriveFolder::where('folder_prefix', $folderPrefix)->where('folder_status', 1)->first();
 
         if (!$folder) {
             throw new \Exception("Folder {$folderPrefix} belum diatur.");
@@ -35,5 +33,19 @@ class ArinDriveService
         }
 
         return $result['data']['url'];
+    }
+    public function delete(string $referenceId): bool
+    {
+        $response = Http::withToken(env('ARINDRIVE_TOKEN'))->post(rtrim(env('ARINDRIVE_URL'), '/') . '/api/delete-drive', [
+            'reference_id' => $referenceId,
+        ]);
+
+        $result = $response->json();
+
+        if (!$response->successful() || !($result['success'] ?? false)) {
+            throw new \Exception($result['message'] ?? $response->body());
+        }
+
+        return true;
     }
 }

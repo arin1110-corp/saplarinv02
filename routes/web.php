@@ -250,34 +250,12 @@ Route::middleware(['admin'])
 
     Route::get('/laporan-sub-kegiatan/{uid}/pdf', [AdminLaporanSubKegiatanController::class, 'pdf'])->name('admin.laporan-sub-kegiatan.pdf');
     Route::post('/laporan-sub-kegiatan/{uid}/catatan', [AdminLaporanSubKegiatanController::class, 'catatan'])->name('admin.laporan-sub-kegiatan.catatan');
-    Route::patch(
-        '/laporan-sub-kegiatan/{uid}/nonaktif',
-        [
-            AdminLaporanSubKegiatanController::class,
-            'nonaktif'
-        ]
-    )->name(
-        'admin.laporan-sub-kegiatan.nonaktif'
-    );
+    Route::patch('/laporan-sub-kegiatan/{uid}/nonaktif', [AdminLaporanSubKegiatanController::class, 'nonaktif'])->name('admin.laporan-sub-kegiatan.nonaktif');
 
-    Route::patch(
-        '/laporan-sub-kegiatan/{uid}/aktif',
-        [
-            AdminLaporanSubKegiatanController::class,
-            'aktif'
-        ]
-    )->name(
-        'admin.laporan-sub-kegiatan.aktif'
-    );
-    Route::get(
-        '/master/kegiatan',
-        [AdminLaporanSubKegiatanController::class, 'getKegiatan']
-    );
+    Route::patch('/laporan-sub-kegiatan/{uid}/aktif', [AdminLaporanSubKegiatanController::class, 'aktif'])->name('admin.laporan-sub-kegiatan.aktif');
+    Route::get('/master/kegiatan', [AdminLaporanSubKegiatanController::class, 'getKegiatan']);
 
-    Route::get(
-        '/master/sub-kegiatan',
-        [AdminLaporanSubKegiatanController::class, 'getSubKegiatan']
-    );
+    Route::get('/master/sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'getSubKegiatan']);
 
     /*
             |--------------------------------------------------------------------------
@@ -420,6 +398,11 @@ Route::prefix('user')
     Route::get('/spj', [UserSPJController::class, 'index'])->name('spj.index');
 
     Route::post('/spj/{uid}/store', [UserSPJController::class, 'store'])->name('spj.store');
+    Route::get('/spj/{uid}/edit', [UserSPJController::class, 'edit'])->name('spj.edit');
+
+    Route::put('/spj/{uid}', [UserSPJController::class, 'update'])->name('spj.update');
+
+    Route::delete('/spj/{uid}', [UserSPJController::class, 'destroy'])->name('spj.destroy');
 
     /*
             |--------------------------------------------------------------------------
