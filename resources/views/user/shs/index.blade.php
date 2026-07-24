@@ -73,7 +73,7 @@
                 <div>
 
                     @php
-                        $batasWaktu = \Carbon\Carbon::today()->setTime(10, 0, 0);
+                        $batasWaktu = \Carbon\Carbon::now()->day(25)->startOfDay();
                         $sudahDitutup = now()->gte($batasWaktu);
                     @endphp
 
