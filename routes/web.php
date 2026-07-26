@@ -27,6 +27,16 @@ use App\Http\Controllers\AdminLaporanSHSController;
 use App\Http\Controllers\AdminSHSKelompokController;
 use App\Http\Controllers\Administrator\AdminSHSSatuanController;
 
+use App\Http\Controllers\AdministratorV2\DashboardController;
+
+Route::prefix('administrator-v2')
+    ->name('administrator.')
+    ->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+    });
+
 Route::get('/', function () {
     return view('homepage/home');
 })->name('homepage');

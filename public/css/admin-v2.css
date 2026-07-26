@@ -1,0 +1,386 @@
+/* ===========================================================
+   SAPLARIN ADMIN V2
+=========================================================== */
+
+*,
+::before,
+::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:"Plus Jakarta Sans",sans-serif;
+    transition:background .25s,color .25s;
+}
+
+/* ===========================================================
+   THEME
+=========================================================== */
+
+:root{
+
+    --bg:#f1f5f9;
+
+    --surface:#ffffff;
+
+    --surface-2:#f8fafc;
+
+    --text:#0f172a;
+
+    --text-muted:#64748b;
+
+    --border:#e2e8f0;
+
+    --primary:#2563eb;
+
+    --primary-hover:#1d4ed8;
+
+    --shadow:0 8px 24px rgba(15,23,42,.06);
+
+}
+
+.dark{
+
+    --bg:#020617;
+
+    --surface:#0f172a;
+
+    --surface-2:#162033;
+
+    --text:#f8fafc;
+
+    --text-muted:#94a3b8;
+
+    --border:#1e293b;
+
+    --primary:#3b82f6;
+
+    --primary-hover:#60a5fa;
+
+    --shadow:0 12px 28px rgba(0,0,0,.35);
+
+}
+
+body{
+
+    background:var(--bg);
+
+    color:var(--text);
+
+}
+
+/* ===========================================================
+   SCROLLBAR
+=========================================================== */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+    height:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#94a3b8;
+
+    border-radius:20px;
+
+}
+
+.dark ::-webkit-scrollbar-thumb{
+
+    background:#475569;
+
+}
+
+/* ===========================================================
+   SIDEBAR
+=========================================================== */
+
+.sidebar{
+
+    background:var(--surface);
+
+    border-right:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+
+}
+
+.sidebar nav a{
+
+    color:var(--text);
+
+    transition:.25s;
+
+}
+
+.sidebar nav a:hover{
+
+    background:var(--surface-2);
+
+}
+
+.sidebar .menu-active{
+
+    background:var(--primary);
+
+    color:#fff !important;
+
+}
+
+.sidebar .menu-active:hover{
+
+    background:var(--primary-hover);
+
+}
+
+/* ===========================================================
+   HEADER
+=========================================================== */
+
+header{
+
+    backdrop-filter:blur(14px);
+
+    -webkit-backdrop-filter:blur(14px);
+
+}
+
+/* ===========================================================
+   CARD
+=========================================================== */
+
+.card{
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    border-radius:24px;
+
+    box-shadow:var(--shadow);
+
+}
+
+.card-header{
+
+    padding:24px;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.card-body{
+
+    padding:24px;
+
+}
+
+/* ===========================================================
+   BUTTON
+=========================================================== */
+
+.btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:.5rem;
+
+    border-radius:14px;
+
+    padding:.75rem 1rem;
+
+    transition:.2s;
+
+}
+
+.btn-primary{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+.btn-primary:hover{
+
+    background:var(--primary-hover);
+
+}
+
+/* ===========================================================
+   INPUT
+=========================================================== */
+
+.input{
+
+    width:100%;
+
+    border:1px solid var(--border);
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    border-radius:14px;
+
+    padding:12px 15px;
+
+}
+
+.input:focus{
+
+    outline:none;
+
+    border-color:var(--primary);
+
+}
+
+/* ===========================================================
+   TABLE
+=========================================================== */
+
+.table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.table th{
+
+    padding:16px;
+
+    text-align:left;
+
+    border-bottom:1px solid var(--border);
+
+    color:var(--text-muted);
+
+}
+
+.table td{
+
+    padding:16px;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+/* ===========================================================
+   BADGE
+=========================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    padding:.35rem .75rem;
+
+    border-radius:999px;
+
+    font-size:.75rem;
+
+    font-weight:600;
+
+}
+
+.badge-success{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.badge-warning{
+
+    background:#fef3c7;
+
+    color:#b45309;
+
+}
+
+.badge-danger{
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+
+}
+
+/* ===========================================================
+   UTILITIES
+=========================================================== */
+
+.text-muted{
+
+    color:var(--text-muted);
+
+}
+
+.border-ui{
+
+    border-color:var(--border);
+
+}
+
+.bg-ui{
+
+    background:var(--surface);
+
+}
+
+.bg-ui-soft{
+
+    background:var(--surface-2);
+
+}
+
+.shadow-ui{
+
+    box-shadow:var(--shadow);
+
+}
+
+.transition-ui{
+
+    transition:.25s ease;
+
+}
+
+/* ===========================================================
+   MOBILE
+=========================================================== */
+
+@media (max-width:1023px){
+
+    main{
+
+        padding:1rem;
+
+    }
+
+}
