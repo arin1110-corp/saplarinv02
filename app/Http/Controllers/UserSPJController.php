@@ -53,7 +53,7 @@ class UserSPJController extends Controller
 
         $filename = $spjUid . '_SPJ_' . date('Ymd_His') . '.' . $file->getClientOriginalExtension();
 
-        $spjFile = $arinDrive->upload($file, 'spj', $filename, $spjUid);
+        $spjFile = $arinDrive->uploadSPJ($file, 'spj', $filename, $spjUid);
 
         ModelSPJRealisasi::create([
             'spj_uid' => $spjUid,
@@ -143,7 +143,7 @@ class UserSPJController extends Controller
 
             $filename = $spj->spj_uid . '_SPJ_' . now()->format('Ymd_His') . '.' . $file->getClientOriginalExtension();
 
-            $url = $arinDrive->upload($file, 'spj', $filename, $spj->spj_uid);
+            $url = $arinDrive->uploadSPJ($file, 'spj', $filename, $spj->spj_uid);
 
             $spj->spj_file = $url;
         }
