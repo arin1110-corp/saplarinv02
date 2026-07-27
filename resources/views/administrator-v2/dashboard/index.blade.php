@@ -2,7 +2,7 @@
 
 @section('title','Dashboard')
 @section('page-title','Dashboard')
-@section('page-description','Selamat datang di SAPLARIN V2')
+@section('page-description','Selamat datang di SAPLARIN')
 
 @section('content')
 
