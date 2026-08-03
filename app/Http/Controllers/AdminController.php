@@ -181,7 +181,7 @@ class AdminController extends Controller
             }
         }
 
-        return view('administrator.users', [
+        return view('administrator-v2.user.index', [
             'users' => $result,
             'roles' => $roles,
             'pegawai' => $pegawai,

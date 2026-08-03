@@ -145,7 +145,7 @@
                     <div class="subkegiatan">
                         {{ $sub->subkegiatan_pwa_nama }}
                     </div>
-
+                    
                     <div class="info">
                         Pagu : <b>Rp {{ number_format($sub->data_pwa_pagu, 0, ',', '.') }}</b>
                     </div>

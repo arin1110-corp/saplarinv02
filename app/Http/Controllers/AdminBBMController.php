@@ -16,7 +16,7 @@ class AdminBBMController extends Controller
     {
         $bbms = ModelBBM::orderBy('created_at', 'desc')->get();
 
-        return view('administrator.bbm.index', compact('bbms'));
+        return view('administrator-v2.bbm.index', compact('bbms'));
     }
 
     public function terimaPengajuan(Request $request, $uid, BBMEmailService $emailService, ArinDriveService $arinDrive)

@@ -29,13 +29,6 @@ use App\Http\Controllers\Administrator\AdminSHSSatuanController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
-Route::prefix('administrator-v2')
-    ->name('administrator.')
-    ->group(function () {
-
-        Route::get('/dashboard', [DashboardController::class, 'index'])
-            ->name('dashboard');
-    });
 
 Route::get('/', function () {
     return view('homepage/home');
@@ -55,7 +48,7 @@ Route::middleware(['admin'])
         |--------------------------------------------------------------------------
         */
 
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     /*
         |--------------------------------------------------------------------------

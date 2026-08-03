@@ -1,30 +1,73 @@
+@php
+    $role = session('active_role');
+
+    $isAdminFull = $role === 'Admin Full';
+    $isAdminArsiparis = $role === 'Admin Arsiparis';
+    $isAdminBBM = $role === 'Admin BBM';
+
+    $canUser = $isAdminFull;
+    $canDrive = $isAdminFull || $isAdminArsiparis;
+    $canMaster = $isAdminFull;
+
+    $canPermintaanBBM = $isAdminFull || $isAdminBBM;
+    $canPermintaanSPJ = $isAdminFull || $isAdminArsiparis;
+    $canPermintaanKAK = $isAdminFull || $isAdminArsiparis;
+    $canPermintaanSubKegiatan = $isAdminFull || $isAdminArsiparis;
+    $canPermintaanSHS = $isAdminFull || $isAdminArsiparis;
+
+    $canDataPermintaan =
+        $canPermintaanBBM || $canPermintaanSPJ || $canPermintaanKAK || $canPermintaanSubKegiatan || $canPermintaanSHS;
+
+    $canKinerjaPrioritas = $isAdminFull || $isAdminArsiparis;
+    $canLaporanAktivitas = $isAdminFull || $isAdminArsiparis;
+    $canDataPaguSPJ = $isAdminFull || $isAdminArsiparis;
+    $canLaporanSPJ = $isAdminFull || $isAdminArsiparis;
+    $canLaporanSubKegiatan = $isAdminFull || $isAdminArsiparis;
+    $canLaporanSHS = $isAdminFull || $isAdminArsiparis;
+    $canLaporanKAK = $isAdminFull || $isAdminArsiparis;
+
+    $canDataLaporan =
+        $canKinerjaPrioritas ||
+        $canLaporanAktivitas ||
+        $canDataPaguSPJ ||
+        $canLaporanSPJ ||
+        $canLaporanSubKegiatan ||
+        $canLaporanSHS ||
+        $canLaporanKAK;
+@endphp
+
+
 <aside
     x-cloak
     :class="{
         '-translate-x-full': isMobile && !sidebarOpen,
-        'translate-x-0': !isMobile || sidebarOpen
+        'translate-x-0': isMobile ? sidebarOpen : true,
+        'lg:w-20': sidebarMini,
+        'lg:w-72': !sidebarMini
     }"
-    class="fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 flex flex-col">
-    
+    class="fixed inset-y-0 left-0 z-50
+           bg-white dark:bg-slate-950
+           border-r border-slate-200 dark:border-slate-800
+           shadow-xl transition-all duration-300 flex flex-col">
     {{-- Header --}}
     <div class="h-20 shrink-0 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
 
         <div class="flex items-center gap-3">
 
             <div
-                class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow">
+                class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white">
 
-                <i class="bi bi-grid text-lg"></i>
+                <i class="bi bi-grid"></i>
 
             </div>
 
             <div>
 
-                <h1 class="text-xl font-bold text-slate-900 dark:text-white">
+                <h2 class="font-bold text-xl dark:text-white">
 
                     SAPLARIN
 
-                </h1>
+                </h2>
 
                 <p class="text-xs text-slate-500">
 
@@ -36,9 +79,7 @@
 
         </div>
 
-        <button
-            @click="closeSidebar()"
-            class="lg:hidden w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <button @click="closeSidebar()" class="lg:hidden w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
 
             <i class="bi bi-x-lg"></i>
 
@@ -46,22 +87,41 @@
 
     </div>
 
-    {{-- Search --}}
+    {{-- Ganti Role --}}
     <div class="p-5 border-b border-slate-200 dark:border-slate-800">
 
-        <div class="relative">
+        <button type="button" onclick="openRoleModal()"
+            class="w-full flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
 
-            <i
-                class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+            <div class="flex items-center gap-3">
 
-            </i>
+                <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center">
 
-            <input
-                type="text"
-                placeholder="Cari menu..."
-                class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <i class="bi bi-person-gear"></i>
 
-        </div>
+                </div>
+
+                <div class="text-left">
+
+                    <div class="text-sm font-semibold text-slate-800 dark:text-white">
+
+                        {{ session('active_role') }}
+
+                    </div>
+
+                    <div class="text-xs text-slate-500">
+
+                        Ganti Role
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <i class="bi bi-chevron-right text-slate-400"></i>
+
+        </button>
 
     </div>
 
@@ -70,7 +130,7 @@
 
         <nav class="p-5 space-y-6">
 
-            {{-- MAIN --}}
+            {{-- Dashboard --}}
             <div>
 
                 <p class="text-xs uppercase tracking-widest text-slate-400 mb-3">
@@ -79,248 +139,458 @@
 
                 </p>
 
-                <a
-                    href="{{ route('administrator.dashboard') }}"
-                    class="{{ request()->routeIs('administrator.dashboard')
-                        ? 'bg-blue-600 text-white shadow-md'
+                <a href="{{ route('admin.dashboard') }}"
+                    class="{{ request()->routeIs('admin.dashboard')
+                        ? 'bg-blue-600 text-white shadow'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
-                    flex items-center gap-3 rounded-xl px-4 py-3 transition">
+                        flex items-center gap-3 rounded-xl px-4 py-3 transition">
 
                     <i class="bi bi-grid"></i>
 
-                    <span>
-
-                        Dashboard
-
-                    </span>
+                    <span>Dashboard</span>
 
                 </a>
 
             </div>
 
-            {{-- MASTER DATA --}}
-            <div x-data="{open:true}">
+            {{-- User Management --}}
+            @if ($canUser)
+                <div x-data="{ open: false }">
 
-                <button
-                    @click="open=!open"
-                    class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                    <div class="flex items-center gap-3">
-
-                        <i class="bi bi-folder2-open"></i>
-
-                        <span>
-
-                            Master Data
-
-                        </span>
-
-                    </div>
-
-                    <i
-                        class="bi transition"
-                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
-
-                    </i>
-
-                </button>
-
-                <div
-                    x-show="open"
-                    x-transition
-                    class="mt-2 space-y-1">
-                                        <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-people"></i>
-
-                        <span>User</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-building"></i>
-
-                        <span>Bidang</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-diagram-3"></i>
-
-                        <span>Program</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-kanban"></i>
-
-                        <span>Kegiatan</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-bank"></i>
-
-                        <span>Rekening</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-person-vcard"></i>
-
-                        <span>Pegawai</span>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            {{-- Administrasi --}}
-            <div x-data="{open:true}">
-
-                <button
-                    @click="open=!open"
-                    class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                    <div class="flex items-center gap-3">
-
-                        <i class="bi bi-folder-check"></i>
-
-                        <span>Administrasi</span>
-
-                    </div>
-
-                    <i
-                        class="bi transition"
-                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
-
-                    </i>
-
-                </button>
-
-                <div
-                    x-show="open"
-                    x-transition
-                    class="mt-2 space-y-1">
-
-                    <a
-                        href="#"
-                        class="flex items-center justify-between rounded-lg px-5 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <button type="button" @click="open=!open"
+                        class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800">
 
                         <div class="flex items-center gap-3">
 
-                            <i class="bi bi-receipt"></i>
+                            <i class="bi bi-people"></i>
 
-                            <span>SPJ</span>
+                            <span>
+
+                                User Management
+
+                            </span>
 
                         </div>
 
-                        <span
-                            class="px-2 py-0.5 rounded-full bg-blue-600 text-white text-xs">
+                        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
 
-                            12
+                        </i>
 
-                        </span>
+                    </button>
 
-                    </a>
+                    <div x-show="open" x-transition.opacity.duration.200ms class="mt-2 space-y-1">
 
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        <a href="{{ route('admin.users') }}"
+                            class="{{ request()->routeIs('admin.users.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5">
 
-                        <i class="bi bi-fuel-pump"></i>
+                            <i class="bi bi-person"></i>
 
-                        <span>BBM</span>
+                            <span>
 
-                    </a>
+                                Data User
 
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            </span>
 
-                        <i class="bi bi-file-earmark-text"></i>
+                        </a>
 
-                        <span>Laporan</span>
-
-                    </a>
-
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-lg px-5 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                        <i class="bi bi-clipboard-data"></i>
-
-                        <span>Monitoring</span>
-
-                    </a>
+                    </div>
 
                 </div>
+            @endif
+            {{-- Drive Management --}}
+            @if ($canDrive)
+                <div x-data="{ open: false }">
 
-            </div>
-                        {{-- SYSTEM --}}
-            <div>
+                    <button @click="open=!open"
+                        class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
 
-                <p class="text-xs uppercase tracking-widest text-slate-400 mb-3">
+                        <div class="flex items-center gap-3">
 
-                    SYSTEM
+                            <i class="bi bi-google"></i>
 
-                </p>
+                            <span>
 
-                <div class="space-y-1">
+                                Drive Management
 
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            </span>
 
-                        <i class="bi bi-gear"></i>
+                        </div>
 
-                        <span>Pengaturan</span>
+                        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
 
-                    </a>
+                        </i>
 
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    </button>
 
-                        <i class="bi bi-shield-lock"></i>
+                    <div x-show="open" x-collapse class="mt-2 space-y-1">
 
-                        <span>Hak Akses</span>
+                        <a href="{{ route('admin.drive.json') }}"
+                            class="{{ request()->routeIs('admin.credential.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                    </a>
+                            <i class="bi bi-key-fill"></i>
 
-                    <a
-                        href="#"
-                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            <span>
 
-                        <i class="bi bi-clock-history"></i>
+                                JSON Credential
 
-                        <span>Log Aktivitas</span>
+                            </span>
 
-                    </a>
+                        </a>
+                        <a href="{{ route('admin.drive.folder') }}"
+                            class="{{ request()->routeIs('admin.folder.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                            <i class="bi bi-folder2-open"></i>
+
+                            <span>
+
+                                Folder Drive
+
+                            </span>
+
+                        </a>
+
+                    </div>
 
                 </div>
+            @endif
 
-            </div>
+            {{-- Master Data --}}
+            @if ($canMaster)
+                <div x-data="{ open: false }">
+
+                    <button type="button" @click="open=!open"
+                        class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+
+                        <div class="flex items-center gap-3">
+
+                            <i class="bi bi-database"></i>
+
+                            <span>
+
+                                Master Data
+
+                            </span>
+
+                        </div>
+
+                        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
+
+                        </i>
+
+                    </button>
+
+                    <div x-show="open" x-collapse class="mt-2 space-y-1">
+
+                        <a href="{{ route('admin.program') }}"
+                            class="{{ request()->routeIs('admin.program.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                            <i class="bi bi-diagram-3"></i>
+
+                            <span>Program</span>
+
+                        </a>
+                        <a href="{{ route('admin.kegiatan') }}"
+                            class="{{ request()->routeIs('admin.kegiatan.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }} 
+                                    flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                            <i class="bi bi-kanban"></i>
+
+                            <span>Kegiatan</span>
+
+                        </a>
+                        <a href="{{ route('admin.subkegiatan') }}"
+                            class="{{ request()->routeIs('admin.subkegiatan.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                            flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                            <i class="bi bi-list-task"></i>
+
+                            <span>Sub Kegiatan</span>
+
+                        </a>
+                    </div>
+
+                </div>
+            @endif
+
+            {{-- Data Permintaan --}}
+            @if ($canDataPermintaan)
+                <div x-data="{ open: false }">
+
+                    <button @click="open=!open"
+                        class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+
+                        <div class="flex items-center gap-3">
+
+                            <i class="bi bi-folder-check"></i>
+
+                            <span>
+
+                                Data Permintaan
+
+                            </span>
+
+                        </div>
+
+                        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
+
+                        </i>
+
+                    </button>
+
+                    <div x-show="open" x-collapse class="mt-2 space-y-1">
+                        @if ($canPermintaanBBM)
+                            <a href="{{ route('admin.bbm.index') }}"
+                                class="{{ request()->routeIs('admin.bbm.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-fuel-pump"></i>
+
+                                <span>
+
+                                    Permintaan BBM
+
+                                </span>
+
+                            </a>
+                        @endif
+                        @if ($canPermintaanSPJ)
+                            <a href="{{ route('admin.spj.index') }}"
+                                class="{{ request()->routeIs('admin.spj.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-receipt"></i>
+
+                                <span>
+
+                                    Permintaan SPJ
+
+                                </span>
+
+                            </a>
+                        @endif
+                        @if ($canPermintaanSHS)
+                            <a href="{{ route('admin.shs.index') }}"
+                                class="{{ request()->routeIs('admin.shs.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-box-seam"></i>
+
+                                <span>
+
+                                    Permintaan SHS
+
+                                </span>
+
+                            </a>
+                        @endif
+                        @if ($canPermintaanKAK)
+                            <a href="{{ route('admin.permintaan.kak') }}"
+                                class="{{ request()->routeIs('admin.permintaan.kak.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-file-earmark-text"></i>
+
+                                <span>
+
+                                    Permintaan KAK
+
+                                </span>
+
+                            </a>
+                        @endif
+                        @if ($canPermintaanSubKegiatan)
+                            <a href="{{ route('admin.sub-kegiatan-indikator.index') }}"
+                                class="{{ request()->routeIs('admin.sub-kegiatan-indikator.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-list-task"></i>
+
+                                <span>
+
+                                    Permintaan Sub Kegiatan
+
+                                </span>
+
+                            </a>
+                        @endif
+
+                    </div>
+
+                </div>
+            @endif
+
+            {{-- Data Laporan --}}
+            @if ($canDataLaporan)
+                <div x-data="{ open: false }">
+
+                    <button @click="open=!open"
+                        class="w-full flex items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+
+                        <div class="flex items-center gap-3">
+
+                            <i class="bi bi-clipboard-data"></i>
+
+                            <span>
+
+                                Data Laporan
+
+                            </span>
+
+                        </div>
+
+                        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'">
+
+                        </i>
+
+                    </button>
+
+                    <div x-show="open" x-collapse class="mt-2 space-y-1">
+                            <a href="{{ route('admin.program-prioritas.index') }}"
+                                class="{{ request()->routeIs('admin.program-prioritas.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-kanban"></i>
+
+                                <span>
+
+                                    Laporan Prioritas
+
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.laporan-aktivitas.index') }}"
+                                class="{{ request()->routeIs('admin.laporan-aktivitas.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-clipboard-check"></i>
+
+                                <span>
+
+                                    Laporan Aktivitas
+
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.spj.index') }}"
+                                class="{{ request()->routeIs('admin.spj.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-cash-stack"></i>
+
+                                <span>
+
+                                    Data Pagu SPJ
+
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.laporan.spj') }}"
+                                class="{{ request()->routeIs('admin.laporan.spj.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-receipt-cutoff"></i>
+
+                                <span>
+
+                                    Laporan SPJ
+
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.laporan.shs') }}"
+                                class="{{ request()->routeIs('admin.laporan.shs.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-box-seam"></i>
+
+                                <span>
+
+                                    Laporan SHS
+
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.laporan.kak') }}"
+                                class="{{ request()->routeIs('admin.laporan.kak.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-file-earmark-richtext"></i>
+
+                                <span>
+
+                                    Laporan KAK
+
+                                </span>
+
+                            </a>
+                    </div>
+
+                </div>
+            @endif
 
         </nav>
+
+    </div>
+
+    {{-- Footer --}}
+    <div class="border-t border-slate-200 dark:border-slate-800 p-5">
+
+        <form method="POST" action="{{ route('logout') }}">
+
+            @csrf
+
+            <button type="submit"
+                class="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+
+                    Logout
+
+                </span>
+
+            </button>
+
+        </form>
 
     </div>
 

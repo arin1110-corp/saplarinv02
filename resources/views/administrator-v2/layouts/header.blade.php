@@ -35,16 +35,6 @@
         {{-- Right --}}
         <div class="flex items-center gap-3">
 
-            {{-- Notification --}}
-            <button
-                class="relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-
-                <i class="bi bi-bell text-lg"></i>
-
-                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500"></span>
-
-            </button>
-
             {{-- Dark Mode --}}
             <button @click="toggleDark()"
                 class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition">
