@@ -19,7 +19,7 @@ class AdminSubKegiatanIndikatorController extends Controller
             ->orderBy('sub_kegiatan_nama')
             ->get();
 
-        return view('administrator.sub-kegiatan-indikator.index', compact(
+        return view('administrator-v2.sub-kegiatan-indikator.index', compact(
             'indikators',
             'subKegiatans'
         ));

@@ -5,7 +5,7 @@ class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-90
 
 <div class="text-sm text-slate-500">
 
-© {{ date('Y') }} SAPLARIN
+© 2025 SAPLARIN
 
 </div>
 

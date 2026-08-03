@@ -13,7 +13,7 @@ class AdminSHSController extends Controller
         $shs = ModelSHS::orderByDesc('created_at')->get();
 
         return view(
-            'administrator.shs.index',
+            'administrator-v2.shs.index',
             compact('shs')
         );
     }

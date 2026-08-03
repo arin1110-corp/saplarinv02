@@ -35,7 +35,7 @@ class AdminSPJController extends Controller
         $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->get();
         $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)->get();
 
-        return view('administrator.spj.index', compact(
+        return view('administrator-v2.spj.index', compact(
             'pagus',
             'units',
             'programs',

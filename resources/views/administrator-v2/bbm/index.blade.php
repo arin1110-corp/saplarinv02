@@ -83,22 +83,6 @@
 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-        <div>
-
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-
-                Pengajuan BBM
-
-            </h2>
-
-            <p class="text-slate-500 dark:text-slate-400">
-
-                Kelola data pengajuan BBM pegawai SAPLARIN
-
-            </p>
-
-        </div>
-
         <div class="flex gap-3">
 
             <button type="button" onclick="openExportModal()"

@@ -232,7 +232,7 @@ class AdminController extends Controller
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
         $programs = ModelProgram::all();
 
-        return view('administrator.program', compact('programs', 'roles'));
+        return view('administrator-v2.program.index', compact('programs', 'roles'));
     }
     public function storeProgram(Request $request)
     {
@@ -279,7 +279,7 @@ class AdminController extends Controller
         // dropdown program
         $programs = ModelProgram::where('program_status', 1)->get();
 
-        return view('administrator.kegiatan', compact('kegiatans', 'programs', 'roles'));
+        return view('administrator-v2.kegiatan.index', compact('kegiatans', 'programs', 'roles'));
     }
     public function storeKegiatan(Request $request)
     {
@@ -329,7 +329,7 @@ class AdminController extends Controller
         // dropdown kegiatan
         $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->get();
 
-        return view('administrator.subkegiatan', compact('subkegiatans', 'kegiatans', 'roles'));
+        return view('administrator-v2.subkegiatan.index', compact('subkegiatans', 'kegiatans', 'roles'));
     }
     public function storeSubKegiatan(Request $request)
     {

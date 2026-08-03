@@ -13,7 +13,7 @@ class AdminLaporanSHSController extends Controller
     {
         $shs = ModelSHS::orderByDesc('created_at')->get();
 
-        return view('administrator.laporan-shs.index', compact('shs'));
+        return view('administrator-v2.laporan-shs.index', compact('shs'));
     }
     public function show($uid)
     {

@@ -12,7 +12,7 @@ class AdminDriveController extends Controller
     {
         $jsons = ModelJson::orderBy('json_id', 'desc')->get();
 
-        return view('administrator.drive.json', compact('jsons'));
+        return view('administrator-v2.json.index', compact('jsons'));
     }
 
     public function storeJson(Request $request)
@@ -60,7 +60,7 @@ class AdminDriveController extends Controller
             ->orderBy('json_nama', 'asc')
             ->get();
 
-        return view('administrator.drive.folder', compact('folders', 'jsons'));
+        return view('administrator-v2.folder-management.index', compact('folders', 'jsons'));
     }
 
     public function storeFolder(Request $request)
