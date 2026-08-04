@@ -902,13 +902,67 @@
     </div>
 
 </div>
+<div id="releaseModal"
+    class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+
+    <div class="relative">
+
+        <button
+            onclick="closeReleaseModal()"
+            class="absolute -top-3 -right-3 w-11 h-11 rounded-full bg-white shadow-lg z-20">
+
+            <i class="bi bi-x-lg"></i>
+
+        </button>
+
+        <img
+            src="{{ asset('image/release/build-1121.26.1101.png') }}"
+            class="rounded-3xl shadow-2xl
+                   w-auto
+                   max-w-[900px]
+                   max-h-[90vh]
+                   object-contain">
+
+    </div>
+
+</div>
 
 @endsection
 
 @push('scripts')
 
 <script>
+$(document).ready(function(){
 
+    if(localStorage.getItem('release_1121.26.1101')){
+
+        return;
+
+    }
+
+    setTimeout(function(){
+
+        $('#releaseModal')
+            .removeClass('hidden')
+            .addClass('flex');
+
+        $('body').addClass('overflow-hidden');
+
+    },500);
+
+});
+
+function closeReleaseModal(){
+
+    localStorage.setItem('release_1121.26.1101',true);
+
+    $('#releaseModal')
+        .removeClass('flex')
+        .addClass('hidden');
+
+    $('body').removeClass('overflow-hidden');
+
+}
 document.addEventListener("DOMContentLoaded",function(){
 
     new ApexCharts(
