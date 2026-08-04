@@ -182,7 +182,7 @@
                                         </button>
                                     @elseif($item->shs_status == 'Tidak Diajukan')
                                         <form method="POST"
-                                            action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
+                                            action="{{ route('admin.laporan-shs.aktif', $item->shs_uid) }}">
 
                                             @csrf
 
@@ -198,7 +198,7 @@
                                         </form>
                                     @else
                                         <form method="POST"
-                                            action="{{ route('admin.laporan.shs.nonaktif', $item->shs_uid) }}">
+                                            action="{{ route('admin.laporan-shs.nonaktif', $item->shs_uid) }}">
 
                                             @csrf
 
@@ -704,7 +704,7 @@
 
             </div>
 
-            <form action="{{ route('admin.laporan.shs.export') }}" method="GET"
+            <form action="{{ route('admin.laporan-shs.export') }}" method="GET"
                 class="flex flex-col flex-1 overflow-hidden">
 
                 <!-- BODY -->

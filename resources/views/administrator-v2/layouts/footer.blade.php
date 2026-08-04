@@ -11,7 +11,7 @@ class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-90
 
 <div class="text-sm text-slate-400">
 
-Version 2.0
+Build 1121.26.1101
 
 </div>
 

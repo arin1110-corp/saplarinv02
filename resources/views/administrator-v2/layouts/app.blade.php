@@ -10,6 +10,8 @@
     <title>@yield('title', 'SAPLARIN')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -82,7 +84,7 @@
 
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('scripts')
     @include('administrator-v2.layouts.modal')
 </body>

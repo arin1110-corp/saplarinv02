@@ -14,7 +14,7 @@ class AdminSHSKelompokController extends Controller
             ->orderBy('kelompok_kode')
             ->get();
 
-        return view('administrator.shs-kelompok.index', compact('kelompoks'));
+        return view('administrator-v2.shs-kelompok.index', compact('kelompoks'));
     }
 
     public function store(Request $request)

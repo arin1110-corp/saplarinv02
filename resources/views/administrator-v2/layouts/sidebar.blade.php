@@ -37,8 +37,7 @@
 @endphp
 
 
-<aside
-    x-cloak
+<aside x-cloak
     :class="{
         '-translate-x-full': isMobile && !sidebarOpen,
         'translate-x-0': isMobile ? sidebarOpen : true,
@@ -54,10 +53,9 @@
 
         <div class="flex items-center gap-3">
 
-            <div
-                class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white">
+            <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow">
 
-                <i class="bi bi-grid"></i>
+                <img src="{{ asset('image/pemprov.png') }}" alt="Pemprov Bali" class="w-9 h-9 object-contain">
 
             </div>
 
@@ -65,7 +63,7 @@
 
                 <h2 class="font-bold text-xl dark:text-white">
 
-                    SAPLARIN
+                    SAPLAR<span class="text-blue-600">IN</span>
 
                 </h2>
 
@@ -79,7 +77,8 @@
 
         </div>
 
-        <button @click="closeSidebar()" class="lg:hidden w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button @click="closeSidebar()"
+            class="lg:hidden w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
 
             <i class="bi bi-x-lg"></i>
 
@@ -180,7 +179,7 @@
 
                     <div x-show="open" x-transition.opacity.duration.200ms class="mt-2 space-y-1">
 
-                        <a href="{{ route('admin.users') }}"
+                        <a href="{{ route('admin.users.index') }}"
                             class="{{ request()->routeIs('admin.users.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'hover:bg-slate-100 dark:hover:bg-slate-800' }}
@@ -227,8 +226,8 @@
 
                     <div x-show="open" x-collapse class="mt-2 space-y-1">
 
-                        <a href="{{ route('admin.drive.json') }}"
-                            class="{{ request()->routeIs('admin.credential.*')
+                        <a href="{{ route('admin.drive.json.index') }}"
+                            class="{{ request()->routeIs('admin.drive.json.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
@@ -242,8 +241,8 @@
                             </span>
 
                         </a>
-                        <a href="{{ route('admin.drive.folder') }}"
-                            class="{{ request()->routeIs('admin.folder.*')
+                        <a href="{{ route('admin.drive.folder.index') }}"
+                            class="{{ request()->routeIs('admin.drive.folder.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
@@ -290,7 +289,7 @@
 
                     <div x-show="open" x-collapse class="mt-2 space-y-1">
 
-                        <a href="{{ route('admin.program') }}"
+                        <a href="{{ route('admin.program.index') }}"
                             class="{{ request()->routeIs('admin.program.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
@@ -301,7 +300,7 @@
                             <span>Program</span>
 
                         </a>
-                        <a href="{{ route('admin.kegiatan') }}"
+                        <a href="{{ route('admin.kegiatan.index') }}"
                             class="{{ request()->routeIs('admin.kegiatan.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }} 
@@ -312,7 +311,7 @@
                             <span>Kegiatan</span>
 
                         </a>
-                        <a href="{{ route('admin.subkegiatan') }}"
+                        <a href="{{ route('admin.subkegiatan.index') }}"
                             class="{{ request()->routeIs('admin.subkegiatan.*')
                                 ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
@@ -321,6 +320,54 @@
                             <i class="bi bi-list-task"></i>
 
                             <span>Sub Kegiatan</span>
+
+                        </a>
+
+                        @if ($canPermintaanSPJ)
+                            <a href="{{ route('admin.spj.index') }}"
+                                class="{{ request()->routeIs('admin.spj.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-cash-stack"></i>
+
+                                <span>
+
+                                    Data Pagu SPJ
+
+                                </span>
+
+                            </a>
+                        @endif
+                        <a href="{{ route('admin.shs-kelompok.index') }}"
+                            class="{{ request()->routeIs('admin.shs-kelompok.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                            <i class="bi bi-box-seam"></i>
+
+                            <span>
+
+                                Data Kelompok SHS
+
+                            </span>
+
+                        </a>
+                        <a href="{{ route('admin.shs-satuan.index') }}"
+                            class="{{ request()->routeIs('admin.shs-satuan.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                            <i class="bi bi-box2"></i>
+
+                            <span>
+
+                                Data Satuan SHS
+
+                            </span>
 
                         </a>
                     </div>
@@ -366,23 +413,6 @@
                                 <span>
 
                                     Permintaan BBM
-
-                                </span>
-
-                            </a>
-                        @endif
-                        @if ($canPermintaanSPJ)
-                            <a href="{{ route('admin.spj.index') }}"
-                                class="{{ request()->routeIs('admin.spj.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
-                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
-
-                                <i class="bi bi-receipt"></i>
-
-                                <span>
-
-                                    Permintaan SPJ
 
                                 </span>
 
@@ -471,96 +501,96 @@
                     </button>
 
                     <div x-show="open" x-collapse class="mt-2 space-y-1">
-                            <a href="{{ route('admin.program-prioritas.index') }}"
-                                class="{{ request()->routeIs('admin.program-prioritas.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        <a href="{{ route('admin.program-prioritas.index') }}"
+                            class="{{ request()->routeIs('admin.program-prioritas.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-kanban"></i>
+                            <i class="bi bi-kanban"></i>
 
-                                <span>
+                            <span>
 
-                                    Laporan Prioritas
+                                Laporan Prioritas
 
-                                </span>
+                            </span>
 
-                            </a>
-                            <a href="{{ route('admin.laporan-aktivitas.index') }}"
-                                class="{{ request()->routeIs('admin.laporan-aktivitas.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        </a>
+                        <a href="{{ route('admin.laporan-aktivitas.index') }}"
+                            class="{{ request()->routeIs('admin.laporan-aktivitas.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-clipboard-check"></i>
+                            <i class="bi bi-clipboard-check"></i>
 
-                                <span>
+                            <span>
 
-                                    Laporan Aktivitas
+                                Laporan Aktivitas
 
-                                </span>
+                            </span>
 
-                            </a>
-                            <a href="{{ route('admin.spj.index') }}"
-                                class="{{ request()->routeIs('admin.spj.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        </a>
+                        <a href="{{ route('admin.laporan-sub-kegiatan.index') }}"
+                            class="{{ request()->routeIs('admin.laporan-sub-kegiatan.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-cash-stack"></i>
+                            <i class="bi bi-list-task"></i>
 
-                                <span>
+                            <span>
 
-                                    Data Pagu SPJ
+                                Laporan Sub Kegiatan
 
-                                </span>
+                            </span>
 
-                            </a>
-                            <a href="{{ route('admin.laporan.spj') }}"
-                                class="{{ request()->routeIs('admin.laporan.spj.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        </a>
+                        <a href="{{ route('admin.laporan-spj.index') }}"
+                            class="{{ request()->routeIs('admin.laporan-spj.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-receipt-cutoff"></i>
+                            <i class="bi bi-receipt-cutoff"></i>
 
-                                <span>
+                            <span>
 
-                                    Laporan SPJ
+                                Laporan SPJ
 
-                                </span>
+                            </span>
 
-                            </a>
-                            <a href="{{ route('admin.laporan.shs') }}"
-                                class="{{ request()->routeIs('admin.laporan.shs.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        </a>
+                        <a href="{{ route('admin.laporan-shs.index') }}"
+                            class="{{ request()->routeIs('admin.laporan-shs.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-box-seam"></i>
+                            <i class="bi bi-box-seam"></i>
 
-                                <span>
+                            <span>
 
-                                    Laporan SHS
+                                Laporan SHS
 
-                                </span>
+                            </span>
 
-                            </a>
-                            <a href="{{ route('admin.laporan.kak') }}"
-                                class="{{ request()->routeIs('admin.laporan.kak.*')
-                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        </a>
+                        <a href="{{ route('admin.laporan.kak') }}"
+                            class="{{ request()->routeIs('admin.laporan.kak.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
                         flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
 
-                                <i class="bi bi-file-earmark-richtext"></i>
+                            <i class="bi bi-file-earmark-richtext"></i>
 
-                                <span>
+                            <span>
 
-                                    Laporan KAK
+                                Laporan KAK
 
-                                </span>
+                            </span>
 
-                            </a>
+                        </a>
                     </div>
 
                 </div>

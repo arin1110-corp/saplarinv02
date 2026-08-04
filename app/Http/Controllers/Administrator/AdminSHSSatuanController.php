@@ -14,7 +14,7 @@ class AdminSHSSatuanController extends Controller
         $satuan = ModelSHSSatuan::orderBy('satuan_nama')->get();
 
         return view(
-            'administrator.shs-satuan.index',
+            'administrator-v2.shs-satuan.index',
             compact('satuan')
         );
     }

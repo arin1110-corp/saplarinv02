@@ -62,7 +62,7 @@ class AdminLaporanSubKegiatanController extends Controller
             $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_kegiatan', $request->kegiatan)->orderBy('sub_kegiatan_nama')->get();
         }
 
-        return view('administrator.laporan-sub-kegiatan.index', compact('laporan', 'units', 'programs', 'kegiatans', 'subKegiatans'));
+        return view('administrator-v2.laporan-sub-kegiatan.index', compact('laporan', 'units', 'programs', 'kegiatans', 'subKegiatans'));
     }
     public function getKegiatan(Request $request)
     {

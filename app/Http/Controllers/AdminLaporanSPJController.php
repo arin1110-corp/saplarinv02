@@ -108,7 +108,7 @@ class AdminLaporanSPJController extends Controller
             ->orderBy('unit_kode')
             ->get();
 
-        return view('administrator.laporan.spj', compact(
+        return view('administrator-v2.laporan-spj.index', compact(
             'tahun',
             'unitId',
             'tahunList',

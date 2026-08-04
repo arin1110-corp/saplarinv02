@@ -37,6 +37,7 @@ Route::get('/', function () {
 Route::post('/login-submit', [AuthController::class, 'loginSubmit'])->name('login.submit');
 Route::get('/login-admin', [AuthController::class, 'loginAdmin'])->name('login.admin');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/set-role', [AuthController::class, 'setRole'])->name('set.role');
 
 Route::middleware(['admin'])
@@ -56,7 +57,7 @@ Route::middleware(['admin'])
         |--------------------------------------------------------------------------
         */
 
-    Route::get('/users', [AdminController::class, 'manageUser'])->name('admin.users');
+    Route::get('/users', [AdminController::class, 'manageUser'])->name('admin.users.index');
 
     Route::post('/store', [AdminController::class, 'storeUser'])->name('admin.users.store');
 
@@ -68,19 +69,19 @@ Route::middleware(['admin'])
         |--------------------------------------------------------------------------
         */
 
-    Route::get('/program', [AdminController::class, 'program'])->name('admin.program');
+    Route::get('/program', [AdminController::class, 'program'])->name('admin.program.index');
 
     Route::post('/program/store', [AdminController::class, 'storeProgram'])->name('admin.program.store');
 
     Route::post('/program/update', [AdminController::class, 'updateProgram'])->name('admin.program.update');
 
-    Route::get('/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan');
+    Route::get('/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan.index');
 
     Route::post('/kegiatan/store', [AdminController::class, 'storeKegiatan'])->name('admin.kegiatan.store');
 
     Route::post('/kegiatan/update', [AdminController::class, 'updateKegiatan'])->name('admin.kegiatan.update');
 
-    Route::get('/sub-kegiatan', [AdminController::class, 'subkegiatan'])->name('admin.subkegiatan');
+    Route::get('/sub-kegiatan', [AdminController::class, 'subkegiatan'])->name('admin.subkegiatan.index');
 
     Route::post('/sub-kegiatan/store', [AdminController::class, 'storeSubKegiatan'])->name('admin.subkegiatan.store');
 
@@ -121,13 +122,13 @@ Route::middleware(['admin'])
         |--------------------------------------------------------------------------
         */
 
-    Route::get('/drive/json', [AdminDriveController::class, 'json'])->name('admin.drive.json');
+    Route::get('/drive/json', [AdminDriveController::class, 'json'])->name('admin.drive.json.index');
 
     Route::post('/drive/json/store', [AdminDriveController::class, 'storeJson'])->name('admin.drive.json.store');
 
     Route::post('/drive/json/update', [AdminDriveController::class, 'updateJson'])->name('admin.drive.json.update');
 
-    Route::get('/drive/folder', [AdminDriveController::class, 'folder'])->name('admin.drive.folder');
+    Route::get('/drive/folder', [AdminDriveController::class, 'folder'])->name('admin.drive.folder.index');
 
     Route::post('/drive/folder/store', [AdminDriveController::class, 'storeFolder'])->name('admin.drive.folder.store');
 
@@ -141,7 +142,7 @@ Route::middleware(['admin'])
 
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
 
-    Route::get('/laporan-spj', [AdminLaporanSPJController::class, 'index'])->name('admin.laporan.spj');
+    Route::get('/laporan-spj', [AdminLaporanSPJController::class, 'index'])->name('admin.laporan-spj.index');
 
     Route::get('/laporan-pwa', [LaporanPWAController::class, 'laporanPWA'])->name('admin.laporan.pwa');
 
@@ -248,7 +249,7 @@ Route::middleware(['admin'])
     Route::post('/sub-kegiatan-indikator/update', [AdminSubKegiatanIndikatorController::class, 'update'])->name('admin.sub-kegiatan-indikator.update');
 
     Route::post('/sub-kegiatan-indikator/{uid}/delete', [AdminSubKegiatanIndikatorController::class, 'delete'])->name('admin.sub-kegiatan-indikator.delete');
-    Route::get('/laporan-sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'index'])->name('admin.laporan.subkegiatan');
+    Route::get('/laporan-sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'index'])->name('admin.laporan-sub-kegiatan.index');
     Route::get('/laporan-sub-kegiatan/export/excel', [AdminLaporanSubKegiatanController::class, 'exportExcel'])->name('admin.laporan-sub-kegiatan.export.excel');
 
     Route::get('/laporan-sub-kegiatan/{uid}/pdf', [AdminLaporanSubKegiatanController::class, 'pdf'])->name('admin.laporan-sub-kegiatan.pdf');
@@ -270,21 +271,21 @@ Route::middleware(['admin'])
     Route::post('/shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.shs.aktif');
 
     Route::post('/shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.shs.nonaktif');
-    Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan.shs');
+    Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan-shs.index');
 
-    Route::get('/laporan-shs/export', [AdminLaporanSHSController::class, 'export'])->name('admin.laporan.shs.export');
+    Route::get('/laporan-shs/export', [AdminLaporanSHSController::class, 'export'])->name('admin.laporan-shs.export');
 
-    Route::get('/laporan-shs/{uid}', [AdminLaporanSHSController::class, 'show'])->name('admin.laporan.shs.show');
+    Route::get('/laporan-shs/{uid}', [AdminLaporanSHSController::class, 'show'])->name('admin.laporan-shs.show');
 
-    Route::post('/laporan-shs/{uid}/verifikasi', [AdminLaporanSHSController::class, 'verifikasi'])->name('admin.laporan.shs.verifikasi');
+    Route::post('/laporan-shs/{uid}/verifikasi', [AdminLaporanSHSController::class, 'verifikasi'])->name('admin.laporan-shs.verifikasi');
 
-    Route::post('/laporan-shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.laporan.shs.aktif');
+    Route::post('/laporan-shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.laporan-shs.aktif');
 
-    Route::post('/laporan-shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.laporan.shs.nonaktif');
+    Route::post('/laporan-shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.laporan-shs.nonaktif');
     /*
         |--------------------------------------------------------------------------
         | Master Kelompok Barang SHS
-        |--------------------------------------------------------------------------
+        '|
         */
 
     Route::get('/shs-kelompok', [AdminSHSKelompokController::class, 'index'])->name('admin.shs-kelompok.index');
@@ -300,13 +301,13 @@ Route::middleware(['admin'])
             | Satuan SHS
             |--------------------------------------------------------------------------
             */
-    Route::get('/shs-satuan', [AdminSHSSatuanController::class, 'index'])->name('admin.shs.satuan');
+    Route::get('/shs-satuan', [AdminSHSSatuanController::class, 'index'])->name('admin.shs-satuan.index');
 
-    Route::post('/shs-satuan', [AdminSHSSatuanController::class, 'store'])->name('admin.shs.satuan.store');
+    Route::post('/shs-satuan', [AdminSHSSatuanController::class, 'store'])->name('admin.shs-satuan.store');
 
-    Route::put('/shs-satuan/{uid}', [AdminSHSSatuanController::class, 'update'])->name('admin.shs.satuan.update');
+    Route::put('/shs-satuan/{uid}', [AdminSHSSatuanController::class, 'update'])->name('admin.shs-satuan.update');
 
-    Route::post('/shs-satuan/{uid}/status', [AdminSHSSatuanController::class, 'status'])->name('admin.shs.satuan.status');
+    Route::post('/shs-satuan/{uid}/status', [AdminSHSSatuanController::class, 'status'])->name('admin.shs-satuan.status');
     });
 
 Route::prefix('user')

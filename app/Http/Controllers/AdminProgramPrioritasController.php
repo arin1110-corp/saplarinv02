@@ -22,7 +22,7 @@ class AdminProgramPrioritasController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        return view('administrator.program-prioritas.index', compact('prioritas'));
+        return view('administrator-v2.program-prioritas.index', compact('prioritas'));
     }
 
     public function store(Request $request)

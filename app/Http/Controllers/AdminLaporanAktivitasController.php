@@ -31,7 +31,7 @@ class AdminLaporanAktivitasController extends Controller
 
         $tahun = ModelLaporanKegiatan::select('laporan_kegiatan_tahun')->distinct()->orderBy('laporan_kegiatan_tahun', 'desc')->pluck('laporan_kegiatan_tahun');
 
-        return view('administrator.laporan-aktivitas.index', compact('kegiatans', 'subKegiatans', 'tahun'));
+        return view('administrator-v2.laporan-aktivitas.index', compact('kegiatans', 'subKegiatans', 'tahun'));
     }
 
     public function nonaktifKegiatan($uid)
