@@ -83,18 +83,28 @@
 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-        <div class="flex gap-3">
+        <form method="GET">
 
-            <button type="button" onclick="openExportModal()"
-                class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-white font-semibold transition">
+            <div class="relative w-full lg:w-80">
 
-                <i class="bi bi-file-earmark-excel"></i>
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
 
-                Export Excel
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Pengaju / NIP / Plat..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
 
-            </button>
+            </div>
 
-        </div>
+        </form>
+
+        <button type="button" onclick="openExportModal()"
+            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-white font-semibold">
+
+            <i class="bi bi-file-earmark-excel"></i>
+
+            Export Excel
+
+        </button>
 
     </div>
 
@@ -103,7 +113,7 @@
 
         <div class="overflow-x-auto">
 
-            <table id="bbmTable" class="min-w-full text-sm">
+            <table class="min-w-full text-sm">
 
                 <thead class="bg-slate-100 dark:bg-slate-800">
 
@@ -439,6 +449,30 @@
             </table>
 
         </div>
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $bbms->firstItem() }}</b>
+
+                -
+
+                <b>{{ $bbms->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $bbms->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $bbms->links() }}
+
+        </div>
 
     </div>
 
@@ -754,37 +788,37 @@
 
 @push('scripts')
     <script>
-    function safeValue(value) {
-        return value ?? '';
-    }
+        function safeValue(value) {
+            return value ?? '';
+        }
 
-    function showModal(id) {
-        const modal = document.getElementById(id);
+        function showModal(id) {
+            const modal = document.getElementById(id);
 
-        if (!modal) return;
+            if (!modal) return;
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
 
-        document.body.classList.add('overflow-hidden');
-    }
+            document.body.classList.add('overflow-hidden');
+        }
 
-    function hideModal(id) {
-        const modal = document.getElementById(id);
+        function hideModal(id) {
+            const modal = document.getElementById(id);
 
-        if (!modal) return;
+            if (!modal) return;
 
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
 
-        document.body.classList.remove('overflow-hidden');
-    }
+            document.body.classList.remove('overflow-hidden');
+        }
 
-    function fileButton(label, url, colorClass) {
+        function fileButton(label, url, colorClass) {
 
-        if (!url) return '';
+            if (!url) return '';
 
-        return `
+            return `
             <a
                 href="${url}"
                 target="_blank"
@@ -806,59 +840,59 @@
 
             </a>
         `;
-    }
+        }
 
-    function openFileModal(item, buktiTambahan) {
+        function openFileModal(item, buktiTambahan) {
 
-        let html = '';
+            let html = '';
 
-        html += fileButton(
-            'SPT',
-            safeValue(item.bbm_spt_file),
-            'text-green-600'
-        );
+            html += fileButton(
+                'SPT',
+                safeValue(item.bbm_spt_file),
+                'text-green-600'
+            );
 
-        html += fileButton(
-            'ACC Pimpinan',
-            safeValue(item.bbm_acc_pimpinan_file),
-            'text-purple-600'
-        );
+            html += fileButton(
+                'ACC Pimpinan',
+                safeValue(item.bbm_acc_pimpinan_file),
+                'text-purple-600'
+            );
 
-        html += fileButton(
-            'Nota BBM',
-            safeValue(item.bbm_laporan_nota_file),
-            'text-yellow-600'
-        );
+            html += fileButton(
+                'Nota BBM',
+                safeValue(item.bbm_laporan_nota_file),
+                'text-yellow-600'
+            );
 
-        html += fileButton(
-            'Foto Kendaraan',
-            safeValue(item.bbm_foto_mobil_file),
-            'text-blue-600'
-        );
+            html += fileButton(
+                'Foto Kendaraan',
+                safeValue(item.bbm_foto_mobil_file),
+                'text-blue-600'
+            );
 
-        if (Array.isArray(buktiTambahan)) {
+            if (Array.isArray(buktiTambahan)) {
 
-            buktiTambahan.forEach((file, index) => {
+                buktiTambahan.forEach((file, index) => {
 
-                let url = '';
+                    let url = '';
 
-                let nama = 'Bukti Tambahan ' + (index + 1);
+                    let nama = 'Bukti Tambahan ' + (index + 1);
 
-                if (typeof file === 'string') {
+                    if (typeof file === 'string') {
 
-                    url = file;
+                        url = file;
 
-                } else if (typeof file === 'object' && file !== null) {
+                    } else if (typeof file === 'object' && file !== null) {
 
-                    url = file.file ?? file.url ?? '';
+                        url = file.file ?? file.url ?? '';
 
-                    nama = file.nama ?? nama;
+                        nama = file.nama ?? nama;
 
-                }
+                    }
 
-                if (!url) return;
+                    if (!url) return;
 
-                html += `
+                    html += `
                     <a
                         href="${url}"
                         target="_blank"
@@ -880,13 +914,13 @@
 
                     </a>
                 `;
-            });
+                });
 
-        }
+            }
 
-        if (html === '') {
+            if (html === '') {
 
-            html = `
+                html = `
                 <div class="col-span-2 text-center py-12 text-slate-500">
 
                     Tidak ada file yang tersedia.
@@ -894,144 +928,146 @@
                 </div>
             `;
 
-        }
+            }
 
-        document.getElementById('fileModalInfo').textContent =
-            (item.bbm_pengaju_nama ?? '-') +
-            ' / ' +
-            (item.bbm_no_plat ?? '-');
+            document.getElementById('fileModalInfo').textContent =
+                (item.bbm_pengaju_nama ?? '-') +
+                ' / ' +
+                (item.bbm_no_plat ?? '-');
 
-        document.getElementById('fileList').innerHTML = html;
+            document.getElementById('fileList').innerHTML = html;
 
-        showModal('fileModal');
-
-    }
-
-    function closeFileModal() {
-
-        document.getElementById('fileList').innerHTML = '';
-
-        hideModal('fileModal');
-
-    }
-
-    function openExportModal() {
-
-        showModal('exportModal');
-
-    }
-
-    function closeExportModal() {
-
-        hideModal('exportModal');
-
-    }
-
-    function openTerimaModal(item) {
-
-        document.getElementById('modal_pengaju').value =
-            (item.bbm_pengaju_nama ?? '') +
-            ' - ' +
-            (item.bbm_pengaju_nip ?? '');
-
-        document.getElementById('modal_no_plat').value =
-            item.bbm_no_plat ?? '-';
-
-        document.getElementById('terimaForm').action =
-            "{{ url('/admin/bbm') }}/" + item.bbm_uid + "/terima-pengajuan";
-
-        showModal('terimaModal');
-
-    }
-
-    function closeTerimaModal() {
-
-        document.getElementById('terimaForm').reset();
-
-        hideModal('terimaModal');
-
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-
-        if (typeof DataTable !== 'undefined') {
-
-            new DataTable('#bbmTable', {
-
-                responsive: true,
-
-                pageLength: 25,
-
-                order: [[0, 'desc']],
-
-                language: {
-
-                    search: "Cari:",
-
-                    searchPlaceholder: "Cari data...",
-
-                    lengthMenu: "Tampilkan _MENU_ data",
-
-                    zeroRecords: "Data tidak ditemukan",
-
-                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-
-                    infoEmpty: "Tidak ada data",
-
-                    infoFiltered: "(difilter dari _MAX_ data)",
-
-                    paginate: {
-
-                        first: "Awal",
-
-                        last: "Akhir",
-
-                        next: "›",
-
-                        previous: "‹"
-
-                    }
-
-                }
-
-            });
+            showModal('fileModal');
 
         }
 
-        ['fileModal', 'exportModal', 'terimaModal'].forEach(function(id) {
+        function closeFileModal() {
 
-            const modal = document.getElementById(id);
-
-            if (!modal) return;
-
-            modal.addEventListener('click', function(e) {
-
-                if (e.target === modal) {
-
-                    hideModal(id);
-
-                }
-
-            });
-
-        });
-
-    });
-
-    document.addEventListener('keydown', function(e) {
-
-        if (e.key === 'Escape') {
+            document.getElementById('fileList').innerHTML = '';
 
             hideModal('fileModal');
 
+        }
+
+        function openExportModal() {
+
+            showModal('exportModal');
+
+        }
+
+        function closeExportModal() {
+
             hideModal('exportModal');
+
+        }
+
+        function openTerimaModal(item) {
+
+            document.getElementById('modal_pengaju').value =
+                (item.bbm_pengaju_nama ?? '') +
+                ' - ' +
+                (item.bbm_pengaju_nip ?? '');
+
+            document.getElementById('modal_no_plat').value =
+                item.bbm_no_plat ?? '-';
+
+            document.getElementById('terimaForm').action =
+                "{{ url('/admin/bbm') }}/" + item.bbm_uid + "/terima-pengajuan";
+
+            showModal('terimaModal');
+
+        }
+
+        function closeTerimaModal() {
+
+            document.getElementById('terimaForm').reset();
 
             hideModal('terimaModal');
 
         }
 
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            if (typeof DataTable !== 'undefined') {
+
+                new DataTable('#bbmTable', {
+
+                    responsive: true,
+
+                    pageLength: 25,
+
+                    order: [
+                        [0, 'desc']
+                    ],
+
+                    language: {
+
+                        search: "Cari:",
+
+                        searchPlaceholder: "Cari data...",
+
+                        lengthMenu: "Tampilkan _MENU_ data",
+
+                        zeroRecords: "Data tidak ditemukan",
+
+                        info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+
+                        infoEmpty: "Tidak ada data",
+
+                        infoFiltered: "(difilter dari _MAX_ data)",
+
+                        paginate: {
+
+                            first: "Awal",
+
+                            last: "Akhir",
+
+                            next: "›",
+
+                            previous: "‹"
+
+                        }
+
+                    }
+
+                });
+
+            }
+
+            ['fileModal', 'exportModal', 'terimaModal'].forEach(function(id) {
+
+                const modal = document.getElementById(id);
+
+                if (!modal) return;
+
+                modal.addEventListener('click', function(e) {
+
+                    if (e.target === modal) {
+
+                        hideModal(id);
+
+                    }
+
+                });
+
+            });
+
+        });
+
+        document.addEventListener('keydown', function(e) {
+
+            if (e.key === 'Escape') {
+
+                hideModal('fileModal');
+
+                hideModal('exportModal');
+
+                hideModal('terimaModal');
+
+            }
+
+        });
+    </script>
 @endpush
 
 @push('styles')

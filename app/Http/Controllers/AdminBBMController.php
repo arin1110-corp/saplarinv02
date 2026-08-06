@@ -12,9 +12,32 @@ use App\Exports\BBMExport;
 
 class AdminBBMController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bbms = ModelBBM::orderBy('created_at', 'desc')->get();
+        if (!session('logged_in') || !in_array(session('active_role'), ['Admin Full', 'Admin BBM'])) {
+            abort(403);
+        }
+
+        $search = trim($request->search);
+
+        $bbms = ModelBBM::query()
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('bbm_pengaju_nama', 'like', "%{$search}%")
+                        ->orWhere('bbm_pengaju_nip', 'like', "%{$search}%")
+                        ->orWhere('bbm_no_plat', 'like', "%{$search}%")
+                        ->orWhere('bbm_status_pengajuan', 'like', "%{$search}%")
+                        ->orWhere('bbm_status_laporan', 'like', "%{$search}%");
+                });
+            })
+
+            ->orderByDesc('created_at')
+
+            ->paginate(10)
+
+            ->withQueryString();
 
         return view('administrator-v2.bbm.index', compact('bbms'));
     }
@@ -29,12 +52,7 @@ class AdminBBMController extends Controller
 
         $file = $request->file('bbm_acc_pimpinan_file');
 
-        $accFile = $arinDrive->upload(
-            $file,
-            'bbm_acc',
-            $bbm->bbm_uid . '_ACC_PIMPINAN.' . $file->getClientOriginalExtension(),
-            $bbm->bbm_uid
-        );
+        $accFile = $arinDrive->upload($file, 'bbm_acc', $bbm->bbm_uid . '_ACC_PIMPINAN.' . $file->getClientOriginalExtension(), $bbm->bbm_uid);
 
         $bbm->update([
             'bbm_acc_pimpinan_file' => $accFile,
@@ -43,17 +61,7 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => null,
         ]);
 
-        $emailService->kirimKePengaju(
-            $bbm,
-            'Pengajuan BBM Diterima',
-            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
-                "Pengajuan BBM Anda telah diterima.\n\n" .
-                "No Plat    : {$bbm->bbm_no_plat}\n" .
-                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
-                "Status     : Pengajuan Diterima\n\n" .
-                "Silakan upload laporan nota setelah pencairan atau setelah nota tersedia.\n\n" .
-                "SAPLARIN"
-        );
+        $emailService->kirimKePengaju($bbm, 'Pengajuan BBM Diterima', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Pengajuan BBM Anda telah diterima.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . "Status     : Pengajuan Diterima\n\n" . "Silakan upload laporan nota setelah pencairan atau setelah nota tersedia.\n\n" . 'SAPLARIN');
 
         return back()->with('success', 'Pengajuan BBM diterima dan dokumen ACC pimpinan berhasil diupload ke Google Drive.');
     }
@@ -67,16 +75,7 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => $request->catatan,
         ]);
 
-        $emailService->kirimKePengaju(
-            $bbm,
-            'Pengajuan BBM Ditolak',
-            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
-                "Pengajuan BBM Anda ditolak.\n\n" .
-                "No Plat    : {$bbm->bbm_no_plat}\n" .
-                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
-                "Catatan    : " . ($request->catatan ?? '-') . "\n\n" .
-                "SAPLARIN"
-        );
+        $emailService->kirimKePengaju($bbm, 'Pengajuan BBM Ditolak', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Pengajuan BBM Anda ditolak.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . 'Catatan    : ' . ($request->catatan ?? '-') . "\n\n" . 'SAPLARIN');
 
         return back()->with('success', 'Pengajuan BBM ditolak.');
     }
@@ -97,23 +96,10 @@ class AdminBBMController extends Controller
         $tanggalNota = '-';
 
         if ($bbm->bbm_tanggal_nota) {
-            $tanggalNota = is_string($bbm->bbm_tanggal_nota)
-                ? date('d/m/Y', strtotime($bbm->bbm_tanggal_nota))
-                : $bbm->bbm_tanggal_nota->format('d/m/Y');
+            $tanggalNota = is_string($bbm->bbm_tanggal_nota) ? date('d/m/Y', strtotime($bbm->bbm_tanggal_nota)) : $bbm->bbm_tanggal_nota->format('d/m/Y');
         }
 
-        $emailService->kirimKePengaju(
-            $bbm,
-            'Laporan Nota BBM Diterima',
-            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
-                "Laporan nota BBM Anda telah diterima.\n\n" .
-                "No Plat      : {$bbm->bbm_no_plat}\n" .
-                "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" .
-                "Tanggal Nota : {$tanggalNota}\n" .
-                "Status Nota  : Laporan Nota Diterima\n\n" .
-                "Proses pengajuan BBM telah selesai.\n\n" .
-                "SAPLARIN"
-        );
+        $emailService->kirimKePengaju($bbm, 'Laporan Nota BBM Diterima', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Laporan nota BBM Anda telah diterima.\n\n" . "No Plat      : {$bbm->bbm_no_plat}\n" . "Jumlah BBM   : {$bbm->bbm_liter} Liter\n" . "Tanggal Nota : {$tanggalNota}\n" . "Status Nota  : Laporan Nota Diterima\n\n" . "Proses pengajuan BBM telah selesai.\n\n" . 'SAPLARIN');
 
         return back()->with('success', 'Laporan nota diterima.');
     }
@@ -127,17 +113,7 @@ class AdminBBMController extends Controller
             'bbm_catatan_admin' => $request->catatan,
         ]);
 
-        $emailService->kirimKePengaju(
-            $bbm,
-            'Laporan Nota BBM Ditolak',
-            "Yth. {$bbm->bbm_pengaju_nama},\n\n" .
-                "Laporan nota BBM Anda ditolak.\n\n" .
-                "No Plat    : {$bbm->bbm_no_plat}\n" .
-                "Jumlah BBM : {$bbm->bbm_liter} Liter\n" .
-                "Catatan    : " . ($request->catatan ?? '-') . "\n\n" .
-                "Silakan perbaiki dan upload kembali laporan nota.\n\n" .
-                "SAPLARIN"
-        );
+        $emailService->kirimKePengaju($bbm, 'Laporan Nota BBM Ditolak', "Yth. {$bbm->bbm_pengaju_nama},\n\n" . "Laporan nota BBM Anda ditolak.\n\n" . "No Plat    : {$bbm->bbm_no_plat}\n" . "Jumlah BBM : {$bbm->bbm_liter} Liter\n" . 'Catatan    : ' . ($request->catatan ?? '-') . "\n\n" . "Silakan perbaiki dan upload kembali laporan nota.\n\n" . 'SAPLARIN');
 
         return back()->with('success', 'Laporan nota ditolak.');
     }
@@ -224,9 +200,6 @@ class AdminBBMController extends Controller
         $fields = $request->fields ?? [];
         $tgl = date('Y-m-d_H-i-s');
 
-        return Excel::download(
-            new BBMExport($fields),
-            "pengajuan-bbm-$tgl.xlsx"
-        );
+        return Excel::download(new BBMExport($fields), "pengajuan-bbm-$tgl.xlsx");
     }
 }
