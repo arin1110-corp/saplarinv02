@@ -27,7 +27,7 @@
 
                         </p>
 
-                        <h2 class="text-3xl font-bold mt-2 dark:text-white">
+                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
 
                             Rp {{ number_format($totalPagu, 0, ',', '.') }}
 
@@ -65,7 +65,7 @@
 
                         </p>
 
-                        <h2 class="text-3xl font-bold mt-2 text-green-600">
+                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
 
                             Rp {{ number_format($totalRealisasiSPJ, 0, ',', '.') }}
 
@@ -103,7 +103,7 @@
 
                         </p>
 
-                        <h2 class="text-3xl font-bold mt-2 text-amber-500">
+                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
 
                             Rp {{ number_format($sisaPagu, 0, ',', '.') }}
 
