@@ -400,7 +400,6 @@
                                             </td>
 
                                             <td class="py-3 px-3">
-                                                @if ($canInputSPJ)
                                                     @if ($spj->spj_file)
                                                         <a href="{{ asset($spj->spj_file) }}" target="_blank"
                                                             class="text-blue-600 hover:underline">
@@ -409,11 +408,6 @@
                                                     @else
                                                         -
                                                     @endif
-                                                @else
-                                                    <span class="text-slate-400 italic">
-                                                        Tidak memiliki akses
-                                                    </span>
-                                                @endif
                                             </td>
                                             <td class="py-3 px-3">
                                                 {{ $spj->spj_tanggal_input?->format('d/m/Y H:i') ?? '-' }}

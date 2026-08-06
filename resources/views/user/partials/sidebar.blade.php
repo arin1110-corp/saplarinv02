@@ -124,7 +124,7 @@
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>💰</span>
-                <span>Input SPJ</span>
+                <span>SPJ</span>
             </a>
         @endif
 
