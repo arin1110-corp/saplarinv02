@@ -27,7 +27,8 @@
 
                         </p>
 
-                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
 
                             Rp {{ number_format($totalPagu, 0, ',', '.') }}
 
@@ -65,7 +66,8 @@
 
                         </p>
 
-                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
 
                             Rp {{ number_format($totalRealisasiSPJ, 0, ',', '.') }}
 
@@ -103,7 +105,8 @@
 
                         </p>
 
-                        <h2 class="font-bold leading-tight break-all" style="font-size:clamp(1.6rem,2vw,3rem);">
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
 
                             Rp {{ number_format($sisaPagu, 0, ',', '.') }}
 
