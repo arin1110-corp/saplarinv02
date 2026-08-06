@@ -384,42 +384,58 @@
 
                 <tbody>
 
-                    @forelse($chartSubKegiatan as $item)
+                    @forelse($pagus as $item)
                         <tr class="border-b border-slate-200 dark:border-slate-800">
 
                             <td class="px-5 py-4">
 
-                                {{ $loop->iteration }}
+                                {{ $pagus->firstItem() + $loop->index }}
 
                             </td>
 
                             <td class="px-5 py-4">
 
-                                {{ $item['unit'] }}
+                                <div class="font-semibold">
+                                    {{ $item->unit->unit_kode ?? '-' }}
+                                </div>
+
+                                <div class="text-xs text-slate-500">
+                                    {{ $item->unit->unit_nama ?? '-' }}
+                                </div>
 
                             </td>
 
                             <td class="px-5 py-4">
 
-                                {{ $item['label'] }}
+                                <div class="font-semibold">
+                                    {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
+                                </div>
+
+                                <div class="text-xs text-slate-500">
+                                    {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
+                                </div>
 
                             </td>
 
                             <td class="px-5 py-4 text-right font-medium">
 
-                                Rp {{ number_format($item['pagu'], 0, ',', '.') }}
+                                Rp {{ number_format($item->spj_pagu_final, 0, ',', '.') }}
 
                             </td>
 
                             <td class="px-5 py-4 text-right font-medium text-green-600 dark:text-green-400">
 
-                                Rp {{ number_format($item['realisasi'], 0, ',', '.') }}
+                                @php
+                                    $realisasi = $item->realisasi->where('spj_status', 'Aktif')->sum('spj_nominal');
+                                @endphp
+
+                                Rp {{ number_format($realisasi, 0, ',', '.') }}
 
                             </td>
 
                             <td class="px-5 py-4 text-right font-medium text-amber-600 dark:text-amber-400">
 
-                                Rp {{ number_format($item['sisa'], 0, ',', '.') }}
+                                Rp {{ number_format(max($item->spj_pagu_final - $realisasi, 0), 0, ',', '.') }}
 
                             </td>
 
@@ -428,7 +444,17 @@
                                 <span
                                     class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-1 text-xs font-semibold">
 
-                                    {{ number_format($item['serapan'], 2, ',', '.') }}%
+                                    @php
+                                        $serapan =
+                                            $item->spj_pagu_final > 0 ? ($realisasi / $item->spj_pagu_final) * 100 : 0;
+                                    @endphp
+
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-1 text-xs font-semibold">
+
+                                        {{ number_format($serapan, 2, ',', '.') }}%
+
+                                    </span>
 
                                 </span>
 
