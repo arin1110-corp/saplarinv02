@@ -91,7 +91,51 @@ class AdminLaporanSubKegiatanController extends Controller
                                                     return [
                                                         'sub' => $subItems->first()->subKegiatan,
 
-                                                        'laporan' => $subItems,
+                                        'triwulan' => collect([
+
+                                            'TW I' => collect(),
+
+                                            'TW II' => collect(),
+
+                                            'TW III' => collect(),
+
+                                            'TW IV' => collect(),
+
+                                        ])->map(function ($v, $key) use ($subItems) {
+
+                                            return $subItems
+
+                                                ->filter(function ($item) use ($key) {
+
+                                                    $tw = match (true) {
+
+                                                        $item->laporan_bulan <= 3 => 'TW I',
+
+                                                        $item->laporan_bulan <= 6 => 'TW II',
+
+                                                        $item->laporan_bulan <= 9 => 'TW III',
+
+                                                        default => 'TW IV',
+                                                    };
+
+                                                    return $tw == $key;
+                                                })
+
+                                                ->sortBy('laporan_bulan')
+
+                                                ->values();
+                                        })->filter(function ($items) {
+
+                                            return $items->count() > 0;
+                                        })
+
+                                            ->map(function ($laporanItems) {
+                                                return $laporanItems
+                                                    ->sortByDesc(function ($item) {
+                                                        return sprintf('%04d%02d', $item->laporan_tahun, $item->laporan_bulan);
+                                                    })
+                                                    ->values();
+                                            }),
                                                     ];
                                                 })
 

@@ -147,32 +147,67 @@
                                                     <div x-show="sub==='s{{ $loop->parent->parent->parent->index }}{{ $loop->parent->parent->index }}{{ $loop->parent->index }}{{ $loop->index }}'"
                                                         x-collapse class="ml-5 mt-2 space-y-1">
 
-                                                        @foreach ($sub['laporan'] as $lap)
-                                                            <button type="button"
-                                                                onclick="loadLaporan('{{ $lap->laporan_uid }}',this)"
-                                                                class="laporan-item w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-blue-50 dark:hover:bg-slate-800 transition">
+                                                        @foreach ($sub['triwulan'] as $tw => $laporans)
+                                                            <div x-data="{ open: false }" class="ml-4">
 
-                                                                <i class="bi bi-file-earmark-text text-red-500"></i>
+                                                                <button @click="open=!open"
+                                                                    class="w-full flex items-center justify-between rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">
 
-                                                                <div>
+                                                                    <div class="flex items-center gap-2">
 
-                                                                    <div class="font-medium text-sm text-left">
+                                                                        <i class="bi bi-calendar3 text-cyan-600"></i>
 
-                                                                        {{ \Carbon\Carbon::create()->month($lap->laporan_bulan)->translatedFormat('F') }}
+                                                                        <span class="font-medium">
 
-                                                                        {{ $lap->laporan_tahun }}
+                                                                            {{ $tw }}
 
-                                                                    </div>
-
-                                                                    <div class="text-xs text-slate-500">
-
-                                                                        {{ $lap->laporan_created_by_nama ?? '-' }}
+                                                                        </span>
 
                                                                     </div>
+
+                                                                    <i class="bi"
+                                                                        :class="open ? 'bi-chevron-down' : 'bi-chevron-right'">
+
+                                                                    </i>
+
+                                                                </button>
+
+                                                                <div x-show="open" x-collapse
+                                                                    class="ml-5 mt-2 space-y-1">
+
+                                                                    @foreach ($laporans as $lap)
+                                                                        <button type="button"
+                                                                            onclick="loadLaporan('{{ $lap->laporan_uid }}',this)"
+                                                                            class="laporan-item w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-blue-50 dark:hover:bg-slate-800 transition">
+
+                                                                            <i
+                                                                                class="bi bi-file-earmark-text text-red-500"></i>
+
+                                                                            <div>
+
+                                                                                <div
+                                                                                    class="font-medium text-sm text-left">
+
+                                                                                    {{ \Carbon\Carbon::create()->month($lap->laporan_bulan)->translatedFormat('F') }}
+
+                                                                                    {{ $lap->laporan_tahun }}
+
+                                                                                </div>
+
+                                                                                <div class="text-xs text-slate-500">
+
+                                                                                    {{ $lap->laporan_created_by_nama ?? '-' }}
+
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                        </button>
+                                                                    @endforeach
 
                                                                 </div>
 
-                                                            </button>
+                                                            </div>
                                                         @endforeach
 
                                                     </div>

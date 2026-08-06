@@ -102,6 +102,32 @@
 
                 </div>
 
+                <div class="mt-3 flex items-center gap-2 text-sm text-slate-500">
+
+                    <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+
+                        <i class="bi bi-calendar-event-fill text-blue-600"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-xs uppercase tracking-wide text-slate-400">
+
+                            Tanggal Membuat Laporan
+
+                        </div>
+
+                        <div class="font-medium text-slate-700 dark:text-slate-300">
+
+                            {{ \Carbon\Carbon::parse($laporan->created_at)->translatedFormat('d F Y') }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
             <div>
