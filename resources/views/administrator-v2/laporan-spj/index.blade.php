@@ -336,6 +336,12 @@
 
                     <tr>
 
+                        <th class="px-2 py-1 text-left w-1/12">
+
+                            Nomor
+
+                        </th>
+
                         <th class="px-5 py-4 text-left">
 
                             Unit
@@ -380,6 +386,12 @@
 
                     @forelse($chartSubKegiatan as $item)
                         <tr class="border-b border-slate-200 dark:border-slate-800">
+
+                            <td class="px-5 py-4">
+
+                                {{ $loop->iteration }}
+
+                            </td>
 
                             <td class="px-5 py-4">
 
