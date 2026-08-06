@@ -122,7 +122,7 @@
 
             <table class="w-full text-sm">
 
-                <thead class="bg-slate-50 dark:bg-slate-800">
+                <thead class="bg-slate-50 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
 
                     <tr>
 
@@ -301,9 +301,32 @@
 
         </div>
 
-        <div class="mt-6">
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
 
-            {{ $users->links() }}
+            <div class="text-sm text-slate-500 dark:text-slate-400">
+
+                Menampilkan
+
+                <span class="font-semibold">{{ $users->firstItem() }}</span>
+
+                -
+
+                <span class="font-semibold">{{ $users->lastItem() }}</span>
+
+                dari
+
+                <span class="font-semibold">{{ $users->total() }}</span>
+
+                data
+
+            </div>
+
+            <div>
+
+                {{ $users->links() }}
+
+            </div>
 
         </div>
 
@@ -434,7 +457,8 @@
     </div>
 
     <!-- MODAL EDIT USER -->
-    <div id="editUserModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div id="editUserModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
 
         <div
             class="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
