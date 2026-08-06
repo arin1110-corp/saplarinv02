@@ -93,7 +93,7 @@ Route::middleware(['admin'])
         |--------------------------------------------------------------------------
         */
 
-    Route::get('/permintaan/permintaan-spj', [AdminController::class, 'permintaanSPJ'])->name('admin.permintaan.spj');
+    Route::get('/permintaan/permintaan-spj', [AdminSPJRequestController::class, 'index'])->name('admin.permintaan.spj.index');
 
     Route::get('/permintaan/permintaan-kak', [AdminController::class, 'permintaanKAK'])->name('admin.permintaan.kak');
 

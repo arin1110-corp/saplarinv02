@@ -8,18 +8,47 @@ use Carbon\Carbon;
 
 class AdminSPJRequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $spjs = ModelSPJRealisasi::with([
-                'pagu.unit',
-                'pagu.program',
-                'pagu.kegiatan',
-                'pagu.subKegiatan',
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $search = trim($request->search);
 
-        return view('administrator.spj.permintaan', compact('spjs'));
+        $spjs = ModelSPJRealisasi::with(['pagu.unit', 'pagu.program', 'pagu.kegiatan', 'pagu.subKegiatan'])
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('spj_operator_nama', 'like', "%{$search}%")
+                        ->orWhere('spj_operator_nip', 'like', "%{$search}%")
+                        ->orWhere('spj_bidang_nama', 'like', "%{$search}%")
+                        ->orWhere('spj_uraian', 'like', "%{$search}%")
+                        ->orWhere('spj_nominal', 'like', "%{$search}%")
+                        ->orWhere('spj_status', 'like', "%{$search}%");
+                })
+
+                    ->orWhereHas('pagu.unit', function ($query) use ($search) {
+                        $query->where('unit_kode', 'like', "%{$search}%")->orWhere('unit_nama', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('pagu.program', function ($query) use ($search) {
+                        $query->where('program_kode', 'like', "%{$search}%")->orWhere('program_nama', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('pagu.kegiatan', function ($query) use ($search) {
+                        $query->where('kegiatan_kode', 'like', "%{$search}%")->orWhere('kegiatan_nama', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('pagu.subKegiatan', function ($query) use ($search) {
+                        $query->where('sub_kegiatan_kode', 'like', "%{$search}%")->orWhere('sub_kegiatan_nama', 'like', "%{$search}%");
+                    });
+            })
+
+            ->latest()
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        return view('administrator-v2.permintaan-spj.index', compact('spjs'));
     }
 
     public function toggle(Request $request, $uid)
@@ -28,12 +57,9 @@ class AdminSPJRequestController extends Controller
             'spj_catatan_admin' => 'nullable|string',
         ]);
 
-        $spj = ModelSPJRealisasi::where('spj_uid', $uid)
-            ->firstOrFail();
+        $spj = ModelSPJRealisasi::where('spj_uid', $uid)->firstOrFail();
 
-        $statusBaru = $spj->spj_status === 'Aktif'
-            ? 'Nonaktif'
-            : 'Aktif';
+        $statusBaru = $spj->spj_status === 'Aktif' ? 'Nonaktif' : 'Aktif';
 
         $spj->update([
             'spj_status' => $statusBaru,
