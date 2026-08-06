@@ -240,453 +240,23 @@
 
     </div>
 
-    <div class="space-y-6">
-        @forelse ($laporan as $item)
+    <div class="grid grid-cols-12 gap-6">
 
-            @php
+        <div class="col-span-12 lg:col-span-3">
 
-                $bulanNama = [
-                    1 => 'Januari',
-                    2 => 'Februari',
-                    3 => 'Maret',
-                    4 => 'April',
-                    5 => 'Mei',
-                    6 => 'Juni',
-                    7 => 'Juli',
-                    8 => 'Agustus',
-                    9 => 'September',
-                    10 => 'Oktober',
-                    11 => 'November',
-                    12 => 'Desember',
-                ];
+            @include('administrator-v2.laporan-sub-kegiatan.partials.tree')
 
-                $totalPersen = 0;
+        </div>
 
-                $jumlahIndikator = $item->detail->count();
+        <div class="col-span-12 lg:col-span-9">
 
-                foreach ($item->detail as $detail) {
-                    $persen =
-                        $detail->detail_target > 0 ? ($detail->detail_realisasi / $detail->detail_target) * 100 : 0;
+            <div id="laporan-detail">
 
-                    if ($persen > 100) {
-                        $persen = 100;
-                    }
+                @include('administrator-v2.laporan-sub-kegiatan.partials.empty')
 
-                    $totalPersen += $persen;
-                }
+            </div>
 
-                $rataCapaian = $jumlahIndikator > 0 ? $totalPersen / $jumlahIndikator : 0;
-
-            @endphp
-
-            <div
-                class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-
-                <div class="px-7 py-6 border-b border-slate-200 dark:border-slate-800">
-
-                    <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
-
-                        <div>
-
-                            <div class="text-sm text-slate-500 dark:text-slate-400">
-
-                                {{ $bulanNama[$item->laporan_bulan] ?? '-' }}
-
-                                {{ $item->laporan_tahun }}
-
-                            </div>
-
-                            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mt-2">
-
-                                {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
-
-                            </h2>
-
-                            <div class="text-sm text-slate-500 dark:text-slate-400 mt-2">
-
-                                Kode :
-
-                                <span class="font-medium">
-
-                                    {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
-
-                                </span>
-
-                            </div>
-
-                            <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-
-                                Operator :
-
-                                <span class="font-semibold text-slate-700 dark:text-white">
-
-                                    {{ $item->laporan_created_by_nama ?? '-' }}
-
-                                </span>
-
-                                /
-
-                                {{ $item->laporan_created_by_nip ?? '-' }}
-
-                            </div>
-
-                        </div>
-
-                        <div class="w-full xl:w-64">
-
-                            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
-
-                                <div class="text-sm text-slate-500 dark:text-slate-400">
-
-                                    Rata-rata Capaian
-
-                                </div>
-
-                                <div
-                                    class="mt-2 text-3xl font-black
-                        {{ $rataCapaian >= 100 ? 'text-green-600 dark:text-green-400' : ($rataCapaian >= 60 ? 'text-amber-500' : 'text-red-500') }}">
-
-                                    {{ number_format($rataCapaian, 2, ',', '.') }}%
-
-                                </div>
-
-                                <div class="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 mt-4 overflow-hidden">
-
-                                    <div class="h-3 rounded-full
-                            {{ $rataCapaian >= 100 ? 'bg-green-500' : ($rataCapaian >= 60 ? 'bg-amber-500' : 'bg-red-500') }}"
-                                        style="width: {{ min($rataCapaian, 100) }}%">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="p-7">
-
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
-
-                        <table class="min-w-full text-sm">
-
-                            <thead class="bg-slate-100 dark:bg-slate-800">
-
-                                <tr>
-
-                                    <th class="px-5 py-4 text-left">
-
-                                        No
-
-                                    </th>
-
-                                    <th class="px-5 py-4 text-left">
-
-                                        Indikator
-
-                                    </th>
-
-                                    <th class="px-5 py-4 text-right">
-
-                                        Target
-
-                                    </th>
-
-                                    <th class="px-5 py-4 text-right">
-
-                                        Realisasi
-
-                                    </th>
-
-                                    <th class="px-5 py-4 text-right">
-
-                                        Capaian
-
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-                            <tbody>
-
-                                @forelse($item->detail as $detail)
-                                    @php
-
-                                        $persen =
-                                            $detail->detail_target > 0
-                                                ? ($detail->detail_realisasi / $detail->detail_target) * 100
-                                                : 0;
-
-                                        if ($persen > 100) {
-                                            $persen = 100;
-                                        }
-
-                                    @endphp
-
-                                    <tr class="border-b border-slate-200 dark:border-slate-800">
-
-                                        <td class="px-5 py-4">
-
-                                            {{ $loop->iteration }}
-
-                                        </td>
-
-                                        <td class="px-5 py-4">
-
-                                            <div class="font-semibold text-slate-800 dark:text-white">
-
-                                                {{ $detail->detail_indikator_nama }}
-
-                                            </div>
-
-                                        </td>
-
-                                        <td class="px-5 py-4 text-right">
-
-                                            {{ number_format($detail->detail_target, 2, ',', '.') }}
-
-                                            {{ $detail->detail_satuan }}
-
-                                        </td>
-
-                                        <td class="px-5 py-4 text-right text-green-600 dark:text-green-400">
-
-                                            {{ number_format($detail->detail_realisasi, 2, ',', '.') }}
-
-                                            {{ $detail->detail_satuan }}
-
-                                        </td>
-
-                                        <td class="px-5 py-4 text-right">
-
-                                            @if ($persen >= 100)
-                                                <span
-                                                    class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 px-3 py-1 text-xs font-semibold">
-
-                                                    {{ number_format($persen, 2, ',', '.') }}%
-
-                                                </span>
-                                            @elseif($persen >= 60)
-                                                <span
-                                                    class="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-3 py-1 text-xs font-semibold">
-
-                                                    {{ number_format($persen, 2, ',', '.') }}%
-
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-1 text-xs font-semibold">
-
-                                                    {{ number_format($persen, 2, ',', '.') }}%
-
-                                                </span>
-                                            @endif
-
-                                        </td>
-
-                                    </tr>
-
-                                @empty
-
-                                    <tr>
-
-                                        <td colspan="5" class="py-12 text-center text-slate-500 dark:text-slate-400">
-
-                                            Belum ada indikator.
-
-                                        </td>
-
-                                    </tr>
-                                @endforelse
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="mt-7 space-y-5">
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                            <div
-                                class="rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 p-5">
-
-                                <h3 class="font-bold text-red-700 dark:text-red-300 mb-4">
-
-                                    Permasalahan
-
-                                </h3>
-
-                                <ol class="list-decimal list-inside space-y-2 text-sm text-slate-700 dark:text-slate-300">
-
-                                    @forelse($item->permasalahan as $masalah)
-                                        <li>{{ $masalah->permasalahan_uraian }}</li>
-
-                                    @empty
-
-                                        <li class="list-none text-slate-500">
-
-                                            Tidak ada permasalahan.
-
-                                        </li>
-                                    @endforelse
-
-                                </ol>
-
-                            </div>
-
-                            <div
-                                class="rounded-2xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 p-5">
-
-                                <h3 class="font-bold text-blue-700 dark:text-blue-300 mb-4">
-
-                                    Solusi
-
-                                </h3>
-
-                                <ol class="list-decimal list-inside space-y-2 text-sm text-slate-700 dark:text-slate-300">
-
-                                    @forelse($item->solusi as $solusi)
-                                        <li>{{ $solusi->solusi_uraian }}</li>
-
-                                    @empty
-
-                                        <li class="list-none text-slate-500">
-
-                                            Tidak ada solusi.
-
-                                        </li>
-                                    @endforelse
-
-                                </ol>
-
-                            </div>
-
-                            <div
-                                class="rounded-2xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-900/20 p-5">
-
-                                <h3 class="font-bold text-green-700 dark:text-green-300 mb-4">
-
-                                    Tindak Lanjut
-
-                                </h3>
-
-                                <ol class="list-decimal list-inside space-y-2 text-sm text-slate-700 dark:text-slate-300">
-
-                                    @forelse($item->tindakLanjut as $tl)
-                                        <li>{{ $tl->tindak_lanjut_uraian }}</li>
-
-                                    @empty
-
-                                        <li class="list-none text-slate-500">
-
-                                            Tidak ada tindak lanjut.
-
-                                        </li>
-                                    @endforelse
-
-                                </ol>
-
-                            </div>
-
-                        </div>
-
-                        <div class="flex flex-wrap justify-end gap-3">
-
-                            <a href="{{ route('admin.laporan-sub-kegiatan.pdf', $item->laporan_uid) }}" target="_blank"
-                                class="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3">
-
-                                <i class="bi bi-file-earmark-pdf"></i>
-
-                                PDF
-
-                            </a>
-
-                            @if ($item->laporan_status == 'Aktif')
-                                <form method="POST"
-                                    action="{{ route('admin.laporan-sub-kegiatan.nonaktif', $item->laporan_uid) }}">
-
-                                    @csrf
-                                    @method('PATCH')
-
-                                    <button
-                                        class="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3">
-
-                                        Nonaktifkan
-
-                                    </button>
-
-                                </form>
-                            @else
-                                <form method="POST"
-                                    action="{{ route('admin.laporan-sub-kegiatan.aktif', $item->laporan_uid) }}">
-
-                                    @csrf
-                                    @method('PATCH')
-
-                                    <button
-                                        class="rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3">
-
-                                        Aktifkan
-
-                                    </button>
-
-                                </form>
-                            @endif
-
-                            <button onclick="openCatatan('{{ $item->laporan_uid }}')"
-                                class="inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold px-5 py-3">
-
-                                <i class="bi bi-chat-left-text"></i>
-
-                                Catatan
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            @empty
-
-                <div
-                    class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-12 text-center">
-
-                    <div class="flex flex-col items-center">
-
-                        <div
-                            class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5">
-
-                            <i class="bi bi-inboxes text-4xl text-slate-400"></i>
-
-                        </div>
-
-                        <h3 class="text-xl font-bold text-slate-700 dark:text-slate-200">
-
-                            Belum Ada Laporan
-
-                        </h3>
-
-                        <p class="text-slate-500 dark:text-slate-400 mt-2">
-
-                            Belum ada laporan sub kegiatan yang tersedia.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-        @endforelse
+        </div>
 
     </div>
     <div id="modalCatatan" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-5">
@@ -768,6 +338,111 @@
 @endsection
 
 @push('scripts')
+    <script>
+        function loadLaporan(uid, el) {
+
+            $('.laporan-item')
+
+                .removeClass(
+
+                    'bg-blue-100',
+
+                    'dark:bg-blue-900/20',
+
+                    'font-semibold'
+
+                );
+
+            $(el)
+
+                .addClass(
+
+                    'bg-blue-100',
+
+                    'dark:bg-blue-900/20',
+
+                    'font-semibold'
+
+                );
+
+            $('#laporan-detail').html(`
+
+<div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-[700px] flex items-center justify-center">
+
+<div class="text-center">
+
+<div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+
+<div class="mt-5 text-slate-500">
+
+Memuat laporan...
+
+</div>
+
+</div>
+
+</div>
+
+`);
+
+            $.get(
+
+                "{{ route('admin.laporan-sub-kegiatan.detail', 'UID') }}"
+
+                .replace('UID', uid),
+
+                function(html) {
+
+                    $('#laporan-detail').html(html);
+
+                }
+
+            );
+
+        }
+
+        $('#laporan-detail').html(`
+
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-[700px] flex items-center justify-center">
+
+            <div class="text-center">
+
+                <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+
+                <div class="mt-5 text-slate-500">
+
+                    Memuat laporan...
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `);
+
+        $.get(
+            "{{ route('admin.laporan-sub-kegiatan.detail', 'UID') }}"
+            .replace('UID', uid),
+
+            function(html) {
+
+                $('#laporan-detail').html(html);
+
+                window.scrollTo({
+
+                    top: 0,
+
+                    behavior: 'smooth'
+
+                });
+
+            }
+
+        );
+
+        
+    </script>
     <script>
         function openCatatan(uid) {
 

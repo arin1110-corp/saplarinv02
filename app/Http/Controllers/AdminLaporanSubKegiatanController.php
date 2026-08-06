@@ -44,7 +44,70 @@ class AdminLaporanSubKegiatanController extends Controller
             $query->where('laporan_status', $request->status);
         }
 
-        $laporan = $query->latest()->get();
+        $laporan = $query->orderBy('laporan_unit_nama')->orderByDesc('laporan_tahun')->orderByDesc('laporan_bulan')->get();
+        /*
+|--------------------------------------------------------------------------
+| Tree View
+|--------------------------------------------------------------------------
+*/
+
+        $tree = $laporan
+
+            ->groupBy('laporan_unit_kode')
+
+            ->map(function ($unitItems) {
+                return [
+                    'unit_nama' => $unitItems->first()->laporan_unit_nama,
+
+                    'programs' => $unitItems
+
+                        ->groupBy(function ($item) {
+                            return optional(optional(optional($item->subKegiatan)->kegiatan)->program)->program_id;
+                        })
+
+                        ->map(function ($programItems) {
+                            $program = optional(optional($programItems->first()->subKegiatan)->kegiatan)->program;
+
+                            return [
+                                'program' => $program,
+
+                                'kegiatans' => $programItems
+
+                                    ->groupBy(function ($item) {
+                                        return optional($item->subKegiatan)->sub_kegiatan_kegiatan;
+                                    })
+
+                                    ->map(function ($kegiatanItems) {
+                                        $kegiatan = optional($kegiatanItems->first()->subKegiatan)->kegiatan;
+
+                                        return [
+                                            'kegiatan' => $kegiatan,
+
+                                            'subKegiatans' => $kegiatanItems
+
+                                                ->groupBy('laporan_sub_kegiatan_id')
+
+                                                ->map(function ($subItems) {
+                                                    return [
+                                                        'sub' => $subItems->first()->subKegiatan,
+
+                                                        'laporan' => $subItems,
+                                                    ];
+                                                })
+
+                                                ->values(),
+                                        ];
+                                    })
+
+                                    ->values(),
+                            ];
+                        })
+
+                        ->values(),
+                ];
+            })
+
+            ->values();
 
         $units = SubKegiatanIndikator::select('indikator_unit_kode', 'indikator_unit_nama')->distinct()->orderBy('indikator_unit_nama')->get();
 
@@ -62,7 +125,30 @@ class AdminLaporanSubKegiatanController extends Controller
             $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_kegiatan', $request->kegiatan)->orderBy('sub_kegiatan_nama')->get();
         }
 
-        return view('administrator-v2.laporan-sub-kegiatan.index', compact('laporan', 'units', 'programs', 'kegiatans', 'subKegiatans'));
+        return view(
+            'administrator-v2.laporan-sub-kegiatan.index',
+            compact(
+                'laporan',
+
+                'tree',
+
+                'units',
+
+                'programs',
+
+                'kegiatans',
+
+                'subKegiatans',
+            ),
+        );
+    }
+    public function detail($uid)
+    {
+        $laporan = SubKegiatanLaporan::with(['subKegiatan.kegiatan.program', 'detail', 'permasalahan', 'solusi', 'tindakLanjut'])
+            ->where('laporan_uid', $uid)
+            ->firstOrFail();
+
+        return view('administrator-v2.laporan-sub-kegiatan.partials.detail-content', compact('laporan'));
     }
     public function getKegiatan(Request $request)
     {

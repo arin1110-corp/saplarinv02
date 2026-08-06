@@ -29,7 +29,6 @@ use App\Http\Controllers\Administrator\AdminSHSSatuanController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
-
 Route::get('/', function () {
     return view('homepage/home');
 })->name('homepage');
@@ -260,6 +259,7 @@ Route::middleware(['admin'])
     Route::get('/master/kegiatan', [AdminLaporanSubKegiatanController::class, 'getKegiatan']);
 
     Route::get('/master/sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'getSubKegiatan']);
+    Route::get('/admin/laporan-sub-kegiatan/detail/{uid}', [AdminLaporanSubKegiatanController::class, 'detail'])->name('admin.laporan-sub-kegiatan.detail');
 
     /*
             |--------------------------------------------------------------------------
