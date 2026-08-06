@@ -384,3 +384,168 @@ header{
     }
 
 }
+/* ================================
+   DATATABLE SAPLARIN V2
+================================ */
+
+.dataTables_wrapper{
+
+    @apply w-full;
+
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter{
+
+    display:flex;
+
+    align-items:center;
+
+    margin-bottom:1rem;
+
+}
+
+.dataTables_wrapper .dataTables_length{
+
+    float:left;
+
+}
+
+.dataTables_wrapper .dataTables_filter{
+
+    float:right;
+
+}
+
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.5rem;
+
+    font-weight:500;
+
+}
+
+.dataTables_wrapper .dataTables_filter input{
+
+    height:44px;
+
+    border-radius:14px;
+
+    border:1px solid rgb(226 232 240);
+
+    padding:0 14px;
+
+    background:white;
+
+}
+
+.dark .dataTables_wrapper .dataTables_filter input{
+
+    background:#0f172a;
+
+    border-color:#334155;
+
+    color:white;
+
+}
+
+.dataTables_wrapper .dataTables_length select{
+
+    height:44px;
+
+    border-radius:14px;
+
+    border:1px solid rgb(226 232 240);
+
+    padding:0 10px;
+
+}
+
+.dark .dataTables_wrapper .dataTables_length select{
+
+    background:#0f172a;
+
+    color:white;
+
+    border-color:#334155;
+
+}
+
+table.dataTable{
+
+    border-collapse:collapse!important;
+
+}
+
+table.dataTable thead th{
+
+    border-bottom:none!important;
+
+}
+
+table.dataTable tbody td{
+
+    border-top:1px solid rgb(226 232 240)!important;
+
+}
+
+.dark table.dataTable tbody td{
+
+    border-color:#334155!important;
+
+}
+
+table.dataTable tbody tr:hover{
+
+    background:#f8fafc;
+
+}
+
+.dark table.dataTable tbody tr:hover{
+
+    background:#1e293b;
+
+}
+
+.dataTables_info{
+
+    padding-top:18px!important;
+
+}
+
+.dataTables_paginate{
+
+    padding-top:15px!important;
+
+}
+
+.paginate_button{
+
+    border-radius:12px!important;
+
+    border:none!important;
+
+    margin:0 3px!important;
+
+}
+
+.paginate_button.current{
+
+    background:#2563eb!important;
+
+    color:white!important;
+
+}
+
+.paginate_button:hover{
+
+    background:#1d4ed8!important;
+
+    color:white!important;
+
+}

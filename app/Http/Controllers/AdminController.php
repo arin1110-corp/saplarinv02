@@ -12,6 +12,7 @@ use App\Models\ModelProgram;
 use App\Models\ModelKegiatan;
 use App\Models\ModelSubKegiatan;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AdminController extends Controller
 {
@@ -22,9 +23,7 @@ class AdminController extends Controller
 
         $totalUser = \App\Models\ModelUser::count();
 
-        $totalPagu = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)
-            ->where('spj_pagu_status', 1)
-            ->sum('spj_pagu_final');
+        $totalPagu = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->sum('spj_pagu_final');
 
         $totalRealisasiSPJ = \App\Models\ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
             $q->where('spj_pagu_tahun', $tahun);
@@ -37,9 +36,7 @@ class AdminController extends Controller
         $persenSerapan = $totalPagu > 0 ? ($totalRealisasiSPJ / $totalPagu) * 100 : 0;
         $persenSerapan = min($persenSerapan, 100);
 
-        $jumlahPaguSPJ = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)
-            ->where('spj_pagu_status', 1)
-            ->count();
+        $jumlahPaguSPJ = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->count();
 
         $jumlahInputSPJ = \App\Models\ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
             $q->where('spj_pagu_tahun', $tahun);
@@ -47,24 +44,13 @@ class AdminController extends Controller
             ->where('spj_status', 'Aktif')
             ->count();
 
-        $jumlahBBM = \DB::table('saplarin_bbm_pengajuan')
-            ->whereYear('created_at', $tahun)
-            ->count();
+        $jumlahBBM = \DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->count();
 
-        $bbmMenunggu = \DB::table('saplarin_bbm_pengajuan')
-            ->whereYear('created_at', $tahun)
-            ->where('bbm_status_pengajuan', 'Menunggu Verifikasi')
-            ->count();
+        $bbmMenunggu = \DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->where('bbm_status_pengajuan', 'Menunggu Verifikasi')->count();
 
-        $jumlahPrioritas = \DB::table('sadarin_program_prioritas')
-            ->where('prioritas_tahun', $tahun)
-            ->where('prioritas_status', 'Aktif')
-            ->count();
+        $jumlahPrioritas = \DB::table('sadarin_program_prioritas')->where('prioritas_tahun', $tahun)->where('prioritas_status', 'Aktif')->count();
 
-        $jumlahAktivitas = \DB::table('saplarin_laporan_kegiatan')
-            ->where('laporan_kegiatan_tahun', $tahun)
-            ->where('laporan_kegiatan_status', 'Aktif')
-            ->count();
+        $jumlahAktivitas = \DB::table('saplarin_laporan_kegiatan')->where('laporan_kegiatan_tahun', $tahun)->where('laporan_kegiatan_status', 'Aktif')->count();
 
         $paguTerbaru = \App\Models\ModelSPJPagu::with(['program', 'kegiatan', 'subKegiatan', 'realisasi'])
             ->where('spj_pagu_tahun', $tahun)
@@ -72,21 +58,7 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
-        return view('administrator.admin', compact(
-            'tahun',
-            'totalUser',
-            'totalPagu',
-            'totalRealisasiSPJ',
-            'sisaPagu',
-            'persenSerapan',
-            'jumlahPaguSPJ',
-            'jumlahInputSPJ',
-            'jumlahBBM',
-            'bbmMenunggu',
-            'jumlahPrioritas',
-            'jumlahAktivitas',
-            'paguTerbaru'
-        ));
+        return view('administrator.admin', compact('tahun', 'totalUser', 'totalPagu', 'totalRealisasiSPJ', 'sisaPagu', 'persenSerapan', 'jumlahPaguSPJ', 'jumlahInputSPJ', 'jumlahBBM', 'bbmMenunggu', 'jumlahPrioritas', 'jumlahAktivitas', 'paguTerbaru'));
     }
     public function getUsers()
     {
@@ -139,18 +111,11 @@ class AdminController extends Controller
             abort(403, 'Hanya Admin Full yang dapat mengakses Data User');
         }
 
-        $roles = ModelUser::where('user_uid', session('pegawai_id'))
-            ->pluck('user_role')
-            ->toArray();
+        $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
 
-        $availableRoles = [
-            'Admin Full',
-            'Admin BBM',
-            'Admin Arsiparis',
-            'Pegawai',
-            'Operator',
-            'Operator SPJ',
-        ];
+        $availableRoles = ['Admin Full', 'Admin BBM', 'Admin Arsiparis', 'Pegawai', 'Operator', 'Operator SPJ'];
+
+        $search = strtolower(trim(request('search', '')));
 
         $users = ModelUser::select('user_uid', 'user_role')->get()->groupBy('user_uid');
 
@@ -160,31 +125,71 @@ class AdminController extends Controller
         $result = [];
 
         if ($response->ok()) {
-            $pegawai = $response->json()['data'] ?? [];
-            $pegawaiCollection = collect($pegawai);
+            $pegawai = collect($response->json()['data'] ?? [])->keyBy('id');
 
             foreach ($users as $uid => $userRoles) {
-                $pegawaiData = $pegawaiCollection->firstWhere('id', (int) $uid);
+                $pegawaiData = $pegawai->get((int) $uid);
 
-                if ($pegawaiData) {
-                    $result[] = [
-                        'id' => $pegawaiData['id'],
-                        'nama' => $pegawaiData['nama'],
-                        'nip' => $pegawaiData['nip'] ?? '-',
-                        'nik' => $pegawaiData['nik'] ?? '-',
-                        'jabatan' => $pegawaiData['jabatan'] ?? '-',
-                        'bidang' => $pegawaiData['bidang'] ?? '-',
-                        'jeniskerja' => $pegawaiData['jeniskerja'] ?? '-',
-                        'roles' => $userRoles->pluck('user_role')->unique()->values()->toArray(),
-                    ];
+                if (!$pegawaiData) {
+                    continue;
                 }
+
+                if ($search !== '') {
+                    $text = strtolower(($pegawaiData['nama'] ?? '') . ' ' . ($pegawaiData['nip'] ?? '') . ' ' . ($pegawaiData['nik'] ?? '') . ' ' . ($pegawaiData['jabatan'] ?? '') . ' ' . ($pegawaiData['bidang'] ?? ''));
+
+                    if (!str_contains($text, $search)) {
+                        continue;
+                    }
+                }
+
+                $result[] = [
+                    'id' => $pegawaiData['id'],
+
+                    'nama' => $pegawaiData['nama'],
+
+                    'nip' => $pegawaiData['nip'] ?? '-',
+
+                    'nik' => $pegawaiData['nik'] ?? '-',
+
+                    'jabatan' => $pegawaiData['jabatan'] ?? '-',
+
+                    'bidang' => $pegawaiData['bidang'] ?? '-',
+
+                    'jeniskerja' => $pegawaiData['jeniskerja'] ?? '-',
+
+                    'roles' => $userRoles->pluck('user_role')->unique()->values()->toArray(),
+                ];
             }
         }
 
+        $page = LengthAwarePaginator::resolveCurrentPage();
+
+        $perPage = 10;
+
+        $collection = collect($result);
+
+        $users = new LengthAwarePaginator(
+            $collection->slice(($page - 1) * $perPage, $perPage)->values(),
+
+            $collection->count(),
+
+            $perPage,
+
+            $page,
+
+            [
+                'path' => LengthAwarePaginator::resolveCurrentPath(),
+
+                'query' => request()->query(),
+            ],
+        );
         return view('administrator-v2.user.index', [
-            'users' => $result,
+            'users' => $users,
+
             'roles' => $roles,
+
             'pegawai' => $pegawai,
+
             'availableRoles' => $availableRoles,
         ]);
     }

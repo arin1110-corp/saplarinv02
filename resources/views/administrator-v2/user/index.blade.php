@@ -104,7 +104,21 @@
 
         <div class="overflow-x-auto">
 
-            <table id="userTable" class="min-w-full text-sm">
+            <form method="GET" class="mb-5">
+
+                <div class="relative w-full lg:w-80">
+
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Cari Nama / NIP / NIK..."
+                        class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3"
+                        onkeyup="clearTimeout(window.searchTimer);window.searchTimer=setTimeout(()=>this.form.submit(),500);">
+
+                </div>
+
+            </form>
+            <table class="w-full text-sm">
 
                 <thead class="bg-slate-100 dark:bg-slate-800">
 
@@ -285,6 +299,12 @@
 
         </div>
 
+        <div class="mt-6">
+
+            {{ $users->links() }}
+
+        </div>
+
     </div>
     <!-- MODAL TAMBAH USER -->
     <div id="addUserModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -443,7 +463,6 @@
                 </button>
 
             </div>
-
             <form method="POST" action="/admin/update-role">
 
                 @csrf
@@ -653,50 +672,6 @@
 
                 }
 
-                if (typeof DataTable !== 'undefined') {
-
-                    new DataTable('#userTable', {
-
-                        responsive: true,
-
-                        pageLength: 10,
-
-                        autoWidth: false,
-
-                        language: {
-
-                            search: "Cari:",
-
-                            searchPlaceholder: "Cari user...",
-
-                            lengthMenu: "Tampilkan _MENU_ data",
-
-                            zeroRecords: "Data tidak ditemukan",
-
-                            info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-
-                            infoEmpty: "Tidak ada data",
-
-                            infoFiltered: "(difilter dari _MAX_ data)",
-
-                            paginate: {
-
-                                first: "Awal",
-
-                                last: "Akhir",
-
-                                next: "›",
-
-                                previous: "‹"
-
-                            }
-
-                        }
-
-                    });
-
-                }
-
                 ['addUserModal', 'editUserModal'].forEach(function(id) {
 
                     const modal = document.getElementById(id);
@@ -764,50 +739,6 @@
 
             .select2-results__options {
                 max-height: 320px !important;
-            }
-
-            #userTable_wrapper .dataTables_filter input {
-
-                border-radius: 12px;
-
-                border: 1px solid rgb(203 213 225);
-
-                padding: .55rem .9rem;
-
-                background: white;
-
-            }
-
-            .dark #userTable_wrapper .dataTables_filter input {
-
-                background: #0f172a;
-
-                border-color: #334155;
-
-                color: white;
-
-            }
-
-            #userTable_wrapper .dataTables_length select {
-
-                border-radius: 12px;
-
-                border: 1px solid rgb(203 213 225);
-
-                padding: .45rem .75rem;
-
-                background: white;
-
-            }
-
-            .dark #userTable_wrapper .dataTables_length select {
-
-                background: #0f172a;
-
-                border-color: #334155;
-
-                color: white;
-
             }
 
             table.dataTable tbody tr:hover {
