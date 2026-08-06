@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'Input SPJ')
+@section('title', 'SPJ')
 @section('page_title', 'Input SPJ')
 @section('breadcrumb', 'Input SPJ')
 
