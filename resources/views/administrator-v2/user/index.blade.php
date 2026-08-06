@@ -81,46 +81,40 @@
 
     @endif
 
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-
-
-        <div>
-
-            <button type="button" onclick="openModal()"
-                class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold transition">
-
-                <i class="bi bi-plus-circle"></i>
-
-                Tambah User
-
-            </button>
-
-        </div>
-
-    </div>
 
     <div
         class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
         <div class="overflow-x-auto">
 
-            <form method="GET" class="mb-5">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-5">
 
-                <div class="relative w-full lg:w-80">
+                <form method="GET">
 
-                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <div class="relative">
 
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari Nama / NIP / NIK..."
-                        class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3"
-                        onkeyup="clearTimeout(window.searchTimer);window.searchTimer=setTimeout(()=>this.form.submit(),500);">
+                        <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
 
-                </div>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari Nama / NIP / NIK..."
+                            class="w-80 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
 
-            </form>
+                    </div>
+
+                </form>
+
+                <button onclick="openModal()" class="rounded-2xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3">
+
+                    <i class="bi bi-plus-circle me-2"></i>
+
+                    Tambah User
+
+                </button>
+
+            </div>
             <table class="w-full text-sm">
 
-                <thead class="bg-slate-100 dark:bg-slate-800">
+                <thead class="bg-slate-50 dark:bg-slate-800">
 
                     <tr>
 
@@ -475,7 +469,14 @@
 
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
 
-                            Pegawai
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-semibold">
+
+                                <i class="bi bi-person-fill text-[10px]"></i>
+
+                                Pegawai
+
+                            </span>
 
                         </label>
 
@@ -708,6 +709,16 @@
 
     @push('styles')
         <style>
+            thead {
+
+                position: sticky;
+
+                top: 0;
+
+                z-index: 10;
+
+            }
+
             .select2-search--dropdown {
                 display: block !important;
                 padding: 10px;
@@ -741,9 +752,9 @@
                 max-height: 320px !important;
             }
 
-            table.dataTable tbody tr:hover {
+            table.dataTable .dark tbody tr:hover {
 
-                background: #f8fafc;
+                background: #1e293b;
 
             }
 
