@@ -54,11 +54,121 @@ class AdminController extends Controller
 
         $paguTerbaru = \App\Models\ModelSPJPagu::with(['program', 'kegiatan', 'subKegiatan', 'realisasi'])
             ->where('spj_pagu_tahun', $tahun)
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
-        return view('administrator.admin', compact('tahun', 'totalUser', 'totalPagu', 'totalRealisasiSPJ', 'sisaPagu', 'persenSerapan', 'jumlahPaguSPJ', 'jumlahInputSPJ', 'jumlahBBM', 'bbmMenunggu', 'jumlahPrioritas', 'jumlahAktivitas', 'paguTerbaru'));
+        /*
+|--------------------------------------------------------------------------
+| REKAP SPJ BULANAN
+|--------------------------------------------------------------------------
+*/
+
+        $namaBulan = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        $rekapBulanan = \App\Models\ModelSPJRealisasi::selectRaw(
+            "
+        MONTH(spj_tanggal) as bulan,
+        COUNT(*) as jumlah_spj,
+        SUM(spj_nominal) as total_nominal
+    ",
+        )
+
+            ->where('spj_status', 'Aktif')
+
+            ->whereHas('pagu', function ($q) use ($tahun) {
+                $q->where('spj_pagu_tahun', $tahun);
+            })
+
+            ->groupBy(\DB::raw('MONTH(spj_tanggal)'))
+
+            ->orderBy(\DB::raw('MONTH(spj_tanggal)'))
+
+            ->get();
+
+        $chartSPJ = [];
+
+        foreach (range(1, 12) as $i) {
+            $row = $rekapBulanan->firstWhere('bulan', $i);
+
+            $chartSPJ[] = [
+                'bulan' => $namaBulan[$i],
+
+                'jumlah' => $row->jumlah_spj ?? 0,
+
+                'nominal' => $row->total_nominal ?? 0,
+            ];
+        }
+
+        $bulan = request('bulan');
+
+        $detailSPJ = collect();
+
+        if ($bulan) {
+            $detailSPJ = \App\Models\ModelSPJRealisasi::with(['pagu.unit', 'pagu.program', 'pagu.kegiatan', 'pagu.subKegiatan'])
+
+                ->whereMonth('spj_tanggal', $bulan)
+
+                ->where('spj_status', 'Aktif')
+
+                ->whereHas('pagu', function ($q) use ($tahun) {
+                    $q->where('spj_pagu_tahun', $tahun);
+                })
+
+                ->orderBy('spj_tanggal')
+
+                ->get();
+        }
+
+        return view(
+            'administrator-v2.dashboard.index',
+            compact(
+                'tahun',
+
+                'totalUser',
+
+                'totalPagu',
+
+                'totalRealisasiSPJ',
+
+                'sisaPagu',
+
+                'persenSerapan',
+
+                'jumlahPaguSPJ',
+
+                'jumlahInputSPJ',
+
+                'jumlahBBM',
+
+                'bbmMenunggu',
+
+                'jumlahPrioritas',
+
+                'jumlahAktivitas',
+
+                'paguTerbaru',
+
+                'chartSPJ',
+
+                'bulan',
+
+                'detailSPJ',
+            ),
+        );
     }
     public function getUsers()
     {
