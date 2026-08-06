@@ -85,9 +85,10 @@
     <div
         class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
-        <div class="overflow-x-auto">
+        {{-- Toolbar --}}
+        <div class="px-6 pt-6 pb-5">
 
-            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                 <form method="GET">
 
@@ -97,13 +98,14 @@
 
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / NIP / NIK..."
-                            class="w-80 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+                            class="w-full md:w-80 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3 shadow-sm">
 
                     </div>
 
                 </form>
 
-                <button onclick="openModal()" class="rounded-2xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3">
+                <button type="button" onclick="openModal()"
+                    class="inline-flex items-center justify-center rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-3 shadow-sm transition">
 
                     <i class="bi bi-plus-circle me-2"></i>
 
@@ -112,6 +114,12 @@
                 </button>
 
             </div>
+
+        </div>
+
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+
             <table class="w-full text-sm">
 
                 <thead class="bg-slate-50 dark:bg-slate-800">
