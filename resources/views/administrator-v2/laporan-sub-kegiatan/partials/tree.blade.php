@@ -39,7 +39,7 @@
 
                         <i class="bi bi-building text-blue-600"></i>
 
-                        <span class="font-semibold">
+                        <span class="font-semibold text-sm text-left">
 
                             {{ $unit['unit_nama'] }}
 
@@ -65,7 +65,7 @@
 
                                     <i class="bi bi-folder-fill text-amber-500"></i>
 
-                                    <span>
+                                    <span class="text-left text-sm">
 
                                         {{ $program['program']->program_nama ?? '-' }}
 
@@ -95,7 +95,7 @@
 
                                                 <i class="bi bi-diagram-3 text-green-600"></i>
 
-                                                <span>
+                                                <span class="text-left text-sm">
 
                                                     {{ $kegiatan['kegiatan']->kegiatan_nama ?? '-' }}
 
@@ -126,7 +126,7 @@
 
                                                             <i class="bi bi-folder2-open text-purple-600"></i>
 
-                                                            <span>
+                                                            <span class="text-left text-sm">
 
                                                                 {{ $sub['sub']->sub_kegiatan_nama ?? '-' }}
 
@@ -156,7 +156,7 @@
 
                                                                 <div>
 
-                                                                    <div class="font-medium">
+                                                                    <div class="font-medium text-sm text-left">
 
                                                                         {{ \Carbon\Carbon::create()->month($lap->laporan_bulan)->translatedFormat('F') }}
 
