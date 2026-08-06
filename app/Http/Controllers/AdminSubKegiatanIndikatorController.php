@@ -9,20 +9,36 @@ use Illuminate\Support\Str;
 
 class AdminSubKegiatanIndikatorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim($request->search);
+
         $indikators = SubKegiatanIndikator::with('subKegiatan')
-            ->orderBy('created_at', 'desc')
-            ->get();
 
-        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)
-            ->orderBy('sub_kegiatan_nama')
-            ->get();
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('indikator_unit_kode', 'like', "%{$search}%")
+                        ->orWhere('indikator_unit_nama', 'like', "%{$search}%")
+                        ->orWhere('indikator_nama', 'like', "%{$search}%")
+                        ->orWhere('indikator_satuan', 'like', "%{$search}%")
+                        ->orWhere('indikator_target', 'like', "%{$search}%")
+                        ->orWhere('indikator_status', 'like', "%{$search}%");
+                })
+                    ->orWhereHas('subKegiatan', function ($query) use ($search) {
+                        $query->where('sub_kegiatan_nama', 'like', "%{$search}%")->orWhere('sub_kegiatan_kode', 'like', "%{$search}%");
+                    });
+            })
 
-        return view('administrator-v2.sub-kegiatan-indikator.index', compact(
-            'indikators',
-            'subKegiatans'
-        ));
+            ->latest()
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)->orderBy('sub_kegiatan_nama')->get();
+
+        return view('administrator-v2.sub-kegiatan-indikator.index', compact('indikators', 'subKegiatans'));
     }
 
     public function store(Request $request)

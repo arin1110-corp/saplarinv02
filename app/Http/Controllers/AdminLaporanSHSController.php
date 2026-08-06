@@ -9,9 +9,31 @@ use App\Exports\SHSExport;
 
 class AdminLaporanSHSController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $shs = ModelSHS::orderByDesc('created_at')->get();
+        $search = trim($request->search);
+
+        $shs = ModelSHS::query()
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('shs_unit_nama', 'like', "%{$search}%")
+                        ->orWhere('shs_barang', 'like', "%{$search}%")
+                        ->orWhere('shs_satuan', 'like', "%{$search}%")
+                        ->orWhere('shs_kelompok_barang', 'like', "%{$search}%")
+                        ->orWhere('shs_operator_nama', 'like', "%{$search}%")
+                        ->orWhere('shs_operator_nip', 'like', "%{$search}%")
+                        ->orWhere('shs_status', 'like', "%{$search}%")
+                        ->orWhere('shs_harga', 'like', "%{$search}%");
+                });
+            })
+
+            ->latest()
+
+            ->paginate(10)
+
+            ->withQueryString();
 
         return view('administrator-v2.laporan-shs.index', compact('shs'));
     }

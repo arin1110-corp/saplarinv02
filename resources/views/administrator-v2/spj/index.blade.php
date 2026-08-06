@@ -48,8 +48,21 @@
         </div>
     @endif
 
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
+        <form method="GET">
+
+            <div class="relative w-full lg:w-80">
+
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Pengaju / NIP / Plat..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+
+            </div>
+
+        </form>
 
         <button onclick="openModal()"
             class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold">
@@ -63,44 +76,47 @@
     </div>
 
     <div
-        class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+        class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-black/20 overflow-hidden">
 
         <div class="overflow-x-auto">
 
-            <table id="spjTable" class="min-w-full text-sm">
+            <table class="min-w-full text-sm">
 
-                <thead class="bg-slate-100 dark:bg-slate-800">
+                <thead
+                    class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
 
                     <tr>
 
-                        <th class="col-aksi" width="150">Aksi</th>
+                        <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Aksi
+                        </th>
 
                         <th>Tahun</th>
 
-                        <th class="col-unit">Unit</th>
+                        <th class="col-unit px-5 py-4">Unit</th>
 
-                        <th class="col-program">Program</th>
+                        <th class="col-program px-5 py-4">Program</th>
 
-                        <th class="col-kegiatan">Kegiatan</th>
+                        <th class="col-kegiatan px-5 py-4">Kegiatan</th>
 
-                        <th class="col-sub">Sub Kegiatan</th>
+                        <th class="col-sub px-5 py-4">Sub Kegiatan</th>
 
-                        <th class="col-rp">Pagu Final</th>
+                        <th class="col-rp px-5 py-4">Pagu Final</th>
 
-                        <th class="col-rp">Realisasi</th>
+                        <th class="col-rp px-5 py-4">Realisasi</th>
 
-                        <th class="col-rp">Sisa</th>
+                        <th class="col-rp px-5 py-4">Sisa</th>
 
-                        <th class="col-serapan">Serapan</th>
+                        <th class="col-serapan px-5 py-4">Serapan</th>
 
-                        <th class="col-status">Status</th>
+                        <th class="col-status px-5 py-4">Status</th>
 
 
                     </tr>
 
                 </thead>
 
-                <tbody>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
 
                     @forelse ($pagus as $item)
                         @php
@@ -117,9 +133,9 @@
 
                         @endphp
 
-                        <tr>
+                        <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800 transition-colors duration-200">
 
-                            <td>
+                            <td class="px-5 py-5 align-top">
 
                                 <div class="flex gap-2">
 
@@ -164,9 +180,18 @@
 
                             </td>
 
-                            <td>{{ $item->spj_pagu_tahun }}</td>
-
                             <td>
+
+                                <span
+                                    class="inline-flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-bold">
+
+                                    {{ $item->spj_pagu_tahun }}
+
+                                </span>
+
+                            </td>
+
+                            <td class="px-5 py-5 align-top">
 
                                 @if ($item->unit)
                                     <div class="font-semibold text-blue-600 dark:text-blue-400">
@@ -186,7 +211,7 @@
 
                             </td>
 
-                            <td>
+                            <td class="px-5 py-5 align-top">
 
                                 <div class="font-semibold">
 
@@ -202,7 +227,7 @@
 
                             </td>
 
-                            <td>
+                            <td class="px-5 py-5 align-top">
 
                                 <div class="font-semibold">
 
@@ -218,7 +243,7 @@
 
                             </td>
 
-                            <td>
+                            <td class="px-5 py-5 align-top">
 
                                 <div class="font-semibold">
 
@@ -234,19 +259,19 @@
 
                             </td>
 
-                            <td class="font-semibold whitespace-nowrap">
+                            <td class="px-5 py-5 align-top font-semibold whitespace-nowrap">
 
                                 Rp {{ number_format($item->spj_pagu_final, 0, ',', '.') }}
 
                             </td>
 
-                            <td class="whitespace-nowrap">
+                            <td class="px-5 py-5 align-top whitespace-nowrap">
 
                                 Rp {{ number_format($realisasi, 0, ',', '.') }}
 
                             </td>
 
-                            <td class="whitespace-nowrap">
+                            <td class="px-5 py-5 align-top whitespace-nowrap">
 
                                 Rp {{ number_format($sisa, 0, ',', '.') }}
 
@@ -312,6 +337,31 @@
                 </tbody>
 
             </table>
+
+        </div>
+
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $pagus->firstItem() }}</b>
+
+                -
+
+                <b>{{ $pagus->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $pagus->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $pagus->links() }}
 
         </div>
 
@@ -1418,7 +1468,8 @@
     `);
 
         }
-         function formatRupiahJs(angka) {
+
+        function formatRupiahJs(angka) {
             angka = parseInt(angka || 0);
 
             return angka.toLocaleString('id-ID');
@@ -1524,6 +1575,7 @@
             $('body').removeClass('overflow-hidden');
 
         }
+
         function escapeHtml(text) {
             if (text === null || text === undefined) {
                 return '';
@@ -1799,79 +1851,6 @@
             white-space: nowrap;
         }
 
-        #spjTable_wrapper .dataTables_filter input {
-
-            border-radius: 14px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .65rem .9rem;
-
-        }
-
-        .dark #spjTable_wrapper .dataTables_filter input {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        #spjTable_wrapper .dataTables_length select {
-
-            border-radius: 14px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .55rem .75rem;
-
-        }
-
-        .dark #spjTable_wrapper .dataTables_length select {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        table.dataTable tbody tr:hover {
-
-            background: #f8fafc !important;
-
-        }
-
-        .dark table.dataTable tbody tr:hover {
-
-            background: #1e293b !important;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-
-            background: #2563eb !important;
-
-            border: none !important;
-
-            color: #fff !important;
-
-            border-radius: 10px !important;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-
-            background: #1d4ed8 !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-        }
 
         input:focus,
         select:focus,

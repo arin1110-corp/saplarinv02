@@ -8,11 +8,25 @@ use Illuminate\Support\Str;
 
 class AdminSHSKelompokController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim($request->search);
+
         $kelompoks = ModelSHSKelompok::withCount(['shs as jumlah_shs'])
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('kelompok_kode', 'like', "%{$search}%")
+                        ->orWhere('kelompok_nama', 'like', "%{$search}%");
+                });
+            })
+
             ->orderBy('kelompok_kode')
-            ->get();
+
+            ->paginate(10)
+
+            ->withQueryString();
 
         return view('administrator-v2.shs-kelompok.index', compact('kelompoks'));
     }

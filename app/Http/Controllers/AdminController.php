@@ -231,11 +231,24 @@ class AdminController extends Controller
     }
 
     //==================================== PROGRAM =====================================
-    public function program()
+    public function program(Request $request)
     {
-        // role user login (popup switch role)
+        // Role user login (popup switch role)
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
-        $programs = ModelProgram::all();
+
+        $search = trim($request->search);
+
+        $programs = ModelProgram::query()
+
+            ->when($search, function ($q) use ($search) {
+                $q->where('program_kode', 'like', "%{$search}%")->orWhere('program_nama', 'like', "%{$search}%");
+            })
+
+            ->orderBy('program_kode')
+
+            ->paginate(10)
+
+            ->withQueryString();
 
         return view('administrator-v2.program.index', compact('programs', 'roles'));
     }
@@ -260,7 +273,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'program_id' => 'required',
-            'program_kode' => 'required|string|max:255|unique:saplarin_program,program_kode',
+            'program_kode' => 'required|string|max:255',
             'program_nama' => 'required|string|max:255',
             'program_status' => 'required',
         ]);
@@ -275,14 +288,38 @@ class AdminController extends Controller
     }
 
     //==================================== KEGIATAN =====================================
-    public function kegiatan()
+    public function kegiatan(Request $request)
     {
-        // role user login (popup switch role)
+        // Role user login (popup switch role)
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
-        $kegiatans = ModelKegiatan::join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_kegiatan.*', 'saplarin_program.program_nama', 'saplarin_program.program_kode')->get();
 
-        // dropdown program
-        $programs = ModelProgram::where('program_status', 1)->get();
+        $search = trim($request->search);
+
+        $kegiatans = ModelKegiatan::query()
+
+            ->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')
+
+            ->select('saplarin_kegiatan.*', 'saplarin_program.program_nama', 'saplarin_program.program_kode')
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('saplarin_kegiatan.kegiatan_kode', 'like', "%{$search}%")
+                        ->orWhere('saplarin_kegiatan.kegiatan_nama', 'like', "%{$search}%")
+                        ->orWhere('saplarin_program.program_nama', 'like', "%{$search}%")
+                        ->orWhere('saplarin_program.program_kode', 'like', "%{$search}%");
+                });
+            })
+
+            ->orderBy('saplarin_program.program_kode')
+            ->orderBy('saplarin_kegiatan.kegiatan_kode')
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        // Dropdown Program
+        $programs = ModelProgram::where('program_status', 1)->orderBy('program_kode')->get();
 
         return view('administrator-v2.kegiatan.index', compact('kegiatans', 'programs', 'roles'));
     }
@@ -309,7 +346,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'kegiatan_id' => 'required',
-            'kegiatan_kode' => 'required|string|max:255|unique:saplarin_kegiatan,kegiatan_kode',
+            'kegiatan_kode' => 'required|string|max:255',
             'kegiatan_program' => 'required',
             'kegiatan_nama' => 'required|string|max:255',
             'kegiatan_status' => 'required',
@@ -325,22 +362,51 @@ class AdminController extends Controller
         return back()->with('success', 'Kegiatan berhasil diperbarui');
     }
     // ==================================== SUB KEGIATAN =====================================
-    public function subkegiatan()
+    public function subkegiatan(Request $request)
     {
-        // role user login (popup switch role)
+        // Role user login (popup switch role)
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
-        $subkegiatans = ModelSubKegiatan::join('saplarin_kegiatan', 'saplarin_sub_kegiatan.sub_kegiatan_kegiatan', '=', 'saplarin_kegiatan.kegiatan_id')->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')->select('saplarin_sub_kegiatan.*', 'saplarin_kegiatan.kegiatan_nama', 'saplarin_program.program_nama', 'saplarin_program.program_kode', 'saplarin_kegiatan.kegiatan_kode')->get();
 
-        // dropdown kegiatan
-        $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->get();
+        $search = trim($request->search);
+
+        $subkegiatans = ModelSubKegiatan::query()
+
+            ->join('saplarin_kegiatan', 'saplarin_sub_kegiatan.sub_kegiatan_kegiatan', '=', 'saplarin_kegiatan.kegiatan_id')
+
+            ->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')
+
+            ->select('saplarin_sub_kegiatan.*', 'saplarin_kegiatan.kegiatan_nama', 'saplarin_kegiatan.kegiatan_kode', 'saplarin_program.program_nama', 'saplarin_program.program_kode')
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('saplarin_sub_kegiatan.sub_kegiatan_kode', 'like', "%{$search}%")
+                        ->orWhere('saplarin_sub_kegiatan.sub_kegiatan_nama', 'like', "%{$search}%")
+                        ->orWhere('saplarin_kegiatan.kegiatan_nama', 'like', "%{$search}%")
+                        ->orWhere('saplarin_kegiatan.kegiatan_kode', 'like', "%{$search}%")
+                        ->orWhere('saplarin_program.program_nama', 'like', "%{$search}%")
+                        ->orWhere('saplarin_program.program_kode', 'like', "%{$search}%");
+                });
+            })
+
+            ->orderBy('saplarin_program.program_kode')
+            ->orderBy('saplarin_kegiatan.kegiatan_kode')
+            ->orderBy('saplarin_sub_kegiatan.sub_kegiatan_kode')
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        // Dropdown Kegiatan
+        $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->orderBy('kegiatan_kode')->get();
 
         return view('administrator-v2.subkegiatan.index', compact('subkegiatans', 'kegiatans', 'roles'));
     }
     public function storeSubKegiatan(Request $request)
     {
         $request->validate([
-            'sub_kegiatan_kode' => 'required|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode',
-            'sub_kegiatan_kode_rekening' => 'nullable|string|max:255|unique:saplarin_sub_kegiatan,sub_kegiatan_kode_rekening',
+            'sub_kegiatan_kode' => 'required|string|max:255',
+            'sub_kegiatan_kode_rekening' => 'nullable|string|max:255|',
             'sub_kegiatan_kegiatan' => 'required',
             'sub_kegiatan_nama' => 'required|string|max:255',
             'sub_kegiatan_status' => 'required',

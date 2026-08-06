@@ -1,1000 +1,954 @@
 @extends('administrator-v2.layouts.app')
 
-@section('title','Indikator Sub Kegiatan')
+@section('title', 'Indikator Sub Kegiatan')
 
-@section('page-title','Indikator Sub Kegiatan')
+@section('page-title', 'Indikator Sub Kegiatan')
 
-@section('page-description','Kelola indikator sub kegiatan')
+@section('page-description', 'Kelola indikator sub kegiatan')
 
 @section('content')
 
-@if(session('success'))
+    @if (session('success'))
+        <div
+            class="mb-6 rounded-2xl border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800 px-5 py-4">
 
-<div class="mb-6 rounded-2xl border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800 px-5 py-4">
+            <div class="flex items-center gap-3">
 
-    <div class="flex items-center gap-3">
+                <i class="bi bi-check-circle-fill text-green-600 text-xl"></i>
 
-        <i class="bi bi-check-circle-fill text-green-600 text-xl"></i>
+                <span class="text-green-700 dark:text-green-300">
 
-        <span class="text-green-700 dark:text-green-300">
+                    {{ session('success') }}
 
-            {{ session('success') }}
-
-        </span>
-
-    </div>
-
-</div>
-
-@endif
-
-@if($errors->any())
-
-<div class="mb-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-5 py-4">
-
-    <div class="flex items-start gap-3">
-
-        <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl mt-1"></i>
-
-        <div>
-
-            <h4 class="font-semibold text-red-700 dark:text-red-300 mb-2">
-
-                Terjadi Kesalahan
-
-            </h4>
-
-            <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-300 space-y-1">
-
-                @foreach($errors->all() as $error)
-
-                <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-
-    <button
-
-        type="button"
-
-        onclick="openModal()"
-
-        class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold transition">
-
-        <i class="bi bi-plus-circle"></i>
-
-        Tambah Indikator
-
-    </button>
-
-</div>
-
-<div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-
-    <div class="overflow-x-auto">
-
-        <table
-
-            id="indikatorTable"
-
-            class="min-w-full text-sm">
-
-            <thead class="bg-slate-100 dark:bg-slate-800">
-
-                <tr>
-
-                    <th class="px-4 py-4">No</th>
-
-                    <th class="px-4 py-4">Unit</th>
-
-                    <th class="px-4 py-4">Sub Kegiatan</th>
-
-                    <th class="px-4 py-4">Indikator</th>
-
-                    <th class="px-4 py-4">Target</th>
-
-                    <th class="px-4 py-4">Satuan</th>
-
-                    <th class="px-4 py-4">Status</th>
-
-                    <th class="px-4 py-4 text-center">Aksi</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @forelse($indikators as $item)
-
-                <tr class="border-t border-slate-200 dark:border-slate-800">
-
-                    <td class="px-4 py-4">
-
-                        {{ $loop->iteration }}
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        <div class="font-semibold text-blue-600">
-
-                            {{ $item->indikator_unit_kode }}
-
-                        </div>
-
-                        <div class="text-xs text-slate-500">
-
-                            {{ $item->indikator_unit_nama }}
-
-                        </div>
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        <div class="font-semibold">
-
-                            {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
-
-                        </div>
-
-                        <div class="text-xs text-slate-500">
-
-                            {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
-
-                        </div>
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        {{ $item->indikator_nama }}
-
-                    </td>
-
-                    <td class="px-4 py-4 font-semibold">
-
-                        {{ number_format($item->indikator_target,2,',','.') }}
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        {{ $item->indikator_satuan }}
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        @if($item->indikator_status)
-
-                        <span class="inline-flex rounded-full bg-green-100 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
-
-                            Aktif
-
-                        </span>
-
-                        @else
-
-                        <span class="inline-flex rounded-full bg-red-100 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
-
-                            Nonaktif
-
-                        </span>
-
-                        @endif
-
-                    </td>
-
-                    <td class="px-4 py-4">
-
-                        <div class="flex justify-center gap-2">
-
-                            <button
-
-                                onclick='openEditModal(@json($item))'
-
-                                class="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-2 text-xs text-white">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                                Edit
-
-                            </button>
-
-                            <form
-
-                                method="POST"
-
-                                action="{{ route('admin.sub-kegiatan-indikator.delete',$item->indikator_uid) }}"
-
-                                onsubmit="return confirm('Hapus indikator ini?')">
-
-                                @csrf
-
-                                <button
-
-                                    type="submit"
-
-                                    class="inline-flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs text-white">
-
-                                    <i class="bi bi-trash"></i>
-
-                                    Hapus
-
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-                @empty
-
-                <tr>
-
-                    <td colspan="8" class="py-10 text-center text-slate-500">
-
-                        Belum ada indikator.
-
-                    </td>
-
-                </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-<!-- ======================= MODAL TAMBAH ======================= -->
-<div
-    id="indikatorModal"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-
-    <div
-        class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
-
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
-
-            <div>
-
-                <h3 class="text-xl font-bold text-slate-800 dark:text-white">
-
-                    Tambah Indikator
-
-                </h3>
-
-                <p class="text-sm text-slate-500 dark:text-slate-400">
-
-                    Indikator akan digunakan pada laporan operator.
-
-                </p>
+                </span>
 
             </div>
 
-            <button
-                type="button"
-                onclick="closeModal()"
-                class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-
-                <i class="bi bi-x-lg"></i>
-
-            </button>
-
         </div>
+    @endif
 
-        <form
-            method="POST"
-            action="{{ route('admin.sub-kegiatan-indikator.store') }}"
-            class="flex flex-col flex-1 overflow-hidden">
+    @if ($errors->any())
 
-            @csrf
+        <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-5 py-4">
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+            <div class="flex items-start gap-3">
 
-                <div>
-
-                    <label class="block mb-2 text-sm font-medium">
-
-                        Unit
-
-                    </label>
-
-                    <select
-                        id="indikator_unit_kode"
-                        name="indikator_unit_kode"
-                        onchange="setIndikatorUnitNama()"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required>
-
-                        <option value="">Pilih Unit</option>
-
-                        <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali">
-
-                            DISBUD
-
-                        </option>
-
-                        <option value="UPTD-MB" data-nama="UPTD Museum Bali">
-
-                            UPTD Museum Bali
-
-                        </option>
-
-                        <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali">
-
-                            UPTD Monumen Perjuangan Rakyat Bali
-
-                        </option>
-
-                        <option value="UPTD-TB" data-nama="UPTD Taman Budaya">
-
-                            UPTD Taman Budaya
-
-                        </option>
-
-                    </select>
-
-                    <input
-                        type="hidden"
-                        id="indikator_unit_nama"
-                        name="indikator_unit_nama">
-
-                </div>
+                <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl mt-1"></i>
 
                 <div>
 
-                    <label class="block mb-2 text-sm font-medium">
+                    <h4 class="font-semibold text-red-700 dark:text-red-300 mb-2">
 
-                        Sub Kegiatan
+                        Terjadi Kesalahan
 
-                    </label>
+                    </h4>
 
-                    <select
-                        name="indikator_sub_kegiatan_id"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required>
+                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-300 space-y-1">
 
-                        <option value="">Pilih Sub Kegiatan</option>
-
-                        @foreach($subKegiatans as $sub)
-
-                        <option value="{{ $sub->sub_kegiatan_id }}">
-
-                            {{ $sub->sub_kegiatan_nama }}
-
-                        </option>
-
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
                         @endforeach
 
-                    </select>
-
-                </div>
-
-                <div>
-
-                    <label class="block mb-2 text-sm font-medium">
-
-                        Nama Indikator
-
-                    </label>
-
-                    <textarea
-                        name="indikator_nama"
-                        rows="4"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required></textarea>
-
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                    <div>
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Target
-
-                        </label>
-
-                        <input
-                            type="number"
-                            step="0.01"
-                            name="indikator_target"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            required>
-
-                    </div>
-
-                    <div>
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Satuan
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="indikator_satuan"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            required>
-
-                    </div>
+                    </ul>
 
                 </div>
 
             </div>
 
-            <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+        </div>
 
-                <button
-                    type="button"
-                    onclick="closeModal()"
-                    class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+    @endif
 
-                    Batal
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-                </button>
+        <form method="GET">
 
-                <button
-                    type="submit"
-                    class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-white font-semibold">
+            <div class="relative w-full lg:w-80">
 
-                    <i class="bi bi-check-circle me-2"></i>
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
 
-                    Simpan
-
-                </button>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Pengaju / NIP / Plat..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
 
             </div>
 
         </form>
+        <button type="button" onclick="openModal()"
+            class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold transition">
+
+            <i class="bi bi-plus-circle"></i>
+
+            Tambah Indikator
+
+        </button>
 
     </div>
 
-</div>
-<!-- ======================= MODAL EDIT ======================= -->
-<div
-    id="editIndikatorModal"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-
     <div
-        class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+        class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+        <div class="overflow-x-auto">
 
-            <div>
+            <table class="min-w-full text-sm">
 
-                <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+                <thead class="bg-slate-100 dark:bg-slate-800">
 
-                    Edit Indikator
+                    <tr>
 
-                </h3>
+                        <th class="px-4 py-4">No</th>
 
-                <p class="text-sm text-slate-500 dark:text-slate-400">
+                        <th class="px-4 py-4">Unit</th>
 
-                    Perbarui indikator, target, satuan dan status.
+                        <th class="px-4 py-4">Sub Kegiatan</th>
 
-                </p>
+                        <th class="px-4 py-4">Indikator</th>
 
-            </div>
+                        <th class="px-4 py-4">Target</th>
 
-            <button
-                type="button"
-                onclick="closeEditModal()"
-                class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <th class="px-4 py-4">Satuan</th>
 
-                <i class="bi bi-x-lg"></i>
+                        <th class="px-4 py-4">Status</th>
 
-            </button>
+                        <th class="px-4 py-4 text-center">Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @forelse($indikators as $item)
+                        <tr class="border-t border-slate-200 dark:border-slate-800">
+
+                            <td class="px-4 py-4">
+
+                                {{ $loop->iteration }}
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                <div class="font-semibold text-blue-600">
+
+                                    {{ $item->indikator_unit_kode }}
+
+                                </div>
+
+                                <div class="text-xs text-slate-500">
+
+                                    {{ $item->indikator_unit_nama }}
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                <div class="font-semibold">
+
+                                    {{ $item->subKegiatan->sub_kegiatan_nama ?? '-' }}
+
+                                </div>
+
+                                <div class="text-xs text-slate-500">
+
+                                    {{ $item->subKegiatan->sub_kegiatan_kode ?? '-' }}
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                {{ $item->indikator_nama }}
+
+                            </td>
+
+                            <td class="px-4 py-4 font-semibold">
+
+                                {{ number_format($item->indikator_target, 2, ',', '.') }}
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                {{ $item->indikator_satuan }}
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                @if ($item->indikator_status)
+                                    <span
+                                        class="inline-flex rounded-full bg-green-100 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
+
+                                        Aktif
+
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex rounded-full bg-red-100 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
+
+                                        Nonaktif
+
+                                    </span>
+                                @endif
+
+                            </td>
+
+                            <td class="px-4 py-4">
+
+                                <div class="flex justify-center gap-2">
+
+                                    <button onclick='openEditModal(@json($item))'
+                                        class="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-2 text-xs text-white">
+
+                                        <i class="bi bi-pencil-square"></i>
+
+                                        Edit
+
+                                    </button>
+
+                                    <form method="POST"
+                                        action="{{ route('admin.sub-kegiatan-indikator.delete', $item->indikator_uid) }}"
+                                        onsubmit="return confirm('Hapus indikator ini?')">
+
+                                        @csrf
+
+                                        <button type="submit"
+                                            class="inline-flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs text-white">
+
+                                            <i class="bi bi-trash"></i>
+
+                                            Hapus
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="8" class="py-10 text-center text-slate-500">
+
+                                Belum ada indikator.
+
+                            </td>
+
+                        </tr>
+                    @endforelse
+
+                </tbody>
+
+            </table>
 
         </div>
 
-        <form
-            method="POST"
-            action="{{ route('admin.sub-kegiatan-indikator.update') }}"
-            class="flex flex-col flex-1 overflow-hidden">
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
 
-            @csrf
+            <div class="text-sm text-slate-500">
 
-            <input
-                type="hidden"
-                id="edit_indikator_id"
-                name="indikator_id">
+                Menampilkan
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+                <b>{{ $indikators->firstItem() }}</b>
 
-                <div>
+                -
 
-                    <label class="block mb-2 text-sm font-medium">
+                <b>{{ $indikators->lastItem() }}</b>
 
-                        Unit
+                dari
 
-                    </label>
+                <b>{{ $indikators->total() }}</b>
 
-                    <select
-                        id="edit_indikator_unit_kode"
-                        name="indikator_unit_kode"
-                        onchange="setEditIndikatorUnitNama()"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required>
-
-                        <option value="">Pilih Unit</option>
-
-                        <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali">
-
-                            DISBUD
-
-                        </option>
-
-                        <option value="UPTD-MB" data-nama="UPTD Museum Bali">
-
-                            UPTD Museum Bali
-
-                        </option>
-
-                        <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali">
-
-                            UPTD Monumen Perjuangan Rakyat Bali
-
-                        </option>
-
-                        <option value="UPTD-TB" data-nama="UPTD Taman Budaya">
-
-                            UPTD Taman Budaya
-
-                        </option>
-
-                    </select>
-
-                    <input
-                        type="hidden"
-                        id="edit_indikator_unit_nama"
-                        name="indikator_unit_nama">
-
-                </div>
-
-                <div>
-
-                    <label class="block mb-2 text-sm font-medium">
-
-                        Sub Kegiatan
-
-                    </label>
-
-                    <select
-                        id="edit_indikator_sub_kegiatan_id"
-                        name="indikator_sub_kegiatan_id"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required>
-
-                        @foreach($subKegiatans as $sub)
-
-                        <option value="{{ $sub->sub_kegiatan_id }}">
-
-                            {{ $sub->sub_kegiatan_nama }}
-
-                        </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-                <div>
-
-                    <label class="block mb-2 text-sm font-medium">
-
-                        Nama Indikator
-
-                    </label>
-
-                    <textarea
-                        id="edit_indikator_nama"
-                        name="indikator_nama"
-                        rows="4"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                        required></textarea>
-
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                    <div>
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Target
-
-                        </label>
-
-                        <input
-                            type="number"
-                            step="0.01"
-                            id="edit_indikator_target"
-                            name="indikator_target"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            required>
-
-                    </div>
-
-                    <div>
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Satuan
-
-                        </label>
-
-                        <input
-                            type="text"
-                            id="edit_indikator_satuan"
-                            name="indikator_satuan"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            required>
-
-                    </div>
-
-                </div>
-
-                <div>
-
-                    <label class="block mb-2 text-sm font-medium">
-
-                        Status
-
-                    </label>
-
-                    <select
-                        id="edit_indikator_status"
-                        name="indikator_status"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
-
-                        <option value="1">
-
-                            Aktif
-
-                        </option>
-
-                        <option value="0">
-
-                            Nonaktif
-
-                        </option>
-
-                    </select>
-
-                </div>
+                data
 
             </div>
 
-            <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+            {{ $indikators->links() }}
 
-                <button
-                    type="button"
-                    onclick="closeEditModal()"
-                    class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
-
-                    Batal
-
-                </button>
-
-                <button
-                    type="submit"
-                    class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-white font-semibold">
-
-                    <i class="bi bi-save me-2"></i>
-
-                    Update
-
-                </button>
-
-            </div>
-
-        </form>
+        </div>
 
     </div>
+    <!-- ======================= MODAL TAMBAH ======================= -->
+    <div id="indikatorModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
 
-</div>
-<script>
+        <div
+            class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
 
-    function showModal(id){
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
 
-        const modal=document.getElementById(id);
+                <div>
 
-        if(!modal) return;
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
 
-        modal.classList.remove('hidden');
+                        Tambah Indikator
 
-        modal.classList.add('flex');
+                    </h3>
 
-        document.body.classList.add('overflow-hidden');
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
 
-    }
+                        Indikator akan digunakan pada laporan operator.
 
-    function hideModal(id){
+                    </p>
 
-        const modal=document.getElementById(id);
+                </div>
 
-        if(!modal) return;
+                <button type="button" onclick="closeModal()"
+                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
 
-        modal.classList.add('hidden');
+                    <i class="bi bi-x-lg"></i>
 
-        modal.classList.remove('flex');
+                </button>
 
-        document.body.classList.remove('overflow-hidden');
+            </div>
 
-    }
+            <form method="POST" action="{{ route('admin.sub-kegiatan-indikator.store') }}"
+                class="flex flex-col flex-1 overflow-hidden">
 
-    function openModal(){
+                @csrf
 
-        showModal('indikatorModal');
+                <div class="flex-1 overflow-y-auto p-6 space-y-5">
 
-    }
+                    <div>
 
-    function closeModal(){
+                        <label class="block mb-2 text-sm font-medium">
 
-        document.querySelector('#indikatorModal form').reset();
+                            Unit
 
-        hideModal('indikatorModal');
+                        </label>
 
-    }
+                        <select id="indikator_unit_kode" name="indikator_unit_kode" onchange="setIndikatorUnitNama()"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required>
 
-    function openEditModal(item){
+                            <option value="">Pilih Unit</option>
 
-        document.getElementById('edit_indikator_id').value=item.indikator_id;
+                            <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali">
 
-        document.getElementById('edit_indikator_unit_kode').value=item.indikator_unit_kode;
+                                DISBUD
 
-        document.getElementById('edit_indikator_unit_nama').value=item.indikator_unit_nama;
+                            </option>
 
-        document.getElementById('edit_indikator_sub_kegiatan_id').value=item.indikator_sub_kegiatan_id;
+                            <option value="UPTD-MB" data-nama="UPTD Museum Bali">
 
-        document.getElementById('edit_indikator_nama').value=item.indikator_nama;
+                                UPTD Museum Bali
 
-        document.getElementById('edit_indikator_target').value=item.indikator_target;
+                            </option>
 
-        document.getElementById('edit_indikator_satuan').value=item.indikator_satuan;
+                            <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali">
 
-        document.getElementById('edit_indikator_status').value=item.indikator_status;
+                                UPTD Monumen Perjuangan Rakyat Bali
 
-        showModal('editIndikatorModal');
+                            </option>
 
-    }
+                            <option value="UPTD-TB" data-nama="UPTD Taman Budaya">
 
-    function closeEditModal(){
+                                UPTD Taman Budaya
 
-        hideModal('editIndikatorModal');
+                            </option>
 
-    }
+                        </select>
 
-    function setIndikatorUnitNama(){
+                        <input type="hidden" id="indikator_unit_nama" name="indikator_unit_nama">
 
-        const select=document.getElementById('indikator_unit_kode');
+                    </div>
 
-        const selected=select.options[select.selectedIndex];
+                    <div>
 
-        document.getElementById('indikator_unit_nama').value=selected.dataset.nama ?? '';
+                        <label class="block mb-2 text-sm font-medium">
 
-    }
+                            Sub Kegiatan
 
-    function setEditIndikatorUnitNama(){
+                        </label>
 
-        const select=document.getElementById('edit_indikator_unit_kode');
+                        <select name="indikator_sub_kegiatan_id"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required>
 
-        const selected=select.options[select.selectedIndex];
+                            <option value="">Pilih Sub Kegiatan</option>
 
-        document.getElementById('edit_indikator_unit_nama').value=selected.dataset.nama ?? '';
+                            @foreach ($subKegiatans as $sub)
+                                <option value="{{ $sub->sub_kegiatan_id }}">
 
-    }
+                                    {{ $sub->sub_kegiatan_nama }}
 
-    document.addEventListener('DOMContentLoaded',function(){
+                                </option>
+                            @endforeach
 
-        $('#indikatorTable').DataTable({
+                        </select>
 
-            responsive:true,
+                    </div>
 
-            autoWidth:false,
+                    <div>
 
-            pageLength:25,
+                        <label class="block mb-2 text-sm font-medium">
 
-            order:[[0,'asc']],
+                            Nama Indikator
 
-            language:{
+                        </label>
 
-                search:"Cari :",
+                        <textarea name="indikator_nama" rows="4"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required></textarea>
 
-                searchPlaceholder:"Cari data...",
+                    </div>
 
-                lengthMenu:"Tampilkan _MENU_ data",
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                zeroRecords:"Data tidak ditemukan",
+                        <div>
 
-                info:"Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                            <label class="block mb-2 text-sm font-medium">
 
-                infoEmpty:"Tidak ada data",
+                                Target
 
-                infoFiltered:"(difilter dari _MAX_ data)",
+                            </label>
 
-                paginate:{
+                            <input type="number" step="0.01" name="indikator_target"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                required>
 
-                    first:"Awal",
+                        </div>
 
-                    last:"Akhir",
+                        <div>
 
-                    next:"›",
+                            <label class="block mb-2 text-sm font-medium">
 
-                    previous:"‹"
+                                Satuan
 
-                }
+                            </label>
 
-            }
+                            <input type="text" name="indikator_satuan"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                required>
 
-        });
+                        </div>
 
-        [
+                    </div>
 
-            'indikatorModal',
+                </div>
 
-            'editIndikatorModal'
+                <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
 
-        ].forEach(function(id){
+                    <button type="button" onclick="closeModal()"
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
 
-            const modal=document.getElementById(id);
+                        Batal
 
-            if(!modal) return;
+                    </button>
 
-            modal.addEventListener('click',function(e){
+                    <button type="submit"
+                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-white font-semibold">
 
-                if(e.target===modal){
+                        <i class="bi bi-check-circle me-2"></i>
 
-                    hideModal(id);
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+    <!-- ======================= MODAL EDIT ======================= -->
+    <div id="editIndikatorModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+        <div
+            class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+
+                <div>
+
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+
+                        Edit Indikator
+
+                    </h3>
+
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+
+                        Perbarui indikator, target, satuan dan status.
+
+                    </p>
+
+                </div>
+
+                <button type="button" onclick="closeEditModal()"
+                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+            <form method="POST" action="{{ route('admin.sub-kegiatan-indikator.update') }}"
+                class="flex flex-col flex-1 overflow-hidden">
+
+                @csrf
+
+                <input type="hidden" id="edit_indikator_id" name="indikator_id">
+
+                <div class="flex-1 overflow-y-auto p-6 space-y-5">
+
+                    <div>
+
+                        <label class="block mb-2 text-sm font-medium">
+
+                            Unit
+
+                        </label>
+
+                        <select id="edit_indikator_unit_kode" name="indikator_unit_kode"
+                            onchange="setEditIndikatorUnitNama()"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required>
+
+                            <option value="">Pilih Unit</option>
+
+                            <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali">
+
+                                DISBUD
+
+                            </option>
+
+                            <option value="UPTD-MB" data-nama="UPTD Museum Bali">
+
+                                UPTD Museum Bali
+
+                            </option>
+
+                            <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali">
+
+                                UPTD Monumen Perjuangan Rakyat Bali
+
+                            </option>
+
+                            <option value="UPTD-TB" data-nama="UPTD Taman Budaya">
+
+                                UPTD Taman Budaya
+
+                            </option>
+
+                        </select>
+
+                        <input type="hidden" id="edit_indikator_unit_nama" name="indikator_unit_nama">
+
+                    </div>
+
+                    <div>
+
+                        <label class="block mb-2 text-sm font-medium">
+
+                            Sub Kegiatan
+
+                        </label>
+
+                        <select id="edit_indikator_sub_kegiatan_id" name="indikator_sub_kegiatan_id"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required>
+
+                            @foreach ($subKegiatans as $sub)
+                                <option value="{{ $sub->sub_kegiatan_id }}">
+
+                                    {{ $sub->sub_kegiatan_nama }}
+
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <label class="block mb-2 text-sm font-medium">
+
+                            Nama Indikator
+
+                        </label>
+
+                        <textarea id="edit_indikator_nama" name="indikator_nama" rows="4"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            required></textarea>
+
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <div>
+
+                            <label class="block mb-2 text-sm font-medium">
+
+                                Target
+
+                            </label>
+
+                            <input type="number" step="0.01" id="edit_indikator_target" name="indikator_target"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                required>
+
+                        </div>
+
+                        <div>
+
+                            <label class="block mb-2 text-sm font-medium">
+
+                                Satuan
+
+                            </label>
+
+                            <input type="text" id="edit_indikator_satuan" name="indikator_satuan"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <label class="block mb-2 text-sm font-medium">
+
+                            Status
+
+                        </label>
+
+                        <select id="edit_indikator_status" name="indikator_status"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
+
+                            <option value="1">
+
+                                Aktif
+
+                            </option>
+
+                            <option value="0">
+
+                                Nonaktif
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+
+                    <button type="button" onclick="closeEditModal()"
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+
+                        Batal
+
+                    </button>
+
+                    <button type="submit"
+                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-white font-semibold">
+
+                        <i class="bi bi-save me-2"></i>
+
+                        Update
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+    <script>
+        function showModal(id) {
+
+            const modal = document.getElementById(id);
+
+            if (!modal) return;
+
+            modal.classList.remove('hidden');
+
+            modal.classList.add('flex');
+
+            document.body.classList.add('overflow-hidden');
+
+        }
+
+        function hideModal(id) {
+
+            const modal = document.getElementById(id);
+
+            if (!modal) return;
+
+            modal.classList.add('hidden');
+
+            modal.classList.remove('flex');
+
+            document.body.classList.remove('overflow-hidden');
+
+        }
+
+        function openModal() {
+
+            showModal('indikatorModal');
+
+        }
+
+        function closeModal() {
+
+            document.querySelector('#indikatorModal form').reset();
+
+            hideModal('indikatorModal');
+
+        }
+
+        function openEditModal(item) {
+
+            document.getElementById('edit_indikator_id').value = item.indikator_id;
+
+            document.getElementById('edit_indikator_unit_kode').value = item.indikator_unit_kode;
+
+            document.getElementById('edit_indikator_unit_nama').value = item.indikator_unit_nama;
+
+            document.getElementById('edit_indikator_sub_kegiatan_id').value = item.indikator_sub_kegiatan_id;
+
+            document.getElementById('edit_indikator_nama').value = item.indikator_nama;
+
+            document.getElementById('edit_indikator_target').value = item.indikator_target;
+
+            document.getElementById('edit_indikator_satuan').value = item.indikator_satuan;
+
+            document.getElementById('edit_indikator_status').value = item.indikator_status;
+
+            showModal('editIndikatorModal');
+
+        }
+
+        function closeEditModal() {
+
+            hideModal('editIndikatorModal');
+
+        }
+
+        function setIndikatorUnitNama() {
+
+            const select = document.getElementById('indikator_unit_kode');
+
+            const selected = select.options[select.selectedIndex];
+
+            document.getElementById('indikator_unit_nama').value = selected.dataset.nama ?? '';
+
+        }
+
+        function setEditIndikatorUnitNama() {
+
+            const select = document.getElementById('edit_indikator_unit_kode');
+
+            const selected = select.options[select.selectedIndex];
+
+            document.getElementById('edit_indikator_unit_nama').value = selected.dataset.nama ?? '';
+
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            $('#indikatorTable').DataTable({
+
+                responsive: true,
+
+                autoWidth: false,
+
+                pageLength: 25,
+
+                order: [
+                    [0, 'asc']
+                ],
+
+                language: {
+
+                    search: "Cari :",
+
+                    searchPlaceholder: "Cari data...",
+
+                    lengthMenu: "Tampilkan _MENU_ data",
+
+                    zeroRecords: "Data tidak ditemukan",
+
+                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+
+                    infoEmpty: "Tidak ada data",
+
+                    infoFiltered: "(difilter dari _MAX_ data)",
+
+                    paginate: {
+
+                        first: "Awal",
+
+                        last: "Akhir",
+
+                        next: "›",
+
+                        previous: "‹"
+
+                    }
 
                 }
 
             });
 
+            [
+
+                'indikatorModal',
+
+                'editIndikatorModal'
+
+            ].forEach(function(id) {
+
+                const modal = document.getElementById(id);
+
+                if (!modal) return;
+
+                modal.addEventListener('click', function(e) {
+
+                    if (e.target === modal) {
+
+                        hideModal(id);
+
+                    }
+
+                });
+
+            });
+
         });
 
-    });
+        document.addEventListener('keydown', function(e) {
 
-    document.addEventListener('keydown',function(e){
+            if (e.key === 'Escape') {
 
-        if(e.key==='Escape'){
+                closeModal();
 
-            closeModal();
+                closeEditModal();
 
-            closeEditModal();
+            }
+
+        });
+    </script>
+
+    <style>
+        #indikatorTable_wrapper .dataTables_filter input {
+
+            border-radius: 12px;
+
+            border: 1px solid rgb(203 213 225);
+
+            padding: .55rem .9rem;
 
         }
 
-    });
+        .dark #indikatorTable_wrapper .dataTables_filter input {
 
-</script>
+            background: #0f172a;
 
-<style>
+            border-color: #334155;
 
-#indikatorTable_wrapper .dataTables_filter input{
+            color: #fff;
 
-    border-radius:12px;
+        }
 
-    border:1px solid rgb(203 213 225);
+        #indikatorTable_wrapper .dataTables_length select {
 
-    padding:.55rem .9rem;
+            border-radius: 12px;
 
-}
+            border: 1px solid rgb(203 213 225);
 
-.dark #indikatorTable_wrapper .dataTables_filter input{
+            padding: .45rem .75rem;
 
-    background:#0f172a;
+        }
 
-    border-color:#334155;
+        .dark #indikatorTable_wrapper .dataTables_length select {
 
-    color:#fff;
+            background: #0f172a;
 
-}
+            border-color: #334155;
 
-#indikatorTable_wrapper .dataTables_length select{
+            color: #fff;
 
-    border-radius:12px;
+        }
 
-    border:1px solid rgb(203 213 225);
+        table.dataTable tbody tr:hover {
 
-    padding:.45rem .75rem;
+            background: #f8fafc;
 
-}
+        }
 
-.dark #indikatorTable_wrapper .dataTables_length select{
+        .dark table.dataTable tbody tr:hover {
 
-    background:#0f172a;
+            background: #1e293b;
 
-    border-color:#334155;
+        }
 
-    color:#fff;
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
 
-}
+            background: #2563eb !important;
 
-table.dataTable tbody tr:hover{
+            color: #fff !important;
 
-    background:#f8fafc;
+            border: none !important;
 
-}
+            border-radius: 10px !important;
 
-.dark table.dataTable tbody tr:hover{
+        }
 
-    background:#1e293b;
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
 
-}
+            background: #1d4ed8 !important;
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current{
+            color: #fff !important;
 
-    background:#2563eb !important;
+            border: none !important;
 
-    color:#fff !important;
+        }
 
-    border:none !important;
+        input,
+        textarea,
+        select {
 
-    border-radius:10px !important;
+            transition: .2s;
 
-}
+        }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+        input:focus,
+        textarea:focus,
+        select:focus {
 
-    background:#1d4ed8 !important;
+            outline: none;
 
-    color:#fff !important;
+            border-color: #2563eb;
 
-    border:none !important;
+            box-shadow: 0 0 0 3px rgb(37 99 235 /.15);
 
-}
+        }
 
-input,
-textarea,
-select{
+        textarea {
 
-    transition:.2s;
+            resize: vertical;
 
-}
-
-input:focus,
-textarea:focus,
-select:focus{
-
-    outline:none;
-
-    border-color:#2563eb;
-
-    box-shadow:0 0 0 3px rgb(37 99 235 /.15);
-
-}
-
-textarea{
-
-    resize:vertical;
-
-}
-
-</style>
+        }
+    </style>
 
 @endsection

@@ -79,6 +79,19 @@
 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
+        <form method="GET">
+
+            <div class="relative w-full lg:w-80">
+
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Pengaju / NIP / Plat..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+
+            </div>
+
+        </form>
         <button onclick="openExportModal()"
             class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-white font-semibold transition">
 
@@ -95,7 +108,7 @@
 
         <div class="overflow-x-auto">
 
-            <table id="datatable" class="min-w-full text-sm">
+            <table class="min-w-full text-sm">
 
                 <thead class="bg-slate-100 dark:bg-slate-800">
 
@@ -300,6 +313,30 @@
                 </tbody>
 
             </table>
+
+        </div>
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $shs->firstItem() }}</b>
+
+                -
+
+                <b>{{ $shs->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $shs->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $shs->links() }}
 
         </div>
 

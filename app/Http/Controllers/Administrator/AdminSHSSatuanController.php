@@ -9,14 +9,25 @@ use Illuminate\Support\Str;
 
 class AdminSHSSatuanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $satuan = ModelSHSSatuan::orderBy('satuan_nama')->get();
+        $search = trim($request->search);
 
-        return view(
-            'administrator-v2.shs-satuan.index',
-            compact('satuan')
-        );
+        $satuan = ModelSHSSatuan::query()
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('satuan_nama', 'like', "%{$search}%");
+                });
+            })
+
+            ->orderBy('satuan_nama')
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        return view('administrator-v2.shs-satuan.index', compact('satuan'));
     }
 
     public function store(Request $request)
@@ -26,7 +37,6 @@ class AdminSHSSatuanController extends Controller
         ]);
 
         ModelSHSSatuan::create([
-
             'satuan_uid' => Str::uuid(),
 
             'satuan_nama' => $request->satuan_nama,
@@ -34,41 +44,26 @@ class AdminSHSSatuanController extends Controller
             'satuan_status' => true,
 
             'created_by' => session('admin_nama'),
-
         ]);
 
-        return back()->with(
-            'success',
-            'Satuan berhasil ditambahkan.'
-        );
+        return back()->with('success', 'Satuan berhasil ditambahkan.');
     }
 
     public function update(Request $request, $uid)
     {
         $request->validate([
-            'satuan_nama' =>
-                'required|string|max:100|unique:saplarin_shs_satuan,satuan_nama,' .
-                ModelSHSSatuan::where('satuan_uid', $uid)->value('satuan_id') .
-                ',satuan_id',
+            'satuan_nama' => 'required|string|max:100|unique:saplarin_shs_satuan,satuan_nama,' . ModelSHSSatuan::where('satuan_uid', $uid)->value('satuan_id') . ',satuan_id',
         ]);
 
-        $data = ModelSHSSatuan::where(
-            'satuan_uid',
-            $uid
-        )->firstOrFail();
+        $data = ModelSHSSatuan::where('satuan_uid', $uid)->firstOrFail();
 
         $data->update([
-
             'satuan_nama' => $request->satuan_nama,
 
             'updated_by' => session('admin_nama'),
-
         ]);
 
-        return back()->with(
-            'success',
-            'Satuan berhasil diperbarui.'
-        );
+        return back()->with('success', 'Satuan berhasil diperbarui.');
     }
     public function status($uid)
     {
@@ -83,39 +78,23 @@ class AdminSHSSatuanController extends Controller
 
     public function aktif($uid)
     {
-        ModelSHSSatuan::where(
-            'satuan_uid',
-            $uid
-        )->update([
-
+        ModelSHSSatuan::where('satuan_uid', $uid)->update([
             'satuan_status' => true,
 
             'updated_by' => session('admin_nama'),
-
         ]);
 
-        return back()->with(
-            'success',
-            'Satuan berhasil diaktifkan.'
-        );
+        return back()->with('success', 'Satuan berhasil diaktifkan.');
     }
 
     public function nonaktif($uid)
     {
-        ModelSHSSatuan::where(
-            'satuan_uid',
-            $uid
-        )->update([
-
+        ModelSHSSatuan::where('satuan_uid', $uid)->update([
             'satuan_status' => false,
 
             'updated_by' => session('admin_nama'),
-
         ]);
 
-        return back()->with(
-            'success',
-            'Satuan berhasil dinonaktifkan.'
-        );
+        return back()->with('success', 'Satuan berhasil dinonaktifkan.');
     }
 }

@@ -17,7 +17,7 @@ class AdminProgramPrioritasController extends Controller
     {
         $prioritas = ModelProgramPrioritas::with([
                 'rencana.capaian.files',
-            ])
+        ])
             ->orderBy('prioritas_tahun', 'desc')
             ->orderBy('created_at', 'asc')
             ->get();

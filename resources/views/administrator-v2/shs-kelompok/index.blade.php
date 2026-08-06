@@ -46,8 +46,20 @@
         </div>
     @endif
 
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
+        <form method="GET">
+
+            <div class="relative w-full lg:w-80">
+
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Kelompok..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+
+            </div>
+
+        </form>
         <button onclick="openModal()"
             class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold">
 
@@ -64,13 +76,13 @@
 
         <div class="overflow-x-auto">
 
-            <table id="kelompokTable" class="display nowrap w-full text-sm">
+            <table class="min-w-full text-sm">
 
                 <thead class="bg-slate-100 dark:bg-slate-800">
 
                     <tr>
 
-                        <th>No</th>
+                        <th class="px-4 py-3">No</th>
 
                         <th>Kode Kelompok</th>
 
@@ -82,7 +94,7 @@
 
                         <th>Status</th>
 
-                        <th>
+                        <th class="px-4 py-3 text-center">
 
                             Aksi
 
@@ -160,9 +172,9 @@
 
                             </td>
 
-                            <td> 
-                            
-                                <div class="flex gap-2">
+                            <td class="px-4 py-3 align-middle text-center">
+
+                                <div class="flex gap-2 align-middle justify-center">
 
                                     <button onclick='openEditModal(@json($item))'
                                         class="w-10 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 text-white">
@@ -195,6 +207,30 @@
                 </tbody>
 
             </table>
+
+        </div>
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $kelompoks->firstItem() }}</b>
+
+                -
+
+                <b>{{ $kelompoks->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $kelompoks->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $kelompoks->links() }}
 
         </div>
 

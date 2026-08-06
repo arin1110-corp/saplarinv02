@@ -13,35 +13,48 @@ use Illuminate\Support\Str;
 
 class AdminSPJController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pagus = ModelSPJPagu::with([
-            'unit',
-            'program',
-            'kegiatan',
-            'subKegiatan',
-            'detail',
-            'realisasi',
-        ])
-            ->orderBy('spj_pagu_tahun', 'desc')
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $search = trim($request->search);
 
-        $units = ModelSPJUnit::where('unit_status', 1)
-            ->orderBy('unit_kode', 'asc')
-            ->get();
+        $pagus = ModelSPJPagu::with(['unit', 'program', 'kegiatan', 'subKegiatan', 'detail', 'realisasi'])
 
-        $programs = ModelProgram::where('program_status', 1)->get();
-        $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->get();
-        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)->get();
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('unit', function ($query) use ($search) {
+                    $query->where('unit_nama', 'like', "%{$search}%")->orWhere('unit_kode', 'like', "%{$search}%");
+                })
 
-        return view('administrator-v2.spj.index', compact(
-            'pagus',
-            'units',
-            'programs',
-            'kegiatans',
-            'subKegiatans'
-        ));
+                    ->orWhereHas('program', function ($query) use ($search) {
+                        $query->where('program_nama', 'like', "%{$search}%")->orWhere('program_kode', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('kegiatan', function ($query) use ($search) {
+                        $query->where('kegiatan_nama', 'like', "%{$search}%")->orWhere('kegiatan_kode', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('subKegiatan', function ($query) use ($search) {
+                        $query->where('sub_kegiatan_nama', 'like', "%{$search}%")->orWhere('sub_kegiatan_kode', 'like', "%{$search}%");
+                    })
+
+                    ->orWhere('spj_pagu_tahun', 'like', "%{$search}%");
+            })
+
+            ->orderByDesc('spj_pagu_tahun')
+            ->orderBy('created_at')
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        $units = ModelSPJUnit::where('unit_status', 1)->orderBy('unit_kode')->get();
+
+        $programs = ModelProgram::where('program_status', 1)->orderBy('program_kode')->get();
+
+        $kegiatans = ModelKegiatan::where('kegiatan_status', 1)->orderBy('kegiatan_kode')->get();
+
+        $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_status', 1)->orderBy('sub_kegiatan_kode')->get();
+
+        return view('administrator-v2.spj.index', compact('pagus', 'units', 'programs', 'kegiatans', 'subKegiatans'));
     }
 
     public function store(Request $request)
@@ -66,15 +79,10 @@ class AdminSPJController extends Controller
             'pagu_keterangan.*' => 'nullable|string',
         ]);
 
-        $sudahAda = ModelSPJPagu::where('spj_pagu_tahun', $request->spj_pagu_tahun)
-            ->where('spj_pagu_unit_id', $request->spj_pagu_unit_id)
-            ->where('spj_pagu_sub_kegiatan_id', $request->spj_pagu_sub_kegiatan_id)
-            ->exists();
+        $sudahAda = ModelSPJPagu::where('spj_pagu_tahun', $request->spj_pagu_tahun)->where('spj_pagu_unit_id', $request->spj_pagu_unit_id)->where('spj_pagu_sub_kegiatan_id', $request->spj_pagu_sub_kegiatan_id)->exists();
 
         if ($sudahAda) {
-            return back()
-                ->withInput()
-                ->with('error', 'Pagu untuk tahun, unit, dan sub kegiatan tersebut sudah ada.');
+            return back()->withInput()->with('error', 'Pagu untuk tahun, unit, dan sub kegiatan tersebut sudah ada.');
         }
 
         $paguJenis = $request->input('pagu_jenis', []);
@@ -144,16 +152,10 @@ class AdminSPJController extends Controller
 
         $pagu = ModelSPJPagu::findOrFail($request->spj_pagu_id);
 
-        $sudahAda = ModelSPJPagu::where('spj_pagu_tahun', $request->spj_pagu_tahun)
-            ->where('spj_pagu_unit_id', $request->spj_pagu_unit_id)
-            ->where('spj_pagu_sub_kegiatan_id', $request->spj_pagu_sub_kegiatan_id)
-            ->where('spj_pagu_id', '!=', $pagu->spj_pagu_id)
-            ->exists();
+        $sudahAda = ModelSPJPagu::where('spj_pagu_tahun', $request->spj_pagu_tahun)->where('spj_pagu_unit_id', $request->spj_pagu_unit_id)->where('spj_pagu_sub_kegiatan_id', $request->spj_pagu_sub_kegiatan_id)->where('spj_pagu_id', '!=', $pagu->spj_pagu_id)->exists();
 
         if ($sudahAda) {
-            return back()
-                ->withInput()
-                ->with('error', 'Pagu untuk tahun, unit, dan sub kegiatan tersebut sudah ada.');
+            return back()->withInput()->with('error', 'Pagu untuk tahun, unit, dan sub kegiatan tersebut sudah ada.');
         }
 
         $paguJenis = $request->input('pagu_jenis', []);
@@ -177,8 +179,7 @@ class AdminSPJController extends Controller
             'spj_pagu_status' => $request->spj_pagu_status,
         ]);
 
-        ModelSPJPaguDetail::where('spj_pagu_detail_pagu_id', $pagu->spj_pagu_id)
-            ->delete();
+        ModelSPJPaguDetail::where('spj_pagu_detail_pagu_id', $pagu->spj_pagu_id)->delete();
 
         foreach ($paguNominalBersih as $index => $nominal) {
             ModelSPJPaguDetail::create([

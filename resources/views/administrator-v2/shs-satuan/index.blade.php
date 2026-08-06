@@ -53,8 +53,21 @@
         </div>
     @endif
 
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
+        <form method="GET">
+
+            <div class="relative w-full lg:w-80">
+
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Pengaju / NIP / Plat..."
+                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+
+            </div>
+
+        </form>
         <button onclick="openModal()"
             class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-white font-semibold">
 
@@ -168,6 +181,30 @@
                 </tbody>
 
             </table>
+
+        </div>
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $satuan->firstItem() }}</b>
+
+                -
+
+                <b>{{ $satuan->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $satuan->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $satuan->links() }}
 
         </div>
 
@@ -407,123 +444,11 @@
                 }
 
             });
-
-            $(document).ready(function() {
-
-                $('#satuanTable').DataTable({
-
-                    responsive: true,
-
-                    autoWidth: false,
-
-                    pageLength: 10,
-
-                    order: [
-                        [0, 'asc']
-                    ],
-
-                    language: {
-
-                        search: "Cari :",
-
-                        searchPlaceholder: "Cari data...",
-
-                        lengthMenu: "Tampilkan _MENU_ data",
-
-                        zeroRecords: "Data tidak ditemukan",
-
-                        info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-
-                        infoEmpty: "Tidak ada data",
-
-                        infoFiltered: "(difilter dari _MAX_ data)",
-
-                        paginate: {
-
-                            first: "Awal",
-
-                            last: "Akhir",
-
-                            next: "›",
-
-                            previous: "‹"
-
-                        }
-
-                    }
-
-                });
-
-            });
         </script>
     @endpush
 
     @push('styles')
         <style>
-            #satuanTable_wrapper .dataTables_filter input {
-
-                border-radius: 12px;
-
-                border: 1px solid rgb(203 213 225);
-
-                padding: .55rem .9rem;
-
-            }
-
-            .dark #satuanTable_wrapper .dataTables_filter input {
-
-                background: #0f172a;
-
-                border-color: #334155;
-
-                color: white;
-
-            }
-
-            #satuanTable_wrapper .dataTables_length select {
-
-                border-radius: 12px;
-
-                border: 1px solid rgb(203 213 225);
-
-                padding: .45rem .75rem;
-
-            }
-
-            .dark #satuanTable_wrapper .dataTables_length select {
-
-                background: #0f172a;
-
-                border-color: #334155;
-
-                color: white;
-
-            }
-
-            table.dataTable tbody tr:hover {
-
-                background: #f8fafc;
-
-            }
-
-            .dark table.dataTable tbody tr:hover {
-
-                background: #1e293b;
-
-            }
-
-            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-
-                background: #2563eb !important;
-
-                color: #fff !important;
-
-                border: none !important;
-
-                border-radius: 10px !important;
-
-            }
-
             input,
             select {
 
