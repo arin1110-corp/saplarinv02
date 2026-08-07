@@ -26,6 +26,8 @@ use App\Http\Controllers\UserSHSController;
 use App\Http\Controllers\AdminLaporanSHSController;
 use App\Http\Controllers\AdminSHSKelompokController;
 use App\Http\Controllers\Administrator\AdminSHSSatuanController;
+use App\Http\Controllers\UserBookingRuangController;
+use App\Http\Controllers\AdminBookingRuangController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
@@ -308,6 +310,22 @@ Route::middleware(['admin'])
     Route::put('/shs-satuan/{uid}', [AdminSHSSatuanController::class, 'update'])->name('admin.shs-satuan.update');
 
     Route::post('/shs-satuan/{uid}/status', [AdminSHSSatuanController::class, 'status'])->name('admin.shs-satuan.status');
+
+    /*
+|--------------------------------------------------------------------------
+| ADMIN BOOKING RUANG
+|--------------------------------------------------------------------------
+*/
+
+    Route::get('/booking-ruang', [AdminBookingRuangController::class, 'index'])->name('admin.booking-ruang.index');
+
+    Route::get('/booking-ruang/{uid}', [AdminBookingRuangController::class, 'show'])->name('admin.booking-ruang.show');
+
+    Route::post('/booking-ruang/{uid}/approve', [AdminBookingRuangController::class, 'approve'])->name('admin.booking-ruang.approve');
+
+    Route::post('/booking-ruang/{uid}/reject', [AdminBookingRuangController::class, 'reject'])->name('admin.booking-ruang.reject');
+
+    Route::get('/booking-ruang/events/json', [AdminBookingRuangController::class, 'events'])->name('admin.booking-ruang.events');
     });
 
 Route::prefix('user')
@@ -450,4 +468,28 @@ Route::prefix('user')
     Route::put('/shs/{uid}', [UserSHSController::class, 'update'])->name('shs.update');
 
     Route::post('/shs/{uid}/delete', [UserSHSController::class, 'delete'])->name('shs.delete');
+
+    /*
+|--------------------------------------------------------------------------
+| BOOKING RUANG RAPAT
+|--------------------------------------------------------------------------
+*/
+
+    Route::get('/booking-ruang', [UserBookingRuangController::class, 'dashboard'])->name('booking-ruang.dashboard');
+
+    Route::get('/booking-ruang/list', [UserBookingRuangController::class, 'index'])->name('booking-ruang.index');
+
+    Route::get('/booking-ruang/create', [UserBookingRuangController::class, 'create'])->name('booking-ruang.create');
+
+    Route::post('/booking-ruang/store', [UserBookingRuangController::class, 'store'])->name('booking-ruang.store');
+
+    Route::get('/booking-ruang/{uid}', [UserBookingRuangController::class, 'show'])->name('booking-ruang.show');
+
+    Route::get('/booking-ruang/events/json', [UserBookingRuangController::class, 'events'])->name('booking-ruang.events');
+
+    Route::post('/booking-ruang/check-availability', [UserBookingRuangController::class, 'checkAvailability'])->name('booking-ruang.check');
+
+    Route::get('/booking-ruang/detail/{uid}', [UserBookingRuangController::class, 'detail'])->name('booking-ruang.detail');
+
+    Route::post('/booking-ruang/batal/{uid}', [UserBookingRuangController::class, 'batal'])->name('booking-ruang.batal');
     });

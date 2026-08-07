@@ -1,4 +1,7 @@
 @php
+    use Carbon\Carbon;
+
+    $showNewFeature = now()->lte(Carbon::create(2026, 8, 20, 23, 59, 59));
     $activeRole = session('active_role', 'Pegawai');
 
     $isOperator = $activeRole === 'Operator';
@@ -81,6 +84,50 @@
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>⛽</span>
                 <span>BBM Kegiatan</span>
+            </a>
+            @if ($showNewFeature)
+                <div class="px-2 pt-2 pb-1">
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600">
+
+                            ✨ New Features
+
+                        </span>
+
+                    </div>
+
+                </div>
+            @endif
+
+            <a href="{{ route('user.booking-ruang.dashboard') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+    {{ request()->routeIs('user.booking-ruang*')
+        ? 'bg-blue-50 text-blue-700'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+
+                <span>🏢</span>
+
+                <div class="flex-1">
+
+                    <div class="flex items-center gap-2">
+
+                        <span>Booking Ruang Rapat</span>
+
+                        @if ($showNewFeature)
+                            <span
+                                class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+
+                                NEW
+
+                            </span>
+                        @endif
+
+                    </div>
+
+                </div>
+
             </a>
         @endif
 

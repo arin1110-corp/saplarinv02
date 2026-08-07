@@ -3,6 +3,11 @@
 /public/hot
 /public/storage
 /public/vendor
+/public/assets/kinerja
+/public/assets/laporan-aktivitas
+/public/assets/prioritas
+/public/assets/program-prioritas
+/public/assets/spj
 /public/assets/laporanpwa
 /storage/*.key
 /vendor
