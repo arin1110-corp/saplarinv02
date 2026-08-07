@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ModelBookingRuang;
 use App\Models\ModelRuang;
 use Illuminate\Http\Request;
+use App\Services\ArinDriveService;
+use Illuminate\Support\Str;
 
 class UserBookingRuangController extends Controller
 {
@@ -39,7 +41,7 @@ class UserBookingRuangController extends Controller
         return view('user.booking-ruang.create', compact('ruangs'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ArinDriveService $arinDrive)
     {
         $request->validate([
             'booking_ruang_id' => 'required',
@@ -89,11 +91,15 @@ class UserBookingRuangController extends Controller
         $surat = null;
 
         if ($request->hasFile('booking_surat')) {
-            $surat = $request
+            $surat = $arinDrive->upload(
+                $request->file('booking_surat'),
 
-                ->file('booking_surat')
+                'booking_ruang_surat',
 
-                ->store('booking-ruang', 'public');
+                $uid . '_SURAT.' . $request->file('booking_surat')->getClientOriginalExtension(),
+
+                $uid,
+            );
         }
 
         ModelBookingRuang::create([
