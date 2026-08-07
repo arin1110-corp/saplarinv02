@@ -87,7 +87,7 @@ class UserBookingRuangController extends Controller
 
                 ->with('error', 'Jadwal sudah digunakan.');
         }
-
+        $uid = (string) Str::uuid();
         $surat = null;
 
         if ($request->hasFile('booking_surat')) {
