@@ -508,7 +508,7 @@
 
                         <p class="mt-2 text-blue-100">
 
-                            Monitoring BBM, Prioritas, Aktivitas dan SPJ secara realtime.
+                            Monitoring Realisasi SPJ secara realtime.
 
                         </p>
 
