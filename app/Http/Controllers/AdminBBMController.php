@@ -199,9 +199,12 @@ class AdminBBMController extends Controller
     }
     public function export(Request $request)
     {
-        $fields = $request->fields ?? [];
-        $tgl = date('Y-m-d_H-i-s');
+        $fields = $request->input('fields', []);
 
-        return Excel::download(new BBMExport($fields), "pengajuan-bbm-$tgl.xlsx");
+        if (empty($fields)) {
+            return back()->with('error', 'Pilih minimal satu data untuk diexport.');
+        }
+
+        return Excel::download(new BBMExport($fields, $request->bulan, $request->tahun), 'Data-BBM-' . now()->format('Ymd-His') . '.xlsx');
     }
 }

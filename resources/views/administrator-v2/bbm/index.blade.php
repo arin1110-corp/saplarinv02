@@ -650,6 +650,89 @@
             </div>
 
             <form action="{{ route('admin.bbm.export') }}" method="GET">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border-b border-slate-200 dark:border-slate-700">
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Bulan
+                        </label>
+
+                        <select name="bulan"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700
+                   bg-white dark:bg-slate-800 px-4 py-3">
+
+                            <option value="">Semua Bulan</option>
+
+                            @foreach ([
+                                1 => 'Januari',
+                                2 => 'Februari',
+                                3 => 'Maret',
+                                4 => 'April',
+                                5 => 'Mei',
+                                6 => 'Juni',
+                                7 => 'Juli',
+                                8 => 'Agustus',
+                                9 => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ] as $nomor => $nama)
+                                <option value="{{ $nomor }}">
+                                    {{ $nama }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Tahun
+                        </label>
+
+                        <select name="tahun"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700
+                   bg-white dark:bg-slate-800 px-4 py-3">
+
+                            <option value="">Semua Tahun</option>
+
+                            @for ($tahun = now()->year; $tahun >= 2025; $tahun--)
+                                <option value="{{ $tahun }}" {{ $tahun == now()->year ? 'selected' : '' }}>
+                                    {{ $tahun }}
+                                </option>
+                            @endfor
+
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <div class="px-6 pt-5">
+                    <div
+                        class="rounded-2xl bg-green-50 dark:bg-green-900/20
+                border border-green-200 dark:border-green-800
+                p-4">
+
+                        <div class="flex items-start gap-3">
+
+                            <i class="bi bi-check-circle-fill text-green-600 text-lg mt-0.5"></i>
+
+                            <div>
+                                <div class="font-semibold text-green-700 dark:text-green-300">
+                                    Data yang diexport
+                                </div>
+
+                                <div class="text-sm text-green-600 dark:text-green-400 mt-1">
+                                    Hanya BBM dengan pengajuan diterima dan laporan nota sudah diterima.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-6">
                     <label class="flex items-center gap-2">
@@ -1069,4 +1152,3 @@
         });
     </script>
 @endpush
-

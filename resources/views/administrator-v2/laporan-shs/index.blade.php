@@ -963,7 +963,7 @@
 
             document.getElementById('d_satuan').value = item.shs_satuan ?? '';
 
-            document.getElementById('d_tipe').value = item.shs_kelompok_shs ?? '';
+            document.getElementById('d_tipe').value = item.shs_kelompok ?? '';
 
             document.getElementById('d_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
 
@@ -1225,7 +1225,7 @@
 
             document.getElementById('d_satuan').value = item.shs_satuan ?? '';
 
-            document.getElementById('d_tipe').value = item.shs_kelompok_shs ?? '';
+            document.getElementById('d_tipe').value = item.shs_kelompok ?? '';
 
             document.getElementById('d_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
 
