@@ -28,6 +28,8 @@ class AdminBBMController extends Controller
                         ->where('bbm_pengaju_nama', 'like', "%{$search}%")
                         ->orWhere('bbm_pengaju_nip', 'like', "%{$search}%")
                         ->orWhere('bbm_no_plat', 'like', "%{$search}%")
+                    ->orWhere('bbm_liter', 'like', "%{$search}%")
+                    ->orWhere('bbm_uraian_kegiatan', 'like', "%{$search}%")
                         ->orWhere('bbm_status_pengajuan', 'like', "%{$search}%")
                         ->orWhere('bbm_status_laporan', 'like', "%{$search}%");
                 });

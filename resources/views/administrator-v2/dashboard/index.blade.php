@@ -1244,22 +1244,36 @@
 
     </div>
     <div id="releaseModal"
-        class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+        class="fixed inset-0 z-[9999] hidden items-center justify-center
+           bg-black/60 backdrop-blur-sm
+           p-3 sm:p-6
+           overflow-y-auto">
 
-        <div class="relative">
+        {{-- Tombol close selalu di pojok layar --}}
+        <button onclick="closeReleaseModal()"
+            class="fixed top-4 right-4 sm:top-6 sm:right-6
+               w-11 h-11 sm:w-12 sm:h-12
+               rounded-full bg-white shadow-xl
+               z-[10000]
+               flex items-center justify-center
+               text-slate-700
+               hover:bg-slate-100
+               transition">
 
-            <button onclick="closeReleaseModal()"
-                class="absolute -top-3 -right-3 w-11 h-11 rounded-full bg-white shadow-lg z-20">
+            <i class="bi bi-x-lg text-lg"></i>
 
-                <i class="bi bi-x-lg"></i>
+        </button>
 
-            </button>
+        <div class="relative w-full flex justify-center items-center">
 
             <img src="{{ asset('image/release/build-1121.26.1101.png') }}"
-                class="rounded-3xl shadow-2xl
+                class="block
                    w-auto
-                   max-w-[900px]
-                   max-h-[90vh]
+                   max-w-full
+                   max-h-[calc(100vh-32px)]
+                   sm:max-h-[90vh]
+                   rounded-2xl sm:rounded-3xl
+                   shadow-2xl
                    object-contain">
 
         </div>
