@@ -1,20 +1,108 @@
 @extends('administrator-v2.layouts.app')
 
-@section('title', 'Pengelolaan Ruang Rapat')
-@section('page_title', 'Pengelolaan Ruang Rapat')
-@section('breadcrumb', 'Pengelolaan Ruang Rapat')
+@section('title', 'Kelola Ruang Rapat')
+@section('page_title', 'Kelola Ruang Rapat')
+@section('breadcrumb', 'Kelola Ruang Rapat')
+
 
 @section('content')
 
     <div class="space-y-6">
 
+        {{-- HEADER --}}
+        <div
+            class="bg-white dark:bg-slate-900
+                rounded-3xl
+                border border-slate-200 dark:border-slate-700
+                shadow-sm p-6">
+
+            <div class="flex flex-col lg:flex-row
+                    lg:items-center lg:justify-between gap-5">
+
+                <div>
+
+                    <h2 class="text-2xl font-bold
+                           text-slate-900 dark:text-white">
+
+                        Kelola Ruang Rapat
+
+                    </h2>
+
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">
+
+                        Kelola data ruang yang tersedia untuk booking.
+
+                    </p>
+
+                </div>
+
+
+                <div class="flex flex-wrap gap-3">
+
+                    <a href="{{ route('admin.booking-ruang.dashboard') }}"
+                        class="inline-flex items-center gap-2
+                           px-5 py-3 rounded-2xl
+                           bg-slate-800 hover:bg-slate-900
+                           dark:bg-slate-700 dark:hover:bg-slate-600
+                           text-white font-semibold">
+
+                        <i class="bi bi-calendar3"></i>
+
+                        Kalender Booking
+
+                    </a>
+
+
+                    <a href="{{ route('admin.booking-ruang.pengajuan') }}"
+                        class="inline-flex items-center gap-2
+                           px-5 py-3 rounded-2xl
+                           bg-slate-100 hover:bg-slate-200
+                           dark:bg-slate-800 dark:hover:bg-slate-700
+                           text-slate-700 dark:text-slate-200
+                           font-semibold">
+
+                        <i class="bi bi-list-check"></i>
+
+                        Detail Pengajuan
+
+                    </a>
+
+
+                    <button onclick="openRuangModal()"
+                        class="inline-flex items-center gap-2
+                           px-5 py-3 rounded-2xl
+                           bg-blue-600 hover:bg-blue-700
+                           text-white font-semibold">
+
+                        <i class="bi bi-plus-lg"></i>
+
+                        Tambah Ruang
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- FLASH --}}
         @if (session('success'))
             <div
-                class="rounded-2xl bg-green-50
-                    border border-green-200
-                    text-green-700 px-5 py-4">
+                class="rounded-2xl
+                    bg-green-50 dark:bg-green-900/20
+                    border border-green-200 dark:border-green-800
+                    text-green-700 dark:text-green-300
+                    px-5 py-4">
 
-                {{ session('success') }}
+                <div class="flex items-center gap-3">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    {{ session('success') }}
+
+                </div>
 
             </div>
         @endif
@@ -22,146 +110,216 @@
 
         @if (session('error'))
             <div
-                class="rounded-2xl bg-red-50
-                    border border-red-200
-                    text-red-700 px-5 py-4">
+                class="rounded-2xl
+                    bg-red-50 dark:bg-red-900/20
+                    border border-red-200 dark:border-red-800
+                    text-red-700 dark:text-red-300
+                    px-5 py-4">
 
-                {{ session('error') }}
+                <div class="flex items-center gap-3">
+
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    {{ session('error') }}
+
+                </div>
 
             </div>
         @endif
 
 
-        <div class="bg-white rounded-3xl
-                border border-slate-200
-                shadow-sm p-6">
-
-            <div class="flex items-center justify-between">
-
-                <div>
-
-                    <h2 class="text-2xl font-bold">
-                        Pengelolaan Ruang Rapat
-                    </h2>
-
-                    <p class="text-slate-500 mt-1">
-                        Kelola ruang yang tersedia untuk booking.
-                    </p>
-
-                </div>
-
-
-                <button onclick="openRuangModal()"
-                    class="px-5 py-3 rounded-2xl
-                       bg-blue-600 text-white
-                       font-semibold hover:bg-blue-700">
-
-                    + Tambah Ruang
-
-                </button>
-
-            </div>
-
-        </div>
-
-
+        {{-- RUANG --}}
         <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
 
-            @forelse($ruangs as $ruang)
+            @forelse ($ruangs as $ruang)
                 <div
-                    class="bg-white rounded-3xl
-                        border border-slate-200
-                        shadow-sm p-6">
+                    class="bg-white dark:bg-slate-900
+                        rounded-3xl
+                        border border-slate-200 dark:border-slate-700
+                        shadow-sm
+                        p-6
+                        flex flex-col">
 
-                    <div class="flex items-start justify-between gap-3">
+                    {{-- TOP --}}
+                    <div class="flex items-start
+                            justify-between gap-4">
 
-                        <div>
+                        <div class="flex items-center gap-3">
 
-                            <h3 class="text-lg font-bold">
-                                {{ $ruang->ruang_nama }}
-                            </h3>
+                            <div
+                                class="w-12 h-12 rounded-2xl
+                                    bg-blue-50 dark:bg-blue-900/30
+                                    text-blue-600 dark:text-blue-400
+                                    flex items-center justify-center">
 
-                            <p class="text-sm text-slate-500 mt-1">
-                                {{ $ruang->ruang_lokasi }}
-                            </p>
+                                <i class="bi bi-building text-xl"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h3 class="font-bold
+                                       text-slate-900 dark:text-white">
+
+                                    {{ $ruang->ruang_nama }}
+
+                                </h3>
+
+                                <p class="text-sm
+                                      text-slate-500 dark:text-slate-400">
+
+                                    {{ $ruang->ruang_lokasi ?? '-' }}
+
+                                </p>
+
+                            </div>
 
                         </div>
 
 
                         @if ($ruang->ruang_status)
                             <span
-                                class="px-3 py-1.5 rounded-full
-                                     bg-green-100 text-green-700
+                                class="shrink-0
+                                     inline-flex items-center gap-1.5
+                                     px-3 py-1.5 rounded-full
+                                     bg-green-100 dark:bg-green-900/30
+                                     text-green-700 dark:text-green-300
                                      text-xs font-semibold">
+
+                                <span
+                                    class="w-1.5 h-1.5 rounded-full
+                                         bg-green-500"></span>
+
                                 Aktif
+
                             </span>
                         @else
                             <span
-                                class="px-3 py-1.5 rounded-full
-                                     bg-red-100 text-red-700
+                                class="shrink-0
+                                     inline-flex items-center gap-1.5
+                                     px-3 py-1.5 rounded-full
+                                     bg-red-100 dark:bg-red-900/30
+                                     text-red-700 dark:text-red-300
                                      text-xs font-semibold">
+
+                                <span
+                                    class="w-1.5 h-1.5 rounded-full
+                                         bg-red-500"></span>
+
                                 Nonaktif
+
                             </span>
                         @endif
 
                     </div>
 
 
-                    <div class="mt-5 space-y-3">
+                    {{-- INFO --}}
+                    <div class="mt-6 space-y-4">
 
-                        @if ($ruang->ruang_kapasitas)
-                            <div class="flex gap-2 text-sm">
+                        <div>
 
-                                <i class="bi bi-people text-slate-400"></i>
+                            <div
+                                class="text-xs font-semibold
+                                    uppercase tracking-wide
+                                    text-slate-400 dark:text-slate-500">
 
-                                <span>
-                                    {{ $ruang->ruang_kapasitas }} orang
-                                </span>
-
-                            </div>
-                        @endif
-
-
-                        @if ($ruang->ruang_fasilitas)
-                            <div class="text-sm text-slate-600">
-
-                                {!! nl2br(e($ruang->ruang_fasilitas)) !!}
+                                Kapasitas
 
                             </div>
-                        @endif
+
+                            <div
+                                class="mt-1 font-semibold
+                                    text-slate-800 dark:text-slate-200">
+
+                                <i class="bi bi-people me-1"></i>
+
+                                {{ $ruang->ruang_kapasitas ?? '-' }}
+
+                                orang
+
+                            </div>
+
+                        </div>
 
 
-                        <div class="text-xs text-slate-400">
+                        <div>
 
-                            {{ $ruang->bookings_count }}
-                            booking
+                            <div
+                                class="text-xs font-semibold
+                                    uppercase tracking-wide
+                                    text-slate-400 dark:text-slate-500">
+
+                                Fasilitas
+
+                            </div>
+
+                            <div
+                                class="mt-1
+                                    text-sm
+                                    text-slate-600 dark:text-slate-300">
+
+                                {{ $ruang->ruang_fasilitas ?: '-' }}
+
+                            </div>
 
                         </div>
 
                     </div>
 
 
-                    <div class="flex gap-2 mt-6">
+                    {{-- ACTION --}}
+                    <div
+                        class="mt-6 pt-5
+                            border-t border-slate-200
+                            dark:border-slate-700
+                            flex gap-2">
 
-                        <button onclick='editRuang(@json($ruang))'
-                            class="flex-1 px-4 py-2.5 rounded-xl
-                               bg-blue-50 text-blue-700
-                               font-semibold">
+                        <button
+                            onclick="editRuang(
+                            '{{ $ruang->ruang_id }}',
+                            @js($ruang->ruang_nama),
+                            @js($ruang->ruang_lokasi),
+                            @js($ruang->ruang_kapasitas),
+                            @js($ruang->ruang_fasilitas),
+                            {{ $ruang->ruang_status ? 1 : 0 }}
+                        )"
+                            class="flex-1
+                               inline-flex items-center
+                               justify-center gap-2
+                               px-4 py-2.5 rounded-xl
+                               bg-blue-50 dark:bg-blue-900/30
+                               text-blue-700 dark:text-blue-300
+                               font-semibold
+                               hover:bg-blue-100
+                               dark:hover:bg-blue-900/50">
+
+                            <i class="bi bi-pencil"></i>
 
                             Edit
 
                         </button>
 
 
-                        <form action="{{ route('admin.booking-ruang.ruang.status', $ruang->ruang_uid) }}" method="POST">
+                        <form action="{{ route('admin.booking-ruang.ruang.status', $ruang->ruang_id) }}" method="POST">
 
                             @csrf
+                            @method('PATCH')
 
-                            <button
+                            <button type="submit"
                                 class="px-4 py-2.5 rounded-xl
-                                   bg-slate-100 text-slate-700">
+                                   bg-slate-100 dark:bg-slate-800
+                                   text-slate-700 dark:text-slate-300
+                                   font-semibold
+                                   hover:bg-slate-200
+                                   dark:hover:bg-slate-700">
 
-                                {{ $ruang->ruang_status ? 'Nonaktifkan' : 'Aktifkan' }}
+                                @if ($ruang->ruang_status)
+                                    <i class="bi bi-pause-circle"></i>
+                                @else
+                                    <i class="bi bi-play-circle"></i>
+                                @endif
 
                             </button>
 
@@ -173,14 +331,40 @@
 
             @empty
 
-                <div
-                    class="col-span-full
-                        bg-white rounded-3xl
-                        border border-slate-200
-                        p-10 text-center
-                        text-slate-500">
+                <div class="md:col-span-2 xl:col-span-3">
 
-                    Belum ada ruang rapat.
+                    <div
+                        class="bg-white dark:bg-slate-900
+                            rounded-3xl
+                            border border-slate-200 dark:border-slate-700
+                            p-12 text-center">
+
+                        <div
+                            class="w-16 h-16 mx-auto
+                                rounded-2xl
+                                bg-slate-100 dark:bg-slate-800
+                                flex items-center justify-center
+                                text-slate-400">
+
+                            <i class="bi bi-building text-2xl"></i>
+
+                        </div>
+
+                        <h3 class="mt-5 font-bold
+                               text-slate-800 dark:text-slate-200">
+
+                            Belum ada ruang
+
+                        </h3>
+
+                        <p class="text-sm
+                              text-slate-500 dark:text-slate-400 mt-1">
+
+                            Tambahkan ruang rapat terlebih dahulu.
+
+                        </p>
+
+                    </div>
 
                 </div>
             @endforelse
@@ -194,23 +378,48 @@
     <div id="ruangModal"
         class="fixed inset-0 z-[9999] hidden
            items-center justify-center
-           bg-black/50 p-4
-           overflow-y-auto">
+           bg-black/60 backdrop-blur-sm
+           p-4 overflow-y-auto">
 
         <div
-            class="w-full max-w-xl
-                bg-white rounded-3xl
-                shadow-2xl
-                overflow-hidden">
+            class="relative w-full max-w-xl
+                max-h-[90vh]
+                bg-white dark:bg-slate-900
+                border border-slate-200 dark:border-slate-700
+                rounded-3xl shadow-2xl
+                flex flex-col overflow-hidden">
 
-            <div class="flex items-center justify-between
-                    px-6 py-5 border-b">
+            {{-- HEADER --}}
+            <div
+                class="flex items-center justify-between
+                    px-6 py-5 shrink-0
+                    border-b border-slate-200
+                    dark:border-slate-700">
 
-                <h2 id="ruangModalTitle" class="text-xl font-bold">
-                    Tambah Ruang
-                </h2>
+                <div>
 
-                <button onclick="closeRuangModal()" class="w-10 h-10 rounded-xl hover:bg-slate-100">
+                    <h2 id="ruangModalTitle"
+                        class="text-xl font-bold
+                           text-slate-900 dark:text-white">
+
+                        Tambah Ruang
+
+                    </h2>
+
+                    <p class="text-sm
+                          text-slate-500 dark:text-slate-400">
+
+                        Isi informasi ruang rapat.
+
+                    </p>
+
+                </div>
+
+
+                <button type="button" onclick="closeRuangModal()"
+                    class="w-10 h-10 rounded-xl
+                       hover:bg-slate-100 dark:hover:bg-slate-800
+                       text-slate-600 dark:text-slate-300">
 
                     <i class="bi bi-x-lg"></i>
 
@@ -219,78 +428,165 @@
             </div>
 
 
-            <form id="ruangForm" action="{{ route('admin.booking-ruang.ruang.store') }}" method="POST">
+            {{-- FORM --}}
+            <form id="ruangForm" method="POST" class="flex flex-col min-h-0">
 
                 @csrf
 
-                <div id="methodField"></div>
+                <div class="overflow-y-auto p-6 space-y-5">
 
-                <div class="p-6 space-y-5">
+                    <input type="hidden" name="_method" id="ruangMethod" value="POST">
+
 
                     <div>
 
-                        <label class="block text-sm font-semibold mb-2">
+                        <label
+                            class="block text-sm font-semibold
+                                  text-slate-700 dark:text-slate-300 mb-2">
+
                             Nama Ruang
+
                         </label>
 
-                        <input id="ruang_nama" type="text" name="ruang_nama" class="w-full rounded-xl border-slate-300"
-                            required>
+                        <input type="text" name="ruang_nama" id="ruang_nama" required
+                            class="w-full rounded-xl
+                               border-slate-300 dark:border-slate-600
+                               bg-white dark:bg-slate-800
+                               text-slate-900 dark:text-white
+                               placeholder:text-slate-400
+                               focus:border-blue-500
+                               focus:ring-blue-500">
 
                     </div>
 
 
                     <div>
 
-                        <label class="block text-sm font-semibold mb-2">
+                        <label
+                            class="block text-sm font-semibold
+                                  text-slate-700 dark:text-slate-300 mb-2">
+
                             Lokasi
+
                         </label>
 
-                        <input id="ruang_lokasi" type="text" name="ruang_lokasi"
-                            class="w-full rounded-xl border-slate-300" required>
+                        <input type="text" name="ruang_lokasi" id="ruang_lokasi"
+                            class="w-full rounded-xl
+                               border-slate-300 dark:border-slate-600
+                               bg-white dark:bg-slate-800
+                               text-slate-900 dark:text-white
+                               placeholder:text-slate-400
+                               focus:border-blue-500
+                               focus:ring-blue-500">
 
                     </div>
 
 
                     <div>
 
-                        <label class="block text-sm font-semibold mb-2">
+                        <label
+                            class="block text-sm font-semibold
+                                  text-slate-700 dark:text-slate-300 mb-2">
+
                             Kapasitas
+
                         </label>
 
-                        <input id="ruang_kapasitas" type="number" name="ruang_kapasitas" min="1"
-                            class="w-full rounded-xl border-slate-300">
+                        <input type="number" name="ruang_kapasitas" id="ruang_kapasitas" min="1"
+                            class="w-full rounded-xl
+                               border-slate-300 dark:border-slate-600
+                               bg-white dark:bg-slate-800
+                               text-slate-900 dark:text-white
+                               placeholder:text-slate-400
+                               focus:border-blue-500
+                               focus:ring-blue-500">
 
                     </div>
 
 
                     <div>
 
-                        <label class="block text-sm font-semibold mb-2">
+                        <label
+                            class="block text-sm font-semibold
+                                  text-slate-700 dark:text-slate-300 mb-2">
+
                             Fasilitas
+
                         </label>
 
-                        <textarea id="ruang_fasilitas" name="ruang_fasilitas" rows="4" class="w-full rounded-xl border-slate-300"></textarea>
+                        <textarea name="ruang_fasilitas" id="ruang_fasilitas" rows="4"
+                            placeholder="Contoh: AC, Proyektor, TV, Whiteboard..."
+                            class="w-full rounded-xl
+                               border-slate-300 dark:border-slate-600
+                               bg-white dark:bg-slate-800
+                               text-slate-900 dark:text-white
+                               placeholder:text-slate-400
+                               focus:border-blue-500
+                               focus:ring-blue-500"></textarea>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            class="block text-sm font-semibold
+                                  text-slate-700 dark:text-slate-300 mb-2">
+
+                            Status
+
+                        </label>
+
+                        <select name="ruang_status" id="ruang_status"
+                            class="w-full rounded-xl
+                               border-slate-300 dark:border-slate-600
+                               bg-white dark:bg-slate-800
+                               text-slate-900 dark:text-white
+                               focus:border-blue-500
+                               focus:ring-blue-500">
+
+                            <option value="1">
+                                Aktif
+                            </option>
+
+                            <option value="0">
+                                Nonaktif
+                            </option>
+
+                        </select>
 
                     </div>
 
                 </div>
 
 
-                <div class="border-t px-6 py-4
+                {{-- FOOTER --}}
+                <div
+                    class="shrink-0
+                        border-t border-slate-200
+                        dark:border-slate-700
+                        px-6 py-5
                         flex justify-end gap-3">
 
                     <button type="button" onclick="closeRuangModal()"
                         class="px-5 py-3 rounded-xl
-                           bg-slate-100">
+                           bg-slate-100 dark:bg-slate-800
+                           text-slate-700 dark:text-slate-300
+                           font-semibold
+                           hover:bg-slate-200
+                           dark:hover:bg-slate-700">
 
                         Batal
 
                     </button>
 
-                    <button
+
+                    <button type="submit"
                         class="px-5 py-3 rounded-xl
-                           bg-blue-600 text-white
-                           font-semibold">
+                           bg-blue-600 hover:bg-blue-700
+                           text-white font-semibold">
+
+                        <i class="bi bi-check-lg me-1"></i>
 
                         Simpan
 
@@ -309,68 +605,95 @@
 
 @push('scripts')
     <script>
+        const ruangModal =
+            document.getElementById('ruangModal');
+
+        const ruangForm =
+            document.getElementById('ruangForm');
+
+
         function openRuangModal() {
+            ruangForm.reset();
+
             document.getElementById('ruangModalTitle')
                 .innerText = 'Tambah Ruang';
 
-            document.getElementById('ruangForm')
-                .action =
+            document.getElementById('ruangMethod')
+                .value = 'POST';
+
+            ruangForm.action =
                 "{{ route('admin.booking-ruang.ruang.store') }}";
 
-            document.getElementById('methodField')
-                .innerHTML = '';
+            ruangModal.classList.remove('hidden');
 
-            document.getElementById('ruangForm')
-                .reset();
-
-            showRuangModal();
+            ruangModal.classList.add('flex');
         }
 
 
-        function editRuang(ruang) {
+        function editRuang(
+            id,
+            nama,
+            lokasi,
+            kapasitas,
+            fasilitas,
+            status
+        ) {
             document.getElementById('ruangModalTitle')
                 .innerText = 'Edit Ruang';
 
-            document.getElementById('ruangForm')
-                .action =
-                "{{ url('admin/booking-ruang/ruang') }}/" +
-                ruang.ruang_uid;
-
-            document.getElementById('methodField')
-                .innerHTML =
-                '@method('PUT')';
-
             document.getElementById('ruang_nama')
-                .value = ruang.ruang_nama ?? '';
+                .value = nama ?? '';
 
             document.getElementById('ruang_lokasi')
-                .value = ruang.ruang_lokasi ?? '';
+                .value = lokasi ?? '';
 
             document.getElementById('ruang_kapasitas')
-                .value = ruang.ruang_kapasitas ?? '';
+                .value = kapasitas ?? '';
 
             document.getElementById('ruang_fasilitas')
-                .value = ruang.ruang_fasilitas ?? '';
+                .value = fasilitas ?? '';
 
-            showRuangModal();
-        }
+            document.getElementById('ruang_status')
+                .value = status ? '1' : '0';
 
+            document.getElementById('ruangMethod')
+                .value = 'PUT';
 
-        function showRuangModal() {
-            document.getElementById('ruangModal')
-                .classList.remove('hidden');
+            ruangForm.action =
+                "{{ url('admin/booking-ruang/ruang') }}/" + id;
 
-            document.getElementById('ruangModal')
-                .classList.add('flex');
+            ruangModal.classList.remove('hidden');
+
+            ruangModal.classList.add('flex');
         }
 
 
         function closeRuangModal() {
-            document.getElementById('ruangModal')
-                .classList.remove('flex');
+            ruangModal.classList.remove('flex');
 
-            document.getElementById('ruangModal')
-                .classList.add('hidden');
+            ruangModal.classList.add('hidden');
         }
+
+
+        ruangModal.addEventListener('click', function(e) {
+
+            if (e.target === ruangModal) {
+
+                closeRuangModal();
+
+            }
+
+        });
+
+
+        document.addEventListener('keydown', function(e) {
+
+            if (e.key === 'Escape') {
+
+                closeRuangModal();
+
+            }
+
+        });
     </script>
 @endpush
