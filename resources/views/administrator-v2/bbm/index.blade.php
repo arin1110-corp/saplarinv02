@@ -627,21 +627,39 @@
     </div>
 
     {{-- MODAL EXPORT --}}
-    <div id="exportModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div id="exportModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center
+           bg-black/60 backdrop-blur-sm
+           p-3 sm:p-4
+           overflow-y-auto">
 
         <div
-            class="w-full max-w-3xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            class="w-full max-w-3xl
+               max-h-[calc(100vh-24px)]
+               sm:max-h-[90vh]
+               rounded-3xl
+               bg-white dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               shadow-2xl
+               flex flex-col
+               overflow-hidden">
 
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+            {{-- HEADER --}}
+            <div
+                class="flex items-center justify-between
+                   shrink-0
+                   border-b border-slate-200 dark:border-slate-700
+                   px-5 sm:px-6 py-4 sm:py-5">
 
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white">
-
                     Export Excel
-
                 </h3>
 
                 <button type="button" onclick="closeExportModal()"
-                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    class="w-10 h-10 shrink-0
+                       rounded-xl
+                       hover:bg-slate-100 dark:hover:bg-slate-800
+                       transition">
 
                     <i class="bi bi-x-lg"></i>
 
@@ -649,209 +667,337 @@
 
             </div>
 
-            <form action="{{ route('admin.bbm.export') }}" method="GET">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border-b border-slate-200 dark:border-slate-700">
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Bulan
-                        </label>
+            <form action="{{ route('admin.bbm.export') }}" method="GET" class="flex flex-col min-h-0">
 
-                        <select name="bulan"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700
-                   bg-white dark:bg-slate-800 px-4 py-3">
+                {{-- CONTENT SCROLL --}}
+                <div class="flex-1 overflow-y-auto">
 
-                            <option value="">Semua Bulan</option>
-
-                            @foreach ([
-                                1 => 'Januari',
-                                2 => 'Februari',
-                                3 => 'Maret',
-                                4 => 'April',
-                                5 => 'Mei',
-                                6 => 'Juni',
-                                7 => 'Juli',
-                                8 => 'Agustus',
-                                9 => 'September',
-                                10 => 'Oktober',
-                                11 => 'November',
-                                12 => 'Desember',
-                            ] as $nomor => $nama)
-                                <option value="{{ $nomor }}">
-                                    {{ $nama }}
-                                </option>
-                            @endforeach
-
-                        </select>
-                    </div>
-
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Tahun
-                        </label>
-
-                        <select name="tahun"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700
-                   bg-white dark:bg-slate-800 px-4 py-3">
-
-                            <option value="">Semua Tahun</option>
-
-                            @for ($tahun = now()->year; $tahun >= 2025; $tahun--)
-                                <option value="{{ $tahun }}" {{ $tahun == now()->year ? 'selected' : '' }}>
-                                    {{ $tahun }}
-                                </option>
-                            @endfor
-
-                        </select>
-                    </div>
-
-                </div>
-
-
-                <div class="px-6 pt-5">
+                    {{-- BULAN & TAHUN --}}
                     <div
-                        class="rounded-2xl bg-green-50 dark:bg-green-900/20
-                border border-green-200 dark:border-green-800
-                p-4">
+                        class="grid grid-cols-1 md:grid-cols-2
+                           gap-4
+                           p-5 sm:p-6
+                           border-b border-slate-200 dark:border-slate-700">
 
-                        <div class="flex items-start gap-3">
+                        <div>
 
-                            <i class="bi bi-check-circle-fill text-green-600 text-lg mt-0.5"></i>
+                            <label
+                                class="block text-sm font-medium
+                                   text-slate-700 dark:text-slate-300 mb-2">
 
-                            <div>
-                                <div class="font-semibold text-green-700 dark:text-green-300">
-                                    Data yang diexport
+                                Bulan
+
+                            </label>
+
+                            <select name="bulan"
+                                class="w-full rounded-xl
+                                   border border-slate-300 dark:border-slate-700
+                                   bg-white dark:bg-slate-800
+                                   px-4 py-3">
+
+                                <option value="">
+                                    Semua Bulan
+                                </option>
+
+                                @foreach ([
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ] as $nomor => $nama)
+                                    <option value="{{ $nomor }}">
+                                        {{ $nama }}
+                                    </option>
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                class="block text-sm font-medium
+                                   text-slate-700 dark:text-slate-300 mb-2">
+
+                                Tahun
+
+                            </label>
+
+                            <select name="tahun"
+                                class="w-full rounded-xl
+                                   border border-slate-300 dark:border-slate-700
+                                   bg-white dark:bg-slate-800
+                                   px-4 py-3">
+
+                                <option value="">
+                                    Semua Tahun
+                                </option>
+
+                                @for ($tahun = now()->year; $tahun >= 2025; $tahun--)
+                                    <option value="{{ $tahun }}" {{ $tahun == now()->year ? 'selected' : '' }}>
+
+                                        {{ $tahun }}
+
+                                    </option>
+                                @endfor
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- INFO --}}
+                    <div class="px-5 sm:px-6 pt-5">
+
+                        <div
+                            class="rounded-2xl
+                               bg-green-50 dark:bg-green-900/20
+                               border border-green-200 dark:border-green-800
+                               p-4">
+
+                            <div class="flex items-start gap-3">
+
+                                <i
+                                    class="bi bi-check-circle-fill
+                                       text-green-600 text-lg mt-0.5 shrink-0">
+                                </i>
+
+                                <div>
+
+                                    <div
+                                        class="font-semibold
+                                           text-green-700 dark:text-green-300">
+
+                                        Data yang diexport
+
+                                    </div>
+
+                                    <div
+                                        class="text-sm
+                                           text-green-600 dark:text-green-400
+                                           mt-1">
+
+                                        Hanya BBM dengan pengajuan diterima
+                                        dan laporan nota sudah diterima.
+
+                                    </div>
+
                                 </div>
 
-                                <div class="text-sm text-green-600 dark:text-green-400 mt-1">
-                                    Hanya BBM dengan pengajuan diterima dan laporan nota sudah diterima.
-                                </div>
                             </div>
 
                         </div>
 
                     </div>
+
+
+                    {{-- PILIH FIELD --}}
+                    <div class="p-5 sm:p-6">
+
+                        <div class="mb-4">
+
+                            <h4 class="font-semibold text-slate-800 dark:text-white">
+                                Data yang disertakan
+                            </h4>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Pilih kolom yang ingin dimasukkan ke Excel.
+                            </p>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="pengaju_nama" checked>
+
+                                <span>Nama Pengaju</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="pengaju_nip" checked>
+
+                                <span>NIP</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="bidang">
+
+                                <span>Bidang</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="plat" checked>
+
+                                <span>No Plat</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="liter" checked>
+
+                                <span>Liter</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="uraian">
+
+                                <span>Uraian</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="status_pengajuan">
+
+                                <span>Status Pengajuan</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="status_laporan">
+
+                                <span>Status Laporan</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="tanggal_pengajuan">
+
+                                <span>Tanggal Pengajuan</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="file_spt">
+
+                                <span>File SPT</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="file_acc">
+
+                                <span>File ACC Pimpinan</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="file_nota">
+
+                                <span>File Nota</span>
+
+                            </label>
+
+
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+
+                                <input type="checkbox" name="fields[]" value="bukti_tambahan">
+
+                                <span>Bukti Tambahan</span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-6">
-                    <label class="flex items-center gap-2">
 
-                        <input type="checkbox" name="fields[]" value="pengaju_nama" checked>
-
-                        Nama Pengaju
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="pengaju_nip" checked>
-
-                        NIP
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="bidang">
-
-                        Bidang
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="plat" checked>
-
-                        No Plat
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="liter" checked>
-
-                        Liter
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="uraian">
-
-                        Uraian
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="status_pengajuan">
-
-                        Status Pengajuan
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="status_laporan">
-
-                        Status Laporan
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="tanggal_pengajuan">
-
-                        Tanggal Pengajuan
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="file_spt">
-
-                        File SPT
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="file_acc">
-
-                        File ACC Pimpinan
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="file_nota">
-
-                        File Nota
-
-                    </label>
-
-                    <label class="flex items-center gap-2">
-
-                        <input type="checkbox" name="fields[]" value="bukti_tambahan">
-
-                        Bukti Tambahan
-
-                    </label>
-
-                </div>
-
-                <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+                {{-- FOOTER --}}
+                <div
+                    class="shrink-0
+                       flex flex-col-reverse sm:flex-row
+                       justify-end gap-3
+                       border-t border-slate-200 dark:border-slate-700
+                       px-5 sm:px-6 py-4 sm:py-5
+                       bg-white dark:bg-slate-900">
 
                     <button type="button" onclick="closeExportModal()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        class="w-full sm:w-auto
+                           rounded-xl
+                           border border-slate-300 dark:border-slate-700
+                           px-5 py-2.5
+                           hover:bg-slate-100 dark:hover:bg-slate-800
+                           transition">
 
                         Batal
 
                     </button>
 
                     <button type="submit"
-                        class="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 font-semibold text-white transition">
+                        class="w-full sm:w-auto
+                           rounded-xl
+                           bg-emerald-600 hover:bg-emerald-700
+                           px-5 py-2.5
+                           font-semibold text-white
+                           transition">
 
                         <i class="bi bi-download me-2"></i>
 
