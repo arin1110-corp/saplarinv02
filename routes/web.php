@@ -317,15 +317,24 @@ Route::middleware(['admin'])
 |--------------------------------------------------------------------------
 */
 
-    Route::get('/booking-ruang', [AdminBookingRuangController::class, 'index'])->name('admin.booking-ruang.index');
-
-    Route::get('/booking-ruang/{uid}', [AdminBookingRuangController::class, 'show'])->name('admin.booking-ruang.show');
-
-    Route::post('/booking-ruang/{uid}/approve', [AdminBookingRuangController::class, 'approve'])->name('admin.booking-ruang.approve');
-
-    Route::post('/booking-ruang/{uid}/reject', [AdminBookingRuangController::class, 'reject'])->name('admin.booking-ruang.reject');
+    Route::get('/booking-ruang', [AdminBookingRuangController::class, 'dashboard'])->name('admin.booking-ruang.dashboard');
 
     Route::get('/booking-ruang/events/json', [AdminBookingRuangController::class, 'events'])->name('admin.booking-ruang.events');
+
+    Route::get('/booking-ruang/detail/{uid}', [AdminBookingRuangController::class, 'detail'])->name('admin.booking-ruang.detail');
+
+    Route::post('/booking-ruang/batal/{uid}', [AdminBookingRuangController::class, 'batal'])->name('admin.booking-ruang.batal');
+
+    // Pengelolaan ruang
+    Route::get('/booking-ruang/ruang', [AdminBookingRuangController::class, 'ruang'])->name('admin.booking-ruang.ruang');
+
+    Route::post('/booking-ruang/ruang/store', [AdminBookingRuangController::class, 'ruangStore'])->name('admin.booking-ruang.ruang.store');
+
+    Route::put('/booking-ruang/ruang/{uid}', [AdminBookingRuangController::class, 'ruangUpdate'])->name('admin.booking-ruang.ruang.update');
+
+    Route::post('/booking-ruang/ruang/{uid}/status', [AdminBookingRuangController::class, 'ruangStatus'])->name('admin.booking-ruang.ruang.status');
+
+    Route::delete('/booking-ruang/ruang/{uid}', [AdminBookingRuangController::class, 'ruangDelete'])->name('admin.booking-ruang.ruang.delete');
     });
 
 Route::prefix('user')

@@ -485,6 +485,17 @@
                                 </span>
 
                             </a>
+                            <a href="{{ route('admin.booking-ruang.dashboard') }}"
+                                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+    {{ request()->routeIs('admin.booking-ruang*')
+        ? 'bg-blue-50 text-blue-700'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+
+                                <i class="bi bi-building"></i>
+
+                                <span>Permintaan Booking Ruang Rapat</span>
+
+                            </a>
                         @endif
 
                     </div>
