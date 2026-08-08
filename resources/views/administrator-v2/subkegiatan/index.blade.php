@@ -274,6 +274,30 @@
             </table>
 
         </div>
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="text-sm text-slate-500">
+
+                Menampilkan
+
+                <b>{{ $subkegiatans->firstItem() }}</b>
+
+                -
+
+                <b>{{ $subkegiatans->lastItem() }}</b>
+
+                dari
+
+                <b>{{ $subkegiatans->total() }}</b>
+
+                data
+
+            </div>
+
+            {{ $subkegiatans->links() }}
+
+        </div>
 
     </div>
     <!-- MODAL TAMBAH -->
@@ -805,7 +829,6 @@
 
     @push('styles')
         <style>
-
             input,
             select {
 
