@@ -235,6 +235,123 @@
 
         </div>
 
+        {{-- MASTER DATA PROGRAM --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            {{-- PROGRAM --}}
+            <div
+                class="rounded-3xl bg-white dark:bg-slate-900
+               border border-slate-200 dark:border-slate-800
+               p-6">
+
+                <div class="flex justify-between items-center">
+
+                    <div>
+
+                        <p class="text-slate-500 text-sm">
+                            Program
+                        </p>
+
+                        <h2 class="text-3xl font-bold mt-2 dark:text-white">
+                            {{ number_format($jumlahProgram, 0, ',', '.') }}
+                        </h2>
+
+                        <p class="text-xs text-slate-500 mt-3">
+                            Program Aktif
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="w-16 h-16 rounded-3xl
+                       bg-blue-100 dark:bg-blue-900/30
+                       flex items-center justify-center">
+
+                        <i class="bi bi-diagram-3 text-3xl text-blue-600"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- KEGIATAN --}}
+            <div
+                class="rounded-3xl bg-white dark:bg-slate-900
+               border border-slate-200 dark:border-slate-800
+               p-6">
+
+                <div class="flex justify-between items-center">
+
+                    <div>
+
+                        <p class="text-slate-500 text-sm">
+                            Kegiatan
+                        </p>
+
+                        <h2 class="text-3xl font-bold mt-2 dark:text-white">
+                            {{ number_format($jumlahKegiatan, 0, ',', '.') }}
+                        </h2>
+
+                        <p class="text-xs text-slate-500 mt-3">
+                            Kegiatan Aktif
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="w-16 h-16 rounded-3xl
+                       bg-indigo-100 dark:bg-indigo-900/30
+                       flex items-center justify-center">
+
+                        <i class="bi bi-list-task text-3xl text-indigo-600"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- SUB KEGIATAN --}}
+            <div
+                class="rounded-3xl bg-white dark:bg-slate-900
+               border border-slate-200 dark:border-slate-800
+               p-6">
+
+                <div class="flex justify-between items-center">
+
+                    <div>
+
+                        <p class="text-slate-500 text-sm">
+                            Sub Kegiatan
+                        </p>
+
+                        <h2 class="text-3xl font-bold mt-2 dark:text-white">
+                            {{ number_format($jumlahSubKegiatan, 0, ',', '.') }}
+                        </h2>
+
+                        <p class="text-xs text-slate-500 mt-3">
+                            Sub Kegiatan Aktif
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="w-16 h-16 rounded-3xl
+                       bg-purple-100 dark:bg-purple-900/30
+                       flex items-center justify-center">
+
+                        <i class="bi bi-list-check text-3xl text-purple-600"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
         {{-- Statistic 2 --}}
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 

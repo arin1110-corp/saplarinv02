@@ -245,6 +245,17 @@ class DashboardController extends Controller
         | RETURN DASHBOARD
         |--------------------------------------------------------------------------
         */
+        /*
+|--------------------------------------------------------------------------
+| JUMLAH PROGRAM / KEGIATAN / SUB KEGIATAN
+|--------------------------------------------------------------------------
+*/
+
+        $jumlahProgram = \App\Models\ModelProgram::where('program_status', 1)->count();
+
+        $jumlahKegiatan = \App\Models\ModelKegiatan::where('kegiatan_status', 1)->count();
+
+        $jumlahSubKegiatan = \App\Models\ModelSubKegiatan::where('sub_kegiatan_status', 1)->count();
 
         return view(
             'administrator-v2.dashboard.index',
@@ -318,6 +329,12 @@ class DashboardController extends Controller
                 'jumlahPrioritas',
 
                 'jumlahAktivitas',
+
+                'jumlahProgram',
+
+                'jumlahKegiatan',
+
+                'jumlahSubKegiatan',
             ),
         );
     }
