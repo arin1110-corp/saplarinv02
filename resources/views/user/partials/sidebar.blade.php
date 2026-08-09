@@ -85,6 +85,7 @@
                 <span>⛽</span>
                 <span>BBM Kegiatan</span>
             </a>
+
             @if ($showNewFeature)
                 <div class="px-2 pt-2 pb-1">
 
@@ -159,19 +160,32 @@
                 {{ request()->routeIs('user.laporan-sub-kegiatan*')
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>📈</span>
+                <span>📊</span>
                 <span>Laporan Sub Kegiatan</span>
             </a>
         @endif
 
         @if ($canInputSPJ)
+            {{-- PENERIMAAN PAD --}}
+
+            <a href="{{ route('user.pad.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+    {{ request()->routeIs('user.pad*')
+        ? 'bg-blue-50 text-blue-700'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+
+                <span>📈</span>
+
+                <span>Realisasi Penerimaan</span>
+
+            </a>
             <a href="{{ route('user.spj.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.spj*')
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <span>💰</span>
-                <span>SPJ</span>
+                <span>📉</span>
+                <span>Realisasi Pengeluaran</span>
             </a>
         @endif
 

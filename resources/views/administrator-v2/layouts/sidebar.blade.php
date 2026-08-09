@@ -370,6 +370,110 @@
                             </span>
 
                         </a>
+                        @if ($canMaster)
+                            <div x-data="{ open: false }">
+
+                                <button type="button" @click="open=!open"
+                                    class="w-full flex items-center justify-between
+                   rounded-xl px-4 py-3
+                   hover:bg-slate-100
+                   dark:hover:bg-slate-800 transition">
+
+                                    <div class="flex items-center gap-3">
+
+                                        <i class="bi bi-cash-coin"></i>
+
+                                        <span>
+                                            Master PAD
+                                        </span>
+
+                                    </div>
+
+                                    <i class="bi"
+                                        :class="open
+                                            ?
+                                            'bi-chevron-up' :
+                                            'bi-chevron-down'">
+                                    </i>
+
+                                </button>
+
+
+                                <div x-show="open" x-collapse class="mt-2 space-y-1">
+
+                                    {{-- Jenis PAD --}}
+
+                                    <a href="{{ route('admin.pad.jenis.index') }}"
+                                        class="{{ request()->routeIs('admin.pad.jenis.*')
+                                            ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                                        <i class="bi bi-tags"></i>
+
+                                        <span>
+                                            Jenis PAD
+                                        </span>
+
+                                    </a>
+
+
+                                    {{-- Komponen PAD --}}
+
+                                    <a href="{{ route('admin.pad.komponen.index') }}"
+                                        class="{{ request()->routeIs('admin.pad.komponen.*')
+                                            ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                                        <i class="bi bi-list-ul"></i>
+
+                                        <span>
+                                            Komponen PAD
+                                        </span>
+
+                                    </a>
+                                    <a href="{{ route('admin.pad.subkomponen.index') }}"
+                                        class="flex items-center gap-3
+           px-4 py-3
+           rounded-2xl
+           font-medium
+           transition
+           {{ request()->routeIs('admin.pad.subkomponen*')
+               ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+               : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                                        <i class="bi
+                                        bi-list-check"></i>
+
+                                        <span>
+                                            Master Subkomponen
+                                        </span>
+
+                                    </a>
+
+
+                                    {{-- Target PAD --}}
+
+                                    <a href="{{ route('admin.pad.target.index') }}"
+                                        class="{{ request()->routeIs('admin.pad.target.*')
+                                            ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                flex items-center gap-3 rounded-lg px-5 py-2.5">
+
+                                        <i class="bi bi-bullseye"></i>
+
+                                        <span>
+                                            Target PAD
+                                        </span>
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+                        @endif
                     </div>
 
                 </div>
@@ -465,6 +569,19 @@
 
                                     Permintaan SPJ
 
+                                </span>
+
+                            </a>
+                            <a href="{{ route('admin.pad.permintaan.index') }}"
+                                class="{{ request()->routeIs('admin.pad.permintaan.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-cash-coin"></i>
+
+                                <span>
+                                    Permintaan PAD
                                 </span>
 
                             </a>
@@ -585,6 +702,21 @@
                             <span>
 
                                 Laporan SPJ
+
+                            </span>
+
+                        </a>
+                        <a href="{{ route('admin.laporan-pad.index') }}"
+                            class="{{ request()->routeIs('admin.laporan-pad.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                            <i class="bi bi-cash-coin"></i>
+
+                            <span>
+
+                                Laporan PAD
 
                             </span>
 

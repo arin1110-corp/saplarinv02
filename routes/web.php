@@ -28,6 +28,9 @@ use App\Http\Controllers\AdminSHSKelompokController;
 use App\Http\Controllers\Administrator\AdminSHSSatuanController;
 use App\Http\Controllers\UserBookingRuangController;
 use App\Http\Controllers\AdminBookingRuangController;
+use App\Http\Controllers\AdminPadController;
+use App\Http\Controllers\UserPadController;
+use App\Http\Controllers\AdminPadSubkomponenController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
@@ -336,6 +339,80 @@ Route::middleware(['admin'])
 
         Route::delete('/booking-ruang/ruang/{uid}', [AdminBookingRuangController::class, 'ruangDelete'])->name('admin.booking-ruang.ruang.delete');
         Route::get('/booking-ruang/pengajuan', [AdminBookingRuangController::class, 'pengajuan'])->name('admin.booking-ruang.pengajuan');
+
+    /*
+        |--------------------------------------------------------------------------
+        | MASTER PAD
+        |--------------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | MASTER JENIS
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/pad/jenis', [AdminPadController::class, 'jenis'])->name('admin.pad.jenis.index');
+
+    Route::post('/pad/jenis/store', [AdminPadController::class, 'jenisStore'])->name('admin.pad.jenis.store');
+
+    Route::put('/pad/jenis/{uid}', [AdminPadController::class, 'jenisUpdate'])->name('admin.pad.jenis.update');
+
+    Route::post('/pad/jenis/{uid}/status', [AdminPadController::class, 'jenisStatus'])->name('admin.pad.jenis.status');
+
+    /*
+        |--------------------------------------------------------------------------
+        | MASTER KOMPONEN
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/pad/komponen', [AdminPadController::class, 'komponen'])->name('admin.pad.komponen.index');
+
+    Route::post('/pad/komponen/store', [AdminPadController::class, 'komponenStore'])->name('admin.pad.komponen.store');
+
+    Route::put('/pad/komponen/{uid}', [AdminPadController::class, 'komponenUpdate'])->name('admin.pad.komponen.update');
+
+    Route::post('/pad/komponen/{uid}/status', [AdminPadController::class, 'komponenStatus'])->name('admin.pad.komponen.status');
+
+    /*
+        |--------------------------------------------------------------------------
+        | MASTER SUBKOMPONEN
+        |--------------------------------------------------------------------------
+        */
+    Route::get('/pad/subkomponen', [AdminPadSubkomponenController::class, 'index'])->name('admin.pad.subkomponen.index');
+
+    Route::post('/pad/subkomponen', [AdminPadSubkomponenController::class, 'store'])->name('admin.pad.subkomponen.store');
+
+    Route::put('/pad/subkomponen/{uid}', [AdminPadSubkomponenController::class, 'update'])->name('admin.pad.subkomponen.update');
+
+    Route::patch('/pad/subkomponen/{uid}/toggle', [AdminPadSubkomponenController::class, 'toggle'])->name('admin.pad.subkomponen.toggle');
+
+    /*
+|--------------------------------------------------------------------------
+| TARGET PAD
+|--------------------------------------------------------------------------
+*/
+
+    Route::get('/pad/target', [AdminPadController::class, 'target'])->name('admin.pad.target.index');
+
+    Route::post('/pad/target/store', [AdminPadController::class, 'targetStore'])->name('admin.pad.target.store');
+
+    Route::put('/pad/target/{uid}', [AdminPadController::class, 'targetUpdate'])->name('admin.pad.target.update');
+
+    Route::post('/pad/target/{uid}/status', [AdminPadController::class, 'targetStatus'])->name('admin.pad.target.status');
+    /*
+|--------------------------------------------------------------------------
+| PERMINTAAN PAD
+|--------------------------------------------------------------------------
+*/
+
+    Route::get('/pad/permintaan', [AdminPadController::class, 'permintaan'])->name('admin.pad.permintaan.index');
+
+    Route::get('/pad/permintaan/{uid}', [AdminPadController::class, 'permintaanDetail'])->name('admin.pad.permintaan.detail');
+    /*
+|--------------------------------------------------------------------------
+| LAPORAN PAD
+|--------------------------------------------------------------------------
+*/
+
+    Route::get('/laporan-pad', [AdminPadController::class, 'laporan'])->name('admin.laporan-pad.index');
     });
 
 Route::prefix('user')
@@ -502,4 +579,15 @@ Route::prefix('user')
         Route::get('/booking-ruang/detail/{uid}', [UserBookingRuangController::class, 'detail'])->name('booking-ruang.detail');
 
         Route::post('/booking-ruang/batal/{uid}', [UserBookingRuangController::class, 'batal'])->name('booking-ruang.batal');
+
+    /*
+        |--------------------------------------------------------------------------
+        | LAPORAN PAD
+        |--------------------------------------------------------------------------
+        */
+    Route::get('/pad', [UserPadController::class, 'index'])->name('pad.index');
+
+    Route::get('/pad/input/{uid}', [UserPadController::class, 'input'])->name('pad.input');
+
+    Route::post('/pad/input', [UserPadController::class, 'store'])->name('pad.store');
     });

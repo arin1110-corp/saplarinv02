@@ -168,6 +168,73 @@
 
         </div>
 
+
+        {{-- Statistic PAD --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-slate-500 text-sm">Target PAD</p>
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
+                            Rp {{ number_format($totalTargetPAD, 0, ',', '.') }}
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-3">Target Penerimaan PAD</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-3xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <i class="bi bi-cash-stack text-3xl text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-slate-500 text-sm">Realisasi PAD</p>
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
+                            Rp {{ number_format($totalRealisasiPAD, 0, ',', '.') }}
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-3">Penerimaan PAD</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-3xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <i class="bi bi-graph-up-arrow text-3xl text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-slate-500 text-sm">Sisa Target PAD</p>
+                        <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
+                            style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
+                            Rp {{ number_format($sisaPAD, 0, ',', '.') }}
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-3">Target Belum Terealisasi</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <i class="bi bi-piggy-bank text-3xl text-amber-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-500 text-white p-6">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm">Capaian PAD</p>
+                        <h2 class="text-4xl font-bold mt-2">{{ number_format($persenPAD, 2, ',', '.') }}%</h2>
+                        <p class="text-sm mt-3 text-green-100">Berdasarkan Target PAD</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-3xl bg-white/20 flex items-center justify-center">
+                        <i class="bi bi-bar-chart-line text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         {{-- Statistic 2 --}}
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
@@ -806,6 +873,234 @@
             </div>
         @endif
 
+
+        {{-- ========================================================= --}}
+        {{-- BAGIAN PENERIMAAN PAD --}}
+        {{-- ========================================================= --}}
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+            <div class="xl:col-span-2">
+                <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+
+                    <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                        <h3 class="text-lg font-bold dark:text-white">Grafik Penerimaan PAD Bulanan</h3>
+                        <p class="text-sm text-slate-500">Monitoring penerimaan PAD Tahun {{ $tahun }}</p>
+                    </div>
+
+                    <div class="p-6">
+                        <div id="chartPAD" class="h-96"></div>
+                    </div>
+
+                    <div class="border-t border-slate-200 dark:border-slate-800">
+
+                        <div class="px-6 py-5">
+                            <h3 class="text-xl font-bold dark:text-white">Rekap Penerimaan PAD Bulanan</h3>
+                            <p class="text-sm text-slate-500">Jumlah transaksi dan total penerimaan PAD setiap bulan.</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr
+                                        class="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                                        <th class="text-left p-4">Bulan</th>
+                                        <th class="text-center p-4">Jumlah Penerimaan</th>
+                                        <th class="text-right p-4">Total Nominal</th>
+                                        <th class="text-center p-4">Capaian</th>
+                                        <th class="text-center p-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($chartPAD as $i => $item)
+                                        @php
+                                            $persenBulanPAD =
+                                                $totalRealisasiPAD > 0
+                                                    ? ($item['nominal'] / $totalRealisasiPAD) * 100
+                                                    : 0;
+                                        @endphp
+                                        <tr
+                                            class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                            <td class="p-4 font-medium">{{ $item['bulan'] }}</td>
+                                            <td class="p-4 text-center">
+                                                <span
+                                                    class="inline-flex rounded-xl bg-green-100 dark:bg-green-900/20 px-3 py-1 text-green-700 dark:text-green-300 font-semibold">
+                                                    {{ $item['jumlah'] }} Penerimaan
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-right font-semibold">
+                                                Rp {{ number_format($item['nominal'], 0, ',', '.') }}
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <span
+                                                    class="inline-flex rounded-xl bg-blue-100 dark:bg-blue-900/20 px-3 py-1 text-blue-700 dark:text-blue-300">
+                                                    {{ number_format($persenBulanPAD, 1, ',', '.') }}%
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <a href="?tahun={{ $tahun }}&bulanPAD={{ $i + 1 }}"
+                                                    class="inline-flex items-center gap-2 rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm text-white">
+                                                    <i class="bi bi-eye"></i> Detail
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div
+                    class="rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-500 text-white shadow-xl">
+                    <div class="p-7">
+
+                        <h3 class="text-2xl font-bold">Status Penerimaan PAD</h3>
+                        <p class="mt-2 text-green-100">Monitoring penerimaan PAD secara realtime.</p>
+
+                        <div class="mt-8">
+                            <div class="flex justify-between text-sm">
+                                <span>Capaian PAD</span>
+                                <span>{{ number_format($persenPAD, 2, ',', '.') }}%</span>
+                            </div>
+                            <div class="mt-3 h-3 rounded-full bg-white/20">
+                                <div class="h-3 rounded-full bg-white"
+                                    style="width: {{ min(max($persenPAD, 0), 100) }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 space-y-5">
+                            <div class="flex justify-between">
+                                <span class="text-green-100">Target PAD</span>
+                                <strong>Rp {{ number_format($totalTargetPAD, 0, ',', '.') }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-green-100">Realisasi</span>
+                                <strong>Rp {{ number_format($totalRealisasiPAD, 0, ',', '.') }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-green-100">Sisa</span>
+                                <strong>Rp {{ number_format($sisaPAD, 0, ',', '.') }}</strong>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('admin.laporan-pad.index') }}"
+                            class="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-white py-3 font-semibold text-green-700 hover:bg-green-50 transition">
+                            Lihat Laporan PAD
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @if ($bulanPAD)
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+
+                <div class="rounded-2xl bg-green-50 dark:bg-green-900/20 p-5">
+                    <div class="text-sm text-slate-500">Bulan</div>
+                    <div class="mt-2 text-xl font-bold">{{ $chartPAD[$bulanPAD - 1]['bulan'] ?? '-' }}</div>
+                </div>
+
+                <div class="rounded-2xl bg-blue-50 dark:bg-blue-900/20 p-5">
+                    <div class="text-sm text-slate-500">Jumlah Penerimaan</div>
+                    <div class="mt-2 text-xl font-bold">{{ count($detailPAD) }}</div>
+                </div>
+
+                <div class="rounded-2xl bg-amber-50 dark:bg-amber-900/20 p-5">
+                    <div class="text-sm text-slate-500">Total Penerimaan</div>
+                    <div class="mt-2 text-xl font-bold">
+                        Rp {{ number_format($detailPAD->sum('pad_realisasi_nominal'), 0, ',', '.') }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+
+                <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                    <h3 class="text-xl font-bold dark:text-white">Detail Penerimaan PAD</h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        {{ $chartPAD[$bulanPAD - 1]['bulan'] ?? '-' }} • {{ count($detailPAD) }} Penerimaan
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-800">
+                                <th class="text-left p-4">Tanggal</th>
+                                <th class="text-left p-4">Unit</th>
+                                <th class="text-left p-4">Jenis PAD</th>
+                                <th class="text-left p-4">Komponen</th>
+                                <th class="text-left p-4">Sub Komponen</th>
+                                <th class="text-left p-4">Keterangan</th>
+                                <th class="text-right p-4">Nominal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse ($detailPAD as $item)
+                                <tr class="border-b border-slate-100 dark:border-slate-800">
+
+                                    <td class="p-4">
+                                        {{ \Carbon\Carbon::parse($item->pad_realisasi_tanggal)->format('d/m/Y') }}
+                                    </td>
+
+                                    <td class="p-4">
+                                        {{ $item->target->pad_target_unit_nama ?? '-' }}
+                                    </td>
+
+                                    <td class="p-4">
+                                        {{ $item->target->jenis->pad_jenis_nama ?? '-' }}
+                                    </td>
+
+                                    <td class="p-4">
+                                        {{ $item->target->komponen->pad_komponen_nama ?? '-' }}
+                                    </td>
+
+                                    <td class="p-4">
+                                        {{ $item->subkomponen->pad_subkomponen_nama ?? '-' }}
+                                    </td>
+
+                                    <td class="p-4">
+                                        {{ $item->pad_realisasi_keterangan ?? '-' }}
+                                    </td>
+
+                                    <td class="p-4 text-right font-semibold">
+                                        Rp {{ number_format($item->pad_realisasi_nominal, 0, ',', '.') }}
+                                    </td>
+
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-10 text-slate-500">
+                                        Tidak ada penerimaan PAD.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="flex justify-end">
+                <a href="?tahun={{ $tahun }}"
+                    class="inline-flex items-center gap-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white px-4 py-2">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+            </div>
+
+        @endif
+
         {{-- Pagu Terbaru --}}
         <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
 
@@ -1407,6 +1702,100 @@
 
                 }, 350);
 
+            });
+
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const elementPAD = document.querySelector("#chartPAD");
+
+            if (!elementPAD) {
+                return;
+            }
+
+            const optionsPAD = {
+                chart: {
+                    type: 'area',
+                    height: 360,
+                    toolbar: {
+                        show: false
+                    }
+                },
+
+                series: [{
+                    name: 'Penerimaan PAD',
+                    data: @json(collect($chartPAD)->pluck('nominal'))
+                }],
+
+                xaxis: {
+                    categories: @json(collect($chartPAD)->pluck('bulan'))
+                },
+
+                yaxis: {
+                    title: {
+                        text: 'Penerimaan PAD'
+                    },
+                    labels: {
+                        formatter: function(value) {
+                            return 'Rp ' + Number(value).toLocaleString('id-ID');
+                        }
+                    }
+                },
+
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            return 'Rp ' + Number(value).toLocaleString('id-ID');
+                        }
+                    }
+                },
+
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        opacityFrom: 0.55,
+                        opacityTo: 0.05
+                    }
+                },
+
+                markers: {
+                    size: 6,
+                    hover: {
+                        size: 8
+                    }
+                },
+
+                dataLabels: {
+                    enabled: false
+                },
+
+                grid: {
+                    borderColor: '#e5e7eb'
+                },
+
+                colors: ['#16a34a']
+            };
+
+            const chartPAD = new ApexCharts(elementPAD, optionsPAD);
+
+            setTimeout(function() {
+                chartPAD.render();
+            }, 500);
+
+            window.addEventListener('resize', function() {
+                chartPAD.updateOptions({}, false, true);
+            });
+
+            document.addEventListener('sidebar-toggled', function() {
+                setTimeout(function() {
+                    chartPAD.updateOptions({}, false, true);
+                }, 350);
             });
 
         });

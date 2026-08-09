@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\AdministratorV2;
 
 use App\Http\Controllers\Controller;
+use App\Models\ModelPadTarget;
+use App\Models\ModelPadRealisasi;
+use App\Models\ModelSPJPagu;
+use App\Models\ModelSPJRealisasi;
+use App\Models\ModelUser;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -10,52 +16,96 @@ class DashboardController extends Controller
     {
         return view('administrator-v2.dashboard.index');
     }
+
     public function index()
     {
         $tahun = request('tahun', date('Y'));
 
-        $totalUser = \App\Models\ModelUser::count();
+        /*
+        |--------------------------------------------------------------------------
+        | USER
+        |--------------------------------------------------------------------------
+        */
 
-        $totalPagu = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->sum('spj_pagu_final');
+        $totalUser = ModelUser::count();
 
-        $totalRealisasiSPJ = \App\Models\ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
+        /*
+        |--------------------------------------------------------------------------
+        | SPJ
+        |--------------------------------------------------------------------------
+        */
+
+        $totalPagu = ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->sum('spj_pagu_final');
+
+        $totalRealisasiSPJ = ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
             $q->where('spj_pagu_tahun', $tahun);
         })
             ->where('spj_status', 'Aktif')
             ->sum('spj_nominal');
 
-        $sisaPagu = $totalPagu - $totalRealisasiSPJ;
+        $sisaPagu = max($totalPagu - $totalRealisasiSPJ, 0);
 
         $persenSerapan = $totalPagu > 0 ? ($totalRealisasiSPJ / $totalPagu) * 100 : 0;
+
         $persenSerapan = min($persenSerapan, 100);
 
-        $jumlahPaguSPJ = \App\Models\ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->count();
+        $jumlahPaguSPJ = ModelSPJPagu::where('spj_pagu_tahun', $tahun)->where('spj_pagu_status', 1)->count();
 
-        $jumlahInputSPJ = \App\Models\ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
+        $jumlahInputSPJ = ModelSPJRealisasi::whereHas('pagu', function ($q) use ($tahun) {
             $q->where('spj_pagu_tahun', $tahun);
         })
             ->where('spj_status', 'Aktif')
             ->count();
 
-        $jumlahBBM = \DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->count();
+        /*
+        |--------------------------------------------------------------------------
+        | PAD
+        |--------------------------------------------------------------------------
+        */
 
-        $bbmMenunggu = \DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->where('bbm_status_pengajuan', 'Menunggu Verifikasi')->count();
+        $totalTargetPAD = ModelPadTarget::where('pad_target_tahun', $tahun)->where('pad_target_status', true)->sum('pad_target_nominal');
 
-        $jumlahPrioritas = \DB::table('sadarin_program_prioritas')->where('prioritas_tahun', $tahun)->where('prioritas_status', 'Aktif')->count();
+        $totalRealisasiPAD = ModelPadRealisasi::where('pad_realisasi_status', 'Diterima')
+            ->whereHas('target', function ($q) use ($tahun) {
+                $q->where('pad_target_tahun', $tahun)->where('pad_target_status', true);
+            })
+            ->sum('pad_realisasi_nominal');
 
-        $jumlahAktivitas = \DB::table('saplarin_laporan_kegiatan')->where('laporan_kegiatan_tahun', $tahun)->where('laporan_kegiatan_status', 'Aktif')->count();
+        $sisaPAD = max($totalTargetPAD - $totalRealisasiPAD, 0);
 
-        $paguTerbaru = \App\Models\ModelSPJPagu::with(['program', 'kegiatan', 'subKegiatan', 'realisasi'])
+        $persenPAD = $totalTargetPAD > 0 ? ($totalRealisasiPAD / $totalTargetPAD) * 100 : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA LAINNYA
+        |--------------------------------------------------------------------------
+        */
+
+        $jumlahBBM = DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->count();
+
+        $bbmMenunggu = DB::table('saplarin_bbm_pengajuan')->whereYear('created_at', $tahun)->where('bbm_status_pengajuan', 'Menunggu Verifikasi')->count();
+
+        $jumlahPrioritas = DB::table('sadarin_program_prioritas')->where('prioritas_tahun', $tahun)->where('prioritas_status', 'Aktif')->count();
+
+        $jumlahAktivitas = DB::table('saplarin_laporan_kegiatan')->where('laporan_kegiatan_tahun', $tahun)->where('laporan_kegiatan_status', 'Aktif')->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGU TERBARU
+        |--------------------------------------------------------------------------
+        */
+
+        $paguTerbaru = ModelSPJPagu::with(['program', 'kegiatan', 'subKegiatan', 'realisasi'])
             ->where('spj_pagu_tahun', $tahun)
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
         /*
-|--------------------------------------------------------------------------
-| REKAP SPJ BULANAN
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | NAMA BULAN
+        |--------------------------------------------------------------------------
+        */
 
         $namaBulan = [
             1 => 'Januari',
@@ -72,24 +122,25 @@ class DashboardController extends Controller
             12 => 'Desember',
         ];
 
-        $rekapBulanan = \App\Models\ModelSPJRealisasi::selectRaw(
-            "
-        MONTH(spj_tanggal) as bulan,
-        COUNT(*) as jumlah_spj,
-        SUM(spj_nominal) as total_nominal
-    ",
+        /*
+        |--------------------------------------------------------------------------
+        | REKAP SPJ BULANAN
+        |--------------------------------------------------------------------------
+        */
+
+        $rekapBulanan = ModelSPJRealisasi::selectRaw(
+            '
+                MONTH(spj_tanggal) as bulan,
+                COUNT(*) as jumlah_spj,
+                SUM(spj_nominal) as total_nominal
+            ',
         )
-
             ->where('spj_status', 'Aktif')
-
             ->whereHas('pagu', function ($q) use ($tahun) {
                 $q->where('spj_pagu_tahun', $tahun);
             })
-
-            ->groupBy(\DB::raw('MONTH(spj_tanggal)'))
-
-            ->orderBy(\DB::raw('MONTH(spj_tanggal)'))
-
+            ->groupBy(DB::raw('MONTH(spj_tanggal)'))
+            ->orderBy(DB::raw('MONTH(spj_tanggal)'))
             ->get();
 
         $chartSPJ = [];
@@ -106,32 +157,113 @@ class DashboardController extends Controller
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DETAIL SPJ
+        |--------------------------------------------------------------------------
+        */
+
         $bulan = request('bulan');
 
         $detailSPJ = collect();
 
         if ($bulan) {
-            $detailSPJ = \App\Models\ModelSPJRealisasi::with(['pagu.unit', 'pagu.program', 'pagu.kegiatan', 'pagu.subKegiatan'])
-
+            $detailSPJ = ModelSPJRealisasi::with(['pagu.unit', 'pagu.program', 'pagu.kegiatan', 'pagu.subKegiatan'])
                 ->whereMonth('spj_tanggal', $bulan)
-
                 ->where('spj_status', 'Aktif')
-
                 ->whereHas('pagu', function ($q) use ($tahun) {
                     $q->where('spj_pagu_tahun', $tahun);
                 })
-
                 ->orderBy('spj_tanggal')
-
                 ->get();
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REKAP PAD BULANAN
+        |--------------------------------------------------------------------------
+        */
+
+        $rekapPAD = ModelPadRealisasi::selectRaw(
+            '
+                MONTH(pad_realisasi_tanggal) as bulan,
+                COUNT(*) as jumlah_penerimaan,
+                SUM(pad_realisasi_nominal) as total_nominal
+            ',
+        )
+            ->where('pad_realisasi_status', 'Diterima')
+            ->whereHas('target', function ($q) use ($tahun) {
+                $q->where('pad_target_tahun', $tahun)->where('pad_target_status', true);
+            })
+            ->groupBy(DB::raw('MONTH(pad_realisasi_tanggal)'))
+            ->orderBy(DB::raw('MONTH(pad_realisasi_tanggal)'))
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHART PAD
+        |--------------------------------------------------------------------------
+        */
+
+        $chartPAD = [];
+
+        foreach (range(1, 12) as $i) {
+            $row = $rekapPAD->firstWhere('bulan', $i);
+
+            $chartPAD[] = [
+                'bulan' => $namaBulan[$i],
+
+                'jumlah' => $row->jumlah_penerimaan ?? 0,
+
+                'nominal' => $row->total_nominal ?? 0,
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DETAIL PAD
+        |--------------------------------------------------------------------------
+        */
+
+        $bulanPAD = request('bulanPAD');
+
+        $detailPAD = collect();
+
+        if ($bulanPAD) {
+            $detailPAD = ModelPadRealisasi::with(['target.jenis', 'target.komponen', 'subkomponen'])
+                ->where('pad_realisasi_status', 'Diterima')
+                ->whereMonth('pad_realisasi_tanggal', $bulanPAD)
+                ->whereHas('target', function ($q) use ($tahun) {
+                    $q->where('pad_target_tahun', $tahun)->where('pad_target_status', true);
+                })
+                ->orderBy('pad_realisasi_tanggal')
+                ->get();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN DASHBOARD
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'administrator-v2.dashboard.index',
             compact(
                 'tahun',
 
+                /*
+                |--------------------------------------------------------------------------
+                | USER
+                |--------------------------------------------------------------------------
+                */
+
                 'totalUser',
+
+                /*
+                |--------------------------------------------------------------------------
+                | SPJ
+                |--------------------------------------------------------------------------
+                */
 
                 'totalPagu',
 
@@ -145,14 +277,6 @@ class DashboardController extends Controller
 
                 'jumlahInputSPJ',
 
-                'jumlahBBM',
-
-                'bbmMenunggu',
-
-                'jumlahPrioritas',
-
-                'jumlahAktivitas',
-
                 'paguTerbaru',
 
                 'chartSPJ',
@@ -160,6 +284,40 @@ class DashboardController extends Controller
                 'bulan',
 
                 'detailSPJ',
+
+                /*
+                |--------------------------------------------------------------------------
+                | PAD
+                |--------------------------------------------------------------------------
+                */
+
+                'totalTargetPAD',
+
+                'totalRealisasiPAD',
+
+                'sisaPAD',
+
+                'persenPAD',
+
+                'chartPAD',
+
+                'bulanPAD',
+
+                'detailPAD',
+
+                /*
+                |--------------------------------------------------------------------------
+                | DATA LAINNYA
+                |--------------------------------------------------------------------------
+                */
+
+                'jumlahBBM',
+
+                'bbmMenunggu',
+
+                'jumlahPrioritas',
+
+                'jumlahAktivitas',
             ),
         );
     }
