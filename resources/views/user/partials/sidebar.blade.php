@@ -11,6 +11,7 @@
     $canLaporanAktivitas = $isOperator;
     $canLaporanSubKegiatan = $isOperator;
     $canInputSPJ = in_array($activeRole, ['Operator', 'Operator SPJ']);
+    $canPAD = in_array($activeRole, ['Operator SPJ']);
     $canSHS = $isOperator;
 @endphp
 
@@ -168,17 +169,19 @@
         @if ($canInputSPJ)
             {{-- PENERIMAAN PAD --}}
 
-            <a href="{{ route('user.pad.index') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+            @if ($canPAD)
+                <a href="{{ route('user.pad.index') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
     {{ request()->routeIs('user.pad*')
         ? 'bg-blue-50 text-blue-700'
         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
 
-                <span>📈</span>
+                    <span>📈</span>
 
-                <span>Realisasi Penerimaan</span>
+                    <span>Realisasi Penerimaan</span>
 
-            </a>
+                </a>
+            @endif
             <a href="{{ route('user.spj.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.spj*')
