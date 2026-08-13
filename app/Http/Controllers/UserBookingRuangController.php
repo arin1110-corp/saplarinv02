@@ -7,6 +7,7 @@ use App\Models\ModelRuang;
 use Illuminate\Http\Request;
 use App\Services\ArinDriveService;
 use Illuminate\Support\Str;
+use App\Services\BBMEmailService;
 
 class UserBookingRuangController extends Controller
 {
@@ -41,7 +42,7 @@ class UserBookingRuangController extends Controller
         return view('user.booking-ruang.create', compact('ruangs'));
     }
 
-    public function store(Request $request, ArinDriveService $arinDrive)
+    public function store(Request $request, BBMEmailService $emailService, ArinDriveService $arinDrive)
     {
         $request->validate([
             'booking_ruang_id' => 'required',
@@ -102,7 +103,7 @@ class UserBookingRuangController extends Controller
             );
         }
 
-        ModelBookingRuang::create([
+        $booking = ModelBookingRuang::create([
             'booking_ruang_id' => $request->booking_ruang_id,
 
             'booking_tanggal' => $request->booking_tanggal,
@@ -127,6 +128,21 @@ class UserBookingRuangController extends Controller
 
             'booking_created_by_unit' => session('pegawai_bidang'),
         ]);
+
+        $emailService->kirimKeAdminBBM(
+            'Booking Ruang Rapat oleh - ' . $booking->booking_created_by_nama,
+            "Yth. Operator Ruang Rapat,\n\n" .
+                "Terdapat pengajuan booking ruang rapat baru dengan data berikut:\n\n" .
+                "Nama Pengaju       : {$booking->booking_created_by_nama}\n" .
+                "NIP                : {$booking->booking_created_by_nip}\n" .
+                "Bidang             : {$booking->booking_created_by_unit}\n" .
+                "Peruntukan         : {$booking->booking_peruntukan}\n" .
+                "Ruang Rapat        : {$booking->ruang->ruang_nama}\n" .
+                "Tanggal Booking    : {$booking->booking_tanggal}\n" . "Jam Mulai    : {$booking->booking_jam_mulai}\n" . "Jam Selesai  : {$booking->booking_jam_selesai}\n" .
+                "Surat Undangan     : {$booking->booking_surat}\n\n" .
+                "Silakan login ke SAPLARIN untuk memantau status pengajuan.\n\n" .
+                "SAPLARIN"
+        );
 
         return redirect()
             ->route('user.booking-ruang.index')
