@@ -346,60 +346,60 @@
                             </table>
                         </div>
                     </div>
+                    @if ($canInputSPJ)
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-3">
+                                Riwayat SPJ
+                            </h4>
 
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3">
-                            Riwayat SPJ
-                        </h4>
+                            <div class="overflow-x-auto">
+                                <table class="spjRiwayatTable w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b text-left text-slate-500">
+                                            <th class="py-3 px-3">No</th>
+                                            <th class="py-3 px-3">Tanggal SPJ</th>
+                                            <th class="py-3 px-3">Uraian</th>
+                                            <th class="py-3 px-3 text-right">Nominal</th>
+                                            <th class="py-3 px-3">Operator</th>
+                                            <th class="py-3 px-3">File</th>
+                                            <th class="py-3 px-3">Tanggal Input</th>
 
-                        <div class="overflow-x-auto">
-                            <table class="spjRiwayatTable w-full text-sm">
-                                <thead>
-                                    <tr class="border-b text-left text-slate-500">
-                                        <th class="py-3 px-3">No</th>
-                                        <th class="py-3 px-3">Tanggal SPJ</th>
-                                        <th class="py-3 px-3">Uraian</th>
-                                        <th class="py-3 px-3 text-right">Nominal</th>
-                                        <th class="py-3 px-3">Operator</th>
-                                        <th class="py-3 px-3">File</th>
-                                        <th class="py-3 px-3">Tanggal Input</th>
+                                            @if ($canInputSPJ)
+                                                <th class="py-3 px-3 text-center">
+                                                    Aksi
+                                                </th>
+                                            @endif
+                                        </tr>
+                                    </thead>
 
-                                        @if ($canInputSPJ)
-                                            <th class="py-3 px-3 text-center">
-                                                Aksi
-                                            </th>
-                                        @endif
-                                    </tr>
-                                </thead>
+                                    <tbody>
+                                        @forelse ($item->realisasi->where('spj_status', 'Aktif')->sortByDesc('spj_tanggal') as $spj)
+                                            <tr class="border-b hover:bg-slate-50">
+                                                <td class="py-3 px-3">{{ $loop->iteration }}</td>
 
-                                <tbody>
-                                    @forelse ($item->realisasi->where('spj_status', 'Aktif')->sortByDesc('spj_tanggal') as $spj)
-                                        <tr class="border-b hover:bg-slate-50">
-                                            <td class="py-3 px-3">{{ $loop->iteration }}</td>
+                                                <td class="py-3 px-3">
+                                                    {{ $spj->spj_tanggal?->format('d/m/Y') }}
+                                                </td>
 
-                                            <td class="py-3 px-3">
-                                                {{ $spj->spj_tanggal?->format('d/m/Y') }}
-                                            </td>
+                                                <td class="py-3 px-3">
+                                                    {{ $spj->spj_uraian }}
+                                                </td>
 
-                                            <td class="py-3 px-3">
-                                                {{ $spj->spj_uraian }}
-                                            </td>
+                                                <td class="py-3 px-3 text-right font-semibold">
+                                                    Rp {{ number_format($spj->spj_nominal, 0, ',', '.') }}
+                                                </td>
 
-                                            <td class="py-3 px-3 text-right font-semibold">
-                                                Rp {{ number_format($spj->spj_nominal, 0, ',', '.') }}
-                                            </td>
+                                                <td class="py-3 px-3">
+                                                    <div class="font-semibold text-slate-800">
+                                                        {{ $spj->spj_operator_nama ?? '-' }}
+                                                    </div>
 
-                                            <td class="py-3 px-3">
-                                                <div class="font-semibold text-slate-800">
-                                                    {{ $spj->spj_operator_nama ?? '-' }}
-                                                </div>
+                                                    <div class="text-xs text-slate-500">
+                                                        {{ $spj->spj_operator_nip ?? '-' }}
+                                                    </div>
+                                                </td>
 
-                                                <div class="text-xs text-slate-500">
-                                                    {{ $spj->spj_operator_nip ?? '-' }}
-                                                </div>
-                                            </td>
-
-                                            <td class="py-3 px-3">
+                                                <td class="py-3 px-3">
                                                     @if ($spj->spj_file)
                                                         <a href="{{ asset($spj->spj_file) }}" target="_blank"
                                                             class="text-blue-600 hover:underline">
@@ -408,47 +408,49 @@
                                                     @else
                                                         -
                                                     @endif
-                                            </td>
-                                            <td class="py-3 px-3">
-                                                {{ $spj->spj_tanggal_input?->format('d/m/Y H:i') ?? '-' }}
-                                            </td>
-
-                                            @if ($canInputSPJ)
-                                                <td class="py-3 px-3">
-
-                                                    <div class="flex gap-2">
-
-                                                        <button type="button" onclick="editSPJ('{{ $spj->spj_uid }}')"
-                                                            class="px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">
-
-                                                            Edit
-
-                                                        </button>
-
-                                                        <button type="button" onclick="hapusSPJ('{{ $spj->spj_uid }}')"
-                                                            class="px-3 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
-
-                                                            Hapus
-
-                                                        </button>
-
-                                                    </div>
-
                                                 </td>
-                                            @endif
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="py-6 text-center text-slate-500">
-                                                Belum ada SPJ.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                                <td class="py-3 px-3">
+                                                    {{ $spj->spj_tanggal_input?->format('d/m/Y H:i') ?? '-' }}
+                                                </td>
 
+                                                @if ($canInputSPJ)
+                                                    <td class="py-3 px-3">
+
+                                                        <div class="flex gap-2">
+
+                                                            <button type="button"
+                                                                onclick="editSPJ('{{ $spj->spj_uid }}')"
+                                                                class="px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">
+
+                                                                Edit
+
+                                                            </button>
+
+                                                            <button type="button"
+                                                                onclick="hapusSPJ('{{ $spj->spj_uid }}')"
+                                                                class="px-3 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
+
+                                                                Hapus
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </td>
+                                                @endif
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="py-6 text-center text-slate-500">
+                                                    Belum ada SPJ.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @empty
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 text-center text-slate-500">
@@ -580,7 +582,7 @@
 
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function openSPJModal(item) {
 
