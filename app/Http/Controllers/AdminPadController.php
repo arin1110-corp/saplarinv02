@@ -364,7 +364,7 @@ class AdminPadController extends Controller
 
                     $q->where('pad_realisasi_input_nama', 'like', '%' . $search . '%')
 
-                        ->orWhere('pad_realisasi_input_nip', 'like', '%' . $search . '%')
+                    ->orWhere('pad_realisasi_input', 'like', '%' . $search . '%')
 
                         /*
                         |--------------------------------------------------------------------------
