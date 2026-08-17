@@ -333,25 +333,41 @@ class AdminPadController extends Controller
     public function permintaan(Request $request)
     {
         $tahun = $request->get('tahun', now()->year);
-
         $search = trim($request->get('search', ''));
 
-        /*
-    |--------------------------------------------------------------------------
-    | PERMINTAAN / REALISASI PAD
-    |--------------------------------------------------------------------------
-    */
+        $unit = $request->get('unit');
+        $subkomponen = $request->get('subkomponen');
 
-        $permintaan = ModelPadRealisasi::with(['target.jenis', 'target.komponen', 'subkomponen'])
+        $permintaan = ModelPadRealisasi::with([
+            'target.jenis',
+            'target.komponen',
+            'subkomponen',
+        ])
+            ->whereHas('target', function ($query) use ($tahun) {
+                $query->where('pad_target_tahun', $tahun);
+            })
 
             /*
         |--------------------------------------------------------------------------
-        | TAHUN
+        | FILTER UNIT
         |--------------------------------------------------------------------------
         */
+            ->when($unit, function ($query) use ($unit) {
+                $query->whereHas('target', function ($q) use ($unit) {
+                    $q->where('pad_target_unit_nama', $unit);
+                });
+            })
 
-            ->whereHas('target', function ($query) use ($tahun) {
-                $query->where('pad_target_tahun', $tahun);
+            /*
+        |--------------------------------------------------------------------------
+        | FILTER SUBKOMPONEN
+        |--------------------------------------------------------------------------
+        */
+            ->when($subkomponen, function ($query) use ($subkomponen) {
+                $query->where(
+                    'pad_realisasi_subkomponen',
+                    $subkomponen
+                );
             })
 
             /*
@@ -359,78 +375,217 @@ class AdminPadController extends Controller
         | SEARCH
         |--------------------------------------------------------------------------
         */
-
             ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                /*
-                |--------------------------------------------------------------------------
-                | KETERANGAN
-                |--------------------------------------------------------------------------
-                */
 
-                $q->where('pad_realisasi_keterangan', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | SUBKOMPONEN
-                |--------------------------------------------------------------------------
-                */
+                $q->where(
+                    'pad_realisasi_input_nama',
+                    'like',
+                    '%' . $search . '%'
+                )
 
-                $q->orWhereHas('subkomponen', function ($sub) use ($search) {
-                    $sub->where('pad_subkomponen_nama', 'like', '%' . $search . '%')
-                        ->orWhere('pad_subkomponen_kode', 'like', '%' . $search . '%');
-                });
+                    ->orWhere(
+                        'pad_realisasi_input',
+                        'like',
+                        '%' . $search . '%'
+                    )
 
-                /*
-                |--------------------------------------------------------------------------
-                | TARGET
-                | Unit berasal dari tabel target
-                |--------------------------------------------------------------------------
-                */
+                    ->orWhere(
+                        'pad_realisasi_keterangan',
+                        'like',
+                        '%' . $search . '%'
+                    )
 
-                $q->orWhereHas('target', function ($target) use ($search) {
-                    $target
-                        ->where('pad_target_unit_nama', 'like', '%' . $search . '%')
+                    ->orWhereHas('target', function ($target) use ($search) {
 
-                        /*
-                    |--------------------------------------------------------------------------
-                    | JENIS PAD
-                    |--------------------------------------------------------------------------
-                    */
+                        $target->where(
+                            'pad_target_unit_nama',
+                            'like',
+                            '%' . $search . '%'
+                        );
+                    })
 
-                        ->orWhereHas('jenis', function ($jenis) use ($search) {
-                            $jenis->where('pad_jenis_nama', 'like', '%' . $search . '%');
-                        })
+                    ->orWhereHas('subkomponen', function ($sub) use ($search) {
 
-                        /*
-                    |--------------------------------------------------------------------------
-                    | KOMPONEN PAD
-                    |--------------------------------------------------------------------------
-                    */
+                        $sub->where(
+                            'pad_subkomponen_nama',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                            ->orWhere(
+                                'pad_subkomponen_kode',
+                                'like',
+                                '%' . $search . '%'
+                            );
+                    })
 
-                        ->orWhereHas('komponen', function ($komponen) use ($search) {
-                            $komponen
-                                ->where('pad_komponen_nama', 'like', '%' . $search . '%')
+                    ->orWhereHas('target.komponen', function ($komponen) use ($search) {
 
-                                ->orWhere('pad_komponen_kode', 'like', '%' . $search . '%');
-                        });
-                });
-                });
+                        $komponen->where(
+                            'pad_komponen_nama',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                            ->orWhere(
+                                'pad_komponen_kode',
+                                'like',
+                                '%' . $search . '%'
+                            );
+                    });
+            });
             })
 
-            /*
-        |--------------------------------------------------------------------------
-        | TERBARU
-        |--------------------------------------------------------------------------
-        */
+            ->orderBy(
+                'pad_realisasi_tanggal',
+                'desc'
+            )
 
-            ->orderBy('pad_realisasi_tanggal', 'desc')
-
-            ->orderBy('pad_realisasi_id', 'desc')
+            ->orderBy(
+                'pad_realisasi_id',
+                'desc'
+            )
 
             ->paginate(15)
-
             ->withQueryString();
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | DAFTAR UNIT
+    |--------------------------------------------------------------------------
+    */
+
+        $daftarUnit = ModelPadRealisasi::with('target')
+            ->whereHas('target', function ($query) use ($tahun) {
+                $query->where('pad_target_tahun', $tahun);
+            })
+            ->get()
+            ->pluck('target.pad_target_unit_nama')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | DAFTAR SUBKOMPONEN
+    |--------------------------------------------------------------------------
+    */
+
+        $daftarSubkomponen = \App\Models\ModelPadSubkomponen::where(
+            'pad_subkomponen_status',
+            true
+        )
+            ->orderBy('pad_subkomponen_nama')
+            ->get();
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | REKAP TRIWULAN
+    |--------------------------------------------------------------------------
+    */
+
+        $rekapTriwulan = collect();
+
+        if ($unit && $subkomponen) {
+
+            $dataRealisasi = ModelPadRealisasi::whereHas(
+                'target',
+                function ($query) use ($tahun, $unit) {
+
+                    $query->where(
+                        'pad_target_tahun',
+                        $tahun
+                    )
+                        ->where(
+                            'pad_target_unit_nama',
+                            $unit
+                        );
+                }
+            )
+
+                ->where(
+                    'pad_realisasi_subkomponen',
+                    $subkomponen
+                )
+
+                ->get();
+
+
+            $rekapTriwulan = collect([
+                1 => [
+                    'nama' => 'TW I',
+                    'nominal' => $dataRealisasi
+                        ->filter(function ($item) {
+                            return date(
+                                'n',
+                                strtotime($item->pad_realisasi_tanggal)
+                            ) >= 1
+                                &&
+                                date(
+                                    'n',
+                                    strtotime($item->pad_realisasi_tanggal)
+                                ) <= 3;
+                        })
+                        ->sum('pad_realisasi_nominal'),
+                ],
+
+                2 => [
+                    'nama' => 'TW II',
+                    'nominal' => $dataRealisasi
+                        ->filter(function ($item) {
+                            return date(
+                                'n',
+                                strtotime($item->pad_realisasi_tanggal)
+                            ) >= 4
+                                &&
+                                date(
+                                    'n',
+                                    strtotime($item->pad_realisasi_tanggal)
+                                ) <= 6;
+                        })
+                        ->sum('pad_realisasi_nominal'),
+                ],
+
+                3 => [
+                    'nama' => 'TW III',
+                    'nominal' => $dataRealisasi
+                        ->filter(function ($item) {
+                            return date(
+                                'n',
+                                strtotime($item->pad_realisasi_tanggal)
+                            ) >= 7
+                                &&
+                                date(
+                                    'n',
+                                    strtotime($item->pad_realisasi_tanggal)
+                                ) <= 9;
+                        })
+                        ->sum('pad_realisasi_nominal'),
+                ],
+
+                4 => [
+                    'nama' => 'TW IV',
+                    'nominal' => $dataRealisasi
+                        ->filter(function ($item) {
+                            return date(
+                                'n',
+                                strtotime($item->pad_realisasi_tanggal)
+                            ) >= 10
+                                &&
+                                date(
+                                    'n',
+                                    strtotime($item->pad_realisasi_tanggal)
+                                ) <= 12;
+                        })
+                        ->sum('pad_realisasi_nominal'),
+                ],
+            ]);
+        }
+
 
         /*
     |--------------------------------------------------------------------------
@@ -438,9 +593,16 @@ class AdminPadController extends Controller
     |--------------------------------------------------------------------------
     */
 
-        $totalNominal = ModelPadRealisasi::whereHas('target', function ($query) use ($tahun) {
-            $query->where('pad_target_tahun', $tahun);
-        })->sum('pad_realisasi_nominal');
+        $totalNominal = ModelPadRealisasi::whereHas(
+            'target',
+            function ($query) use ($tahun) {
+                $query->where(
+                    'pad_target_tahun',
+                    $tahun
+                );
+            }
+        )->sum('pad_realisasi_nominal');
+
 
         /*
     |--------------------------------------------------------------------------
@@ -448,11 +610,32 @@ class AdminPadController extends Controller
     |--------------------------------------------------------------------------
     */
 
-        $totalData = ModelPadRealisasi::whereHas('target', function ($query) use ($tahun) {
-            $query->where('pad_target_tahun', $tahun);
-        })->count();
+        $totalData = ModelPadRealisasi::whereHas(
+            'target',
+            function ($query) use ($tahun) {
+                $query->where(
+                    'pad_target_tahun',
+                    $tahun
+                );
+            }
+        )->count();
 
-        return view('administrator-v2.pad.permintaan.index', compact('permintaan', 'tahun', 'search', 'totalNominal', 'totalData'));
+
+        return view(
+            'administrator-v2.pad.permintaan.index',
+            compact(
+                'permintaan',
+                'tahun',
+                'search',
+                'unit',
+                'subkomponen',
+                'daftarUnit',
+                'daftarSubkomponen',
+                'rekapTriwulan',
+                'totalNominal',
+                'totalData'
+            )
+        );
     }
 
     /**
