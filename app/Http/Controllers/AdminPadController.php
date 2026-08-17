@@ -366,13 +366,13 @@ class AdminPadController extends Controller
 
                     ->orWhere('pad_realisasi_input', 'like', '%' . $search . '%')
 
-                        /*
+                    /*
                         |--------------------------------------------------------------------------
                         | UNIT
                         |--------------------------------------------------------------------------
                         */
 
-                        ->orWhere('pad_realisasi_unit', 'like', '%' . $search . '%')
+                    ->orWhere('pad_target_unit_nama', 'like', '%' . $search . '%')
 
                         /*
                         |--------------------------------------------------------------------------
