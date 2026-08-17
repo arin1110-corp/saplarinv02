@@ -122,7 +122,7 @@
 
                     <div class="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
 
-                        <i class="bi bi-piggy-bank text-3xl text-amber-600"></i>
+                        <i class="bi bi-graph-down-arrow text-3xl text-amber-600"></i>
 
                     </div>
 
@@ -208,14 +208,24 @@
                 <div class="flex justify-between">
                     <div>
                         <p class="text-slate-500 text-sm">Sisa Target PAD</p>
+
                         <h2 class="font-bold leading-tight whitespace-nowrap overflow-hidden"
                             style="font-size:clamp(1.15rem,1.2vw,2.2rem);">
                             Rp {{ number_format($sisaPAD, 0, ',', '.') }}
                         </h2>
-                        <p class="text-xs text-slate-500 mt-3">Target Belum Terealisasi</p>
+
+                        <p class="text-xs text-slate-500 mt-3">
+                            Target Belum Terealisasi
+                        </p>
                     </div>
-                    <div class="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                        <i class="bi bi-piggy-bank text-3xl text-amber-600"></i>
+
+                    <div
+                        class="w-16 h-16 rounded-3xl
+                    bg-amber-100 dark:bg-amber-900/30
+                    flex items-center justify-center">
+
+                        <i class="bi bi-graph-down-arrow text-3xl text-amber-600"></i>
+
                     </div>
                 </div>
             </div>
