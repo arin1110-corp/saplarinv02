@@ -336,6 +336,12 @@ class AdminPadController extends Controller
 
         $search = trim($request->get('search', ''));
 
+        /*
+    |--------------------------------------------------------------------------
+    | PERMINTAAN / REALISASI PAD
+    |--------------------------------------------------------------------------
+    */
+
         $permintaan = ModelPadRealisasi::with(['target.jenis', 'target.komponen', 'subkomponen'])
 
             /*
@@ -356,51 +362,59 @@ class AdminPadController extends Controller
 
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
-                    /*
-                        |--------------------------------------------------------------------------
-                        | PENGINPUT
-                        |--------------------------------------------------------------------------
-                        */
+                /*
+                |--------------------------------------------------------------------------
+                | KETERANGAN
+                |--------------------------------------------------------------------------
+                */
 
-                    $q->where('pad_realisasi_input_nama', 'like', '%' . $search . '%')
+                $q->where('pad_realisasi_keterangan', 'like', '%' . $search . '%');
 
-                    ->orWhere('pad_realisasi_input', 'like', '%' . $search . '%')
+                /*
+                |--------------------------------------------------------------------------
+                | SUBKOMPONEN
+                |--------------------------------------------------------------------------
+                */
 
-                    /*
-                        |--------------------------------------------------------------------------
-                        | UNIT
-                        |--------------------------------------------------------------------------
-                        */
+                $q->orWhereHas('subkomponen', function ($sub) use ($search) {
+                    $sub->where('pad_subkomponen_nama', 'like', '%' . $search . '%')
+                        ->orWhere('pad_subkomponen_kode', 'like', '%' . $search . '%');
+                });
 
-                    ->orWhere('pad_target_unit_nama', 'like', '%' . $search . '%')
+                /*
+                |--------------------------------------------------------------------------
+                | TARGET
+                | Unit berasal dari tabel target
+                |--------------------------------------------------------------------------
+                */
+
+                $q->orWhereHas('target', function ($target) use ($search) {
+                    $target
+                        ->where('pad_target_unit_nama', 'like', '%' . $search . '%')
 
                         /*
-                        |--------------------------------------------------------------------------
-                        | KETERANGAN
-                        |--------------------------------------------------------------------------
-                        */
+                    |--------------------------------------------------------------------------
+                    | JENIS PAD
+                    |--------------------------------------------------------------------------
+                    */
 
-                        ->orWhere('pad_realisasi_keterangan', 'like', '%' . $search . '%')
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | SUBKOMPONEN
-                        |--------------------------------------------------------------------------
-                        */
-
-                        ->orWhereHas('subkomponen', function ($sub) use ($search) {
-                            $sub->where('pad_subkomponen_nama', 'like', '%' . $search . '%')->orWhere('pad_subkomponen_kode', 'like', '%' . $search . '%');
+                        ->orWhereHas('jenis', function ($jenis) use ($search) {
+                            $jenis->where('pad_jenis_nama', 'like', '%' . $search . '%');
                         })
 
                         /*
-                        |--------------------------------------------------------------------------
-                        | KOMPONEN
-                        |--------------------------------------------------------------------------
-                        */
+                    |--------------------------------------------------------------------------
+                    | KOMPONEN PAD
+                    |--------------------------------------------------------------------------
+                    */
 
-                        ->orWhereHas('target.komponen', function ($komponen) use ($search) {
-                            $komponen->where('pad_komponen_nama', 'like', '%' . $search . '%')->orWhere('pad_komponen_kode', 'like', '%' . $search . '%');
+                        ->orWhereHas('komponen', function ($komponen) use ($search) {
+                            $komponen
+                                ->where('pad_komponen_nama', 'like', '%' . $search . '%')
+
+                                ->orWhere('pad_komponen_kode', 'like', '%' . $search . '%');
                         });
+                });
                 });
             })
 
