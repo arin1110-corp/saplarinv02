@@ -245,8 +245,6 @@
                 </div>
 
 
-                {{-- ICON SVG --}}
-
                 <div class="flex h-14 w-14 shrink-0
                             items-center justify-center
                             rounded-2xl
@@ -308,8 +306,6 @@
                 </div>
 
 
-                {{-- ICON SVG --}}
-
                 <div class="flex h-14 w-14 shrink-0
                             items-center justify-center
                             rounded-2xl
@@ -361,7 +357,6 @@
             <input type="hidden"
                    name="jenis"
                    value="{{ $jenis }}">
-
 
             <div class="relative">
 
@@ -434,6 +429,34 @@
 
 
         {{-- ===================================================== --}}
+        {{-- DAFTAR ID YANG TAMPIL DI HALAMAN INI --}}
+        {{-- ===================================================== --}}
+        |
+        {{-- 
+            Penting:
+
+            Checkbox yang tidak dicentang tidak dikirim browser.
+
+            Karena itu kita kirim semua ID yang sedang tampil
+            menggunakan hidden input.
+
+            Controller kemudian bisa membedakan:
+
+            - ada di halaman + dicentang
+            - ada di halaman + tidak dicentang
+            - tidak ada di halaman karena pagination
+        --}}
+
+        @foreach($data as $item)
+
+            <input type="hidden"
+                   name="visible_standar_harga[]"
+                   value="{{ $item->standar_harga_id }}">
+
+        @endforeach
+
+
+        {{-- ===================================================== --}}
         {{-- TOOLBAR --}}
         {{-- ===================================================== --}}
 
@@ -451,8 +474,6 @@
                         gap-4">
 
                 <div class="flex items-center gap-3">
-
-                    {{-- ICON SVG --}}
 
                     <div class="flex h-10 w-10 shrink-0
                                 items-center justify-center

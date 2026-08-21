@@ -133,6 +133,14 @@ class UserStandarHargaController extends Controller
                 true
             )
 
+            ->whereHas('standarHarga', function ($q) use ($jenis) {
+
+                $q->where(
+                    'standar_harga_jenis',
+                    $jenis
+                );
+            })
+
             ->pluck(
                 'penggunaan_standar_harga'
             )
@@ -201,6 +209,12 @@ class UserStandarHargaController extends Controller
             ->count();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | VIEW
+        |--------------------------------------------------------------------------
+        */
+
         return view(
             'user.standar-harga.index',
             compact(
@@ -224,6 +238,12 @@ class UserStandarHargaController extends Controller
 
     public function store(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI
+        |--------------------------------------------------------------------------
+        */
+
         $request->validate([
 
             'tahun' => [
@@ -248,8 +268,34 @@ class UserStandarHargaController extends Controller
                 'exists:saplarin_standar_harga,standar_harga_id',
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | ID YANG SEDANG DITAMPILKAN DI HALAMAN
+            |--------------------------------------------------------------------------
+            |
+            | Ini penting karena checkbox yang tidak dicentang tidak
+            | dikirim oleh browser.
+            |
+            */
+
+            'visible_standar_harga' => [
+                'nullable',
+                'array',
+            ],
+
+            'visible_standar_harga.*' => [
+                'integer',
+                'exists:saplarin_standar_harga,standar_harga_id',
+            ],
+
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA SESSION
+        |--------------------------------------------------------------------------
+        */
 
         $tahun = $request->tahun;
 
@@ -259,21 +305,12 @@ class UserStandarHargaController extends Controller
 
         $nama = session('pegawai_nama');
 
-        /*
-        |--------------------------------------------------------------------------
-        | UNIT OPERATOR
-        |--------------------------------------------------------------------------
-        |
-        | Sesuaikan dengan session pegawai yang digunakan SAPLARIN.
-        |
-        */
-
         $unit = session('pegawai_bidang');
 
 
         /*
         |--------------------------------------------------------------------------
-        | DATA CHECKBOX
+        | CHECKBOX YANG DICENTANG
         |--------------------------------------------------------------------------
         */
 
@@ -282,18 +319,46 @@ class UserStandarHargaController extends Controller
             []
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | VALIDASI AGAR TIDAK BISA MEMILIH STANDAR HARGA JENIS LAIN
+        | ID YANG TAMPIL PADA HALAMAN SAAT INI
         |--------------------------------------------------------------------------
         */
 
-        $validIds = ModelStandarHarga::query()
+        $visibleIds = $request->input(
+            'visible_standar_harga',
+            []
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMALISASI ID
+        |--------------------------------------------------------------------------
+        */
+
+        $dipilih = array_map(
+            'intval',
+            $dipilih
+        );
+
+        $visibleIds = array_map(
+            'intval',
+            $visibleIds
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HANYA PROSES ID YANG ADA DI HALAMAN INI
+        |--------------------------------------------------------------------------
+        */
+
+        $validVisibleIds = ModelStandarHarga::query()
 
             ->whereIn(
                 'standar_harga_id',
-                $dipilih
+            $visibleIds
             )
 
             ->where(
@@ -315,51 +380,55 @@ class UserStandarHargaController extends Controller
                 'standar_harga_id'
             )
 
+            ->map(
+                fn($id) => (int) $id
+            )
+
             ->toArray();
 
 
         /*
         |--------------------------------------------------------------------------
-        | HAPUS CHECKLIST OPERATOR SEBELUMNYA
+        | CHECKBOX YANG DICENTANG HARUS BERADA DI HALAMAN INI
         |--------------------------------------------------------------------------
         */
 
-        ModelStandarHargaPenggunaan::query()
-
-            ->where(
-                'penggunaan_tahun',
-                $tahun
+        $validDipilihIds = array_values(
+            array_intersect(
+                $dipilih,
+                $validVisibleIds
             )
-
-            ->where(
-                'penggunaan_input_nip',
-                $nip
-            )
-
-            ->whereHas('standarHarga', function ($q) use ($jenis) {
-
-                $q->where(
-                    'standar_harga_jenis',
-                    $jenis
-                );
-
-            })
-
-            ->update([
-                'penggunaan_status' => false,
-            ]);
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | SIMPAN CHECKLIST BARU
+        | SINKRONISASI CHECKLIST HALAMAN SAAT INI
         |--------------------------------------------------------------------------
+        |
+        | Yang dicentang:
+        |     -> true
+        |
+        | Yang tidak dicentang:
+        |     -> false
+        |
+        | Data halaman lain:
+        |     -> tidak disentuh
+        |
         */
 
-        foreach ($validIds as $id) {
+        foreach ($validVisibleIds as $id) {
+
+            $isChecked = in_array(
+                $id,
+                $validDipilihIds
+            );
+
 
             /*
-            | Cek apakah sebelumnya sudah pernah ada.
+            |--------------------------------------------------------------------------
+            | CARI DATA YANG SUDAH ADA
+            |--------------------------------------------------------------------------
             */
 
             $penggunaan = ModelStandarHargaPenggunaan::query()
@@ -382,19 +451,34 @@ class UserStandarHargaController extends Controller
                 ->first();
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | JIKA SUDAH ADA
+            |--------------------------------------------------------------------------
+            */
+
             if ($penggunaan) {
 
                 $penggunaan->update([
 
-                    'penggunaan_status' => true,
+                    'penggunaan_status' => $isChecked,
 
                     'penggunaan_input_nama' => $nama,
 
                     'penggunaan_unit' => $unit,
 
                 ]);
+            }
 
-            } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | JIKA BELUM ADA
+            |--------------------------------------------------------------------------
+            |
+            | Hanya buat record kalau checkbox memang dicentang.
+            |
+            */ elseif ($isChecked) {
 
                 ModelStandarHargaPenggunaan::create([
 
@@ -425,6 +509,16 @@ class UserStandarHargaController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        |
+        | Kembalikan ke halaman yang sama.
+        | Search dan pagination tetap dipertahankan.
+        |
+        */
+
         return redirect()
 
             ->route(
@@ -432,6 +526,8 @@ class UserStandarHargaController extends Controller
                 [
                     'tahun' => $tahun,
                     'jenis' => $jenis,
+                'search' => $request->get('search'),
+                'page' => $request->get('page'),
                 ]
             )
 
