@@ -12,6 +12,7 @@
     $canLaporanSubKegiatan = $isOperator;
     $canInputSPJ = in_array($activeRole, ['Operator', 'Operator SPJ']);
     $canPAD = in_array($activeRole, ['Operator SPJ']);
+    $canStandarHarga = in_array($activeRole, ['Operator']);
     $canSHS = $isOperator;
 @endphp
 
@@ -200,6 +201,19 @@
             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                 <span>📦</span>
                 <span>Usulan SHS</span>
+            </a>
+        @endif
+        @if ($canStandarHarga)
+            <a href="{{ route('user.standar-harga.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+        {{ request()->routeIs('user.standar-harga*')
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+
+                <span>📋</span>
+
+                <span>Penggunaan SSH / ASB</span>
+
             </a>
         @endif
 

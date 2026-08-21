@@ -370,6 +370,19 @@
                             </span>
 
                         </a>
+                        <a href="{{ route('admin.standar-harga.index') }}"
+                            class="{{ request()->routeIs('admin.standar-harga.*')
+                                ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                            <i class="bi bi-tags"></i>
+
+                            <span>
+                                Standar Harga
+                            </span>
+
+                        </a>
                         {{-- Master PAD --}}
                         <div x-data="{ open: false }">
 
@@ -572,6 +585,17 @@
                                 <i class="bi bi-building"></i>
 
                                 <span>Permintaan Booking Ruang Rapat</span>
+
+                            </a>
+                            <a href="{{ route('admin.standar-harga.permintaan.index') }}"
+                                class="{{ request()->routeIs('admin.standar-harga.permintaan.*')
+                                    ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
+                        flex items-center gap-3 rounded-lg px-5 py-2.5 transition">
+
+                                <i class="bi bi-currency-dollar"></i>
+
+                                <span>Permintaan Standar Harga</span>
 
                             </a>
                         @endif

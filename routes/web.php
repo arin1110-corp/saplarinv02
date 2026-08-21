@@ -31,6 +31,8 @@ use App\Http\Controllers\AdminBookingRuangController;
 use App\Http\Controllers\AdminPadController;
 use App\Http\Controllers\UserPadController;
 use App\Http\Controllers\AdminPadSubkomponenController;
+use App\Http\Controllers\AdminStandarHargaController;
+use App\Http\Controllers\UserStandarHargaController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
@@ -413,6 +415,67 @@ Route::middleware(['admin'])
 */
 
     Route::get('/laporan-pad', [AdminPadController::class, 'laporan'])->name('admin.laporan-pad.index');
+
+    /*
+        |--------------------------------------------------------------------------
+        | MASTER DATA
+        |--------------------------------------------------------------------------
+        */
+
+    // Standar Harga / SSH / ASB
+    Route::prefix('standar-harga')
+        ->name('admin.standar-harga.')
+        ->group(function () {
+            Route::get('/', [AdminStandarHargaController::class, 'index'])->name('index');
+
+            Route::get('/create', [AdminStandarHargaController::class, 'create'])->name('create');
+
+            Route::post('/', [AdminStandarHargaController::class, 'store'])->name('store');
+
+            Route::get('/{id}/edit', [AdminStandarHargaController::class, 'edit'])->name('edit');
+
+            Route::put('/{id}', [AdminStandarHargaController::class, 'update'])->name('update');
+
+            Route::delete('/{id}', [AdminStandarHargaController::class, 'destroy'])->name('destroy');
+
+            /*
+        |--------------------------------------------------------------------------
+        | STATUS
+        |--------------------------------------------------------------------------
+        */
+
+            Route::post('/{id}/status', [AdminStandarHargaController::class, 'status'])->name('status');
+            /*
+                |--------------------------------------------------------------------------
+                | IMPORT EXCEL
+                '|'
+                */
+
+            Route::get('/import', [AdminStandarHargaController::class, 'importForm'])->name('import');
+
+            Route::post('/import', [AdminStandarHargaController::class, 'importStore'])->name('import.store');
+        });
+
+    /*
+|--------------------------------------------------------------------------
+| STANDAR HARGA
+|--------------------------------------------------------------------------
+*/
+
+    Route::prefix('standar-harga')
+        ->name('admin.standar-harga.')
+        ->group(function () {
+
+            Route::get(
+                '/permintaan',
+                [AdminStandarHargaController::class, 'permintaan']
+            )->name('permintaan.index');
+
+            Route::get(
+                '/export',
+                [AdminStandarHargaController::class, 'export']
+            )->name('permintaan.export');
+        });
     });
 
 Route::prefix('user')
@@ -590,4 +653,14 @@ Route::prefix('user')
     Route::get('/pad/input/{uid}', [UserPadController::class, 'input'])->name('pad.input');
 
     Route::post('/pad/input', [UserPadController::class, 'store'])->name('pad.store');
+
+    /*
+        |--------------------------------------------------------------------------
+        | STANDAR HARGA
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/standar-harga', [UserStandarHargaController::class, 'index'])->name('standar-harga.index');
+
+    Route::post('/standar-harga', [UserStandarHargaController::class, 'store'])->name('standar-harga.store');
     });
