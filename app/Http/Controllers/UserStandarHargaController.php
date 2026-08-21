@@ -78,6 +78,12 @@ class UserStandarHargaController extends Controller
                     )
 
                     ->orWhere(
+                        'standar_harga_spesifikasi',
+                        'like',
+                        '%' . $search . '%'
+                    )
+
+                    ->orWhere(
                         'standar_harga_uraian_kelompok',
                         'like',
                         '%' . $search . '%'
