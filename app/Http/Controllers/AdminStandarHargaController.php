@@ -19,108 +19,47 @@ class AdminStandarHargaController extends Controller
 
     public function index(Request $request)
     {
-        $tahun = $request->get(
-            'tahun',
-            now()->year
-        );
+        $tahun = $request->get('tahun', now()->year);
 
-        $jenis = $request->get(
-            'jenis',
-            ''
-        );
+        $jenis = $request->get('jenis', '');
 
-        $search = trim(
-            $request->get('search', '')
-        );
+        $search = trim($request->get('search', ''));
 
         $standarHarga = ModelStandarHarga::query()
 
-            ->where(
-                'standar_harga_tahun',
-                $tahun
-            )
+            ->where('standar_harga_tahun', $tahun)
 
-            ->when(
-                $jenis,
-                function ($query) use ($jenis) {
+            ->when($jenis, function ($query) use ($jenis) {
+                $query->where('standar_harga_jenis', $jenis);
+            })
 
-                    $query->where(
-                        'standar_harga_jenis',
-                        $jenis
-                    );
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                $q->where('standar_harga_kode_kelompok', 'like', '%' . $search . '%')
 
-                }
-            )
+                    ->orWhere('standar_harga_uraian_kelompok', 'like', '%' . $search . '%')
 
-            ->when(
-                $search,
-                function ($query) use ($search) {
+                    ->orWhere('standar_harga_id_standar', 'like', '%' . $search . '%')
 
-                    $query->where(function ($q) use ($search) {
+                    ->orWhere('standar_harga_kode_barang', 'like', '%' . $search . '%')
 
-                        $q->where(
-                            'standar_harga_kode_kelompok',
-                            'like',
-                            '%' . $search . '%'
-                        )
+                    ->orWhere('standar_harga_uraian_barang', 'like', '%' . $search . '%')
 
-                        ->orWhere(
-                            'standar_harga_uraian_kelompok',
-                            'like',
-                            '%' . $search . '%'
-                        )
+                    ->orWhere('standar_harga_spesifikasi', 'like', '%' . $search . '%')
 
-                        ->orWhere(
-                            'standar_harga_id_standar',
-                            'like',
-                            '%' . $search . '%'
-                        )
+                    ->orWhere('standar_harga_kode_rekening', 'like', '%' . $search . '%');
+            });
+        })
 
-                        ->orWhere(
-                            'standar_harga_kode_barang',
-                            'like',
-                            '%' . $search . '%'
-                        )
+            ->orderBy('standar_harga_jenis')
 
-                        ->orWhere(
-                            'standar_harga_uraian_barang',
-                            'like',
-                            '%' . $search . '%'
-                        )
+            ->orderBy('standar_harga_id')
 
-                        ->orWhere(
-                            'standar_harga_spesifikasi',
-                            'like',
-                            '%' . $search . '%'
-                        )
-
-                        ->orWhere(
-                            'standar_harga_kode_rekening',
-                            'like',
-                            '%' . $search . '%'
-                        );
-
-                    });
-
-                }
-            )
-
-            ->orderBy(
-                'standar_harga_jenis'
-            )
-
-            ->orderBy(
-                'standar_harga_id'
-            )
-
-            ->orderBy(
-                'standar_harga_id'
-            )
+            ->orderBy('standar_harga_id')
 
             ->paginate(25)
 
             ->withQueryString();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -128,65 +67,16 @@ class AdminStandarHargaController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $totalSSH = ModelStandarHarga::where(
-            'standar_harga_tahun',
-            $tahun
-        )
-            ->where(
-                'standar_harga_jenis',
-                'SSH'
-            )
-            ->count();
+        $totalSSH = ModelStandarHarga::where('standar_harga_tahun', $tahun)->where('standar_harga_jenis', 'SSH')->count();
 
+        $totalASB = ModelStandarHarga::where('standar_harga_tahun', $tahun)->where('standar_harga_jenis', 'ASB')->count();
 
-        $totalASB = ModelStandarHarga::where(
-            'standar_harga_tahun',
-            $tahun
-        )
-            ->where(
-                'standar_harga_jenis',
-                'ASB'
-            )
-            ->count();
+        $aktif = ModelStandarHarga::where('standar_harga_tahun', $tahun)->where('standar_harga_status', true)->count();
 
+        $nonaktif = ModelStandarHarga::where('standar_harga_tahun', $tahun)->where('standar_harga_status', false)->count();
 
-        $aktif = ModelStandarHarga::where(
-            'standar_harga_tahun',
-            $tahun
-        )
-            ->where(
-                'standar_harga_status',
-                true
-            )
-            ->count();
-
-
-        $nonaktif = ModelStandarHarga::where(
-            'standar_harga_tahun',
-            $tahun
-        )
-            ->where(
-                'standar_harga_status',
-                false
-            )
-            ->count();
-
-
-        return view(
-            'administrator-v2.standar-harga.index',
-            compact(
-                'standarHarga',
-                'tahun',
-                'jenis',
-                'search',
-                'totalSSH',
-                'totalASB',
-                'aktif',
-                'nonaktif'
-            )
-        );
+        return view('administrator-v2.standar-harga.index', compact('standarHarga', 'tahun', 'jenis', 'search', 'totalSSH', 'totalASB', 'aktif', 'nonaktif'));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -196,11 +86,8 @@ class AdminStandarHargaController extends Controller
 
     public function importForm()
     {
-        return view(
-            'administrator-v2.standar-harga.import'
-        );
+        return view('administrator-v2.standar-harga.import');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -208,63 +95,38 @@ class AdminStandarHargaController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function importStore(
-        Request $request
-    ) {
+    public function importStore(Request $request)
+    {
+        $request->validate(
+            [
+                'standar_harga_tahun' => 'required|integer|min:2000|max:2100',
 
-        $request->validate([
+                'standar_harga_jenis' => 'required|in:SSH,ASB',
 
-            'standar_harga_tahun'
-                => 'required|integer|min:2000|max:2100',
+                'file' => 'required|file|mimes:xlsx,xls|max:20480',
+            ],
+            [
+                'file.mimes' => 'File harus berupa Excel (.xlsx / .xls).',
 
-            'standar_harga_jenis'
-                => 'required|in:SSH,ASB',
-
-            'file'
-                => 'required|file|mimes:xlsx,xls|max:20480',
-
-        ], [
-
-            'file.mimes'
-                => 'File harus berupa Excel (.xlsx / .xls).',
-
-            'file.max'
-                => 'Ukuran file maksimal 20 MB.',
-
-        ]);
-
-
-        Excel::import(
-
-            new StandarHargaImport(
-
-                $request->standar_harga_tahun,
-
-                $request->standar_harga_jenis
-
-            ),
-
-            $request->file('file')
-
+                'file.max' => 'Ukuran file maksimal 20 MB.',
+            ],
         );
 
+        Excel::import(
+            new StandarHargaImport(
+                $request->standar_harga_tahun,
+
+                $request->standar_harga_jenis,
+            ),
+
+            $request->file('file'),
+        );
 
         return redirect()
+            ->route('admin.standar-harga.index')
 
-            ->route(
-                'admin.standar-harga.index'
-            )
-
-            ->with(
-                'success',
-                'Data ' .
-                    $request->standar_harga_jenis .
-                    ' tahun ' .
-                    $request->standar_harga_tahun .
-                    ' berhasil diimport.'
-            );
+            ->with('success', 'Data ' . $request->standar_harga_jenis . ' tahun ' . $request->standar_harga_tahun . ' berhasil diimport.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -274,20 +136,13 @@ class AdminStandarHargaController extends Controller
 
     public function status($id)
     {
-        $data = ModelStandarHarga::findOrFail(
-            $id
-        );
+        $data = ModelStandarHarga::findOrFail($id);
 
-        $data->standar_harga_status =
-            !$data->standar_harga_status;
+        $data->standar_harga_status = !$data->standar_harga_status;
 
         $data->save();
 
-
-        return back()->with(
-            'success',
-            'Status data berhasil diperbarui.'
-        );
+        return back()->with('success', 'Status data berhasil diperbarui.');
     }
     /*
     |--------------------------------------------------------------------------
@@ -301,19 +156,11 @@ class AdminStandarHargaController extends Controller
 
     public function permintaan(Request $request)
     {
-        $tahun = $request->get(
-            'tahun',
-            now()->year
-        );
+        $tahun = $request->get('tahun', now()->year);
 
-        $jenis = strtoupper(
-            $request->get('jenis', 'SSH')
-        );
+        $jenis = strtoupper($request->get('jenis', 'SSH'));
 
-        $search = trim(
-            $request->get('search', '')
-        );
-
+        $search = trim($request->get('search', ''));
 
         /*
         |--------------------------------------------------------------------------
@@ -321,29 +168,15 @@ class AdminStandarHargaController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $permintaan = ModelStandarHargaPenggunaan::with([
-            'standarHarga'
-        ])
+        $permintaan = ModelStandarHargaPenggunaan::with(['standarHarga'])
 
-            ->where(
-                'penggunaan_tahun',
-                $tahun
-            )
+            ->where('penggunaan_tahun', $tahun)
 
             ->whereHas('standarHarga', function ($query) use ($jenis) {
+            $query->where('standar_harga_jenis', $jenis);
 
-                $query->where(
-                    'standar_harga_jenis',
-                    $jenis
-                );
-
-                $query->where(
-                    'standar_harga_status',
-                    true
-                );
-
+            $query->where('standar_harga_status', true);
             })
-
 
             /*
             |--------------------------------------------------------------------------
@@ -352,56 +185,22 @@ class AdminStandarHargaController extends Controller
             */
 
             ->when($search, function ($query) use ($search) {
+            $query->whereHas('standarHarga', function ($q) use ($search) {
+                $q->where(function ($x) use ($search) {
+                    $x->where('standar_harga_kode_barang', 'like', '%' . $search . '%')
 
-                $query->whereHas(
-                    'standarHarga',
-                    function ($q) use ($search) {
+                        ->orWhere('standar_harga_uraian_barang', 'like', '%' . $search . '%')
 
-                        $q->where(function ($x) use ($search) {
+                        ->orWhere('standar_harga_spesifikasi', 'like', '%' . $search . '%')
 
-                            $x->where(
-                                'standar_harga_kode_barang',
-                                'like',
-                                '%' . $search . '%'
-                            )
+                        ->orWhere('standar_harga_kode_rekening', 'like', '%' . $search . '%')
 
-                            ->orWhere(
-                                'standar_harga_uraian_barang',
-                                'like',
-                                '%' . $search . '%'
-                            )
+                        ->orWhere('standar_harga_kode_kelompok', 'like', '%' . $search . '%')
 
-                            ->orWhere(
-                                'standar_harga_spesifikasi',
-                                'like',
-                                '%' . $search . '%'
-                            )
-
-                            ->orWhere(
-                                'standar_harga_kode_rekening',
-                                'like',
-                                '%' . $search . '%'
-                            )
-
-                            ->orWhere(
-                                'standar_harga_kode_kelompok',
-                                'like',
-                                '%' . $search . '%'
-                            )
-
-                            ->orWhere(
-                                'standar_harga_uraian_kelompok',
-                                'like',
-                                '%' . $search . '%'
-                            );
-
-                        });
-
-                    }
-                );
-
+                        ->orWhere('standar_harga_uraian_kelompok', 'like', '%' . $search . '%');
+                });
+            });
             })
-
 
             /*
             |--------------------------------------------------------------------------
@@ -409,14 +208,11 @@ class AdminStandarHargaController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            ->orderByDesc(
-                'penggunaan_id'
-            )
+            ->orderByDesc('penggunaan_id')
 
             ->paginate(20)
 
             ->withQueryString();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -424,28 +220,15 @@ class AdminStandarHargaController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $totalDigunakan =
-            ModelStandarHargaPenggunaan::where(
-                'penggunaan_tahun',
-                $tahun
-            )
+        $totalDigunakan = ModelStandarHargaPenggunaan::where('penggunaan_tahun', $tahun)
 
             ->whereHas('standarHarga', function ($query) use ($jenis) {
+            $query->where('standar_harga_jenis', $jenis);
 
-                $query->where(
-                    'standar_harga_jenis',
-                    $jenis
-                );
-
-                $query->where(
-                    'standar_harga_status',
-                    true
-                );
-
+            $query->where('standar_harga_status', true);
             })
 
             ->count();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -453,48 +236,30 @@ class AdminStandarHargaController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $totalNominal =
-            ModelStandarHargaPenggunaan::where(
-                'penggunaan_tahun',
-                $tahun
-            )
+        $totalNominal = ModelStandarHargaPenggunaan::where('penggunaan_tahun', $tahun)
 
             ->whereHas('standarHarga', function ($query) use ($jenis) {
+            $query->where('standar_harga_jenis', $jenis);
 
-                $query->where(
-                    'standar_harga_jenis',
-                    $jenis
-                );
+            $query->where('standar_harga_status', true);
+        })
 
-                $query->where(
-                    'standar_harga_status',
-                    true
-                );
+            ->join('saplarin_standar_harga', 'saplarin_standar_harga.standar_harga_id', '=', 'saplarin_standar_harga_penggunaan.penggunaan_standar_harga')
 
-            })
+            ->sum('saplarin_standar_harga.standar_harga_satuan_harga');
 
-            ->join(
-                'saplarin_standar_harga',
-                'saplarin_standar_harga.standar_harga_id',
-                '=',
-                'saplarin_standar_harga_penggunaan.penggunaan_standar_harga'
-            )
+        return view('administrator-v2.standar-harga.permintaan', compact('permintaan', 'tahun', 'jenis', 'search', 'totalDigunakan', 'totalNominal'));
+    }
+    public function exportPermintaan(Request $request)
+    {
+        $tahun = $request->get('tahun', now()->year);
 
-            ->sum(
-                'saplarin_standar_harga.standar_harga_satuan_harga'
-            );
+        $jenis = strtoupper($request->get('jenis', 'SSH'));
 
+        if (!in_array($jenis, ['SSH', 'ASB'])) {
+            abort(400, 'Jenis standar harga tidak valid.');
+        }
 
-        return view(
-            'administrator-v2.standar-harga.permintaan',
-            compact(
-                'permintaan',
-                'tahun',
-                'jenis',
-                'search',
-                'totalDigunakan',
-                'totalNominal'
-            )
-        );
+        return Excel::download(new \App\Exports\StandarHargaPermintaanExport($tahun, $jenis), 'permintaan-' . strtolower($jenis) . '-' . $tahun . '.xlsx');
     }
 }

@@ -475,6 +475,10 @@ Route::middleware(['admin'])
                 '/export',
                 [AdminStandarHargaController::class, 'export']
             )->name('permintaan.export');
+        Route::get(
+            '/permintaan/export',
+            [AdminStandarHargaController::class, 'exportPermintaan']
+        )->name('permintaan.export');
         });
     });
 
