@@ -140,7 +140,7 @@ class ArinDriveService
         $googleFileId = $result['data']['google_file_id'] ?? null;
 
         if ($googleFileId) {
-            return 'https://drive.google.com/file/' . $googleFileId . '/view';
+            return 'https://drive.google.com/file/d/' . $googleFileId . '/view';
         }
 
         /*
