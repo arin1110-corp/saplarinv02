@@ -346,7 +346,6 @@
                             </table>
                         </div>
                     </div>
-                    @if ($canInputSPJ)
                         <div>
                             <h4 class="font-bold text-slate-800 mb-3">
                                 Riwayat SPJ
@@ -401,12 +400,37 @@
 
                                                 <td class="py-3 px-3">
                                                     @if ($spj->spj_file)
-                                                        <a href="{{ asset($spj->spj_file) }}" target="_blank"
-                                                            class="text-blue-600 hover:underline">
+                                                        <button type="button"
+                                                            onclick="bukaBukuTamu('{{ $spj->spj_uid }}')"
+                                                            class="inline-flex items-center gap-2 px-3 py-2
+               bg-blue-600 hover:bg-blue-700
+               text-white text-sm font-medium
+               rounded-lg transition">
+
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M2.458 12C3.732 7.943
+                                               7.523 5 12 5c4.478 0
+                                               8.268 2.943 9.542 7
+                                               -1.274 4.057-5.064
+                                               7-9.542 7-4.477
+                                               0-8.268-2.943-9.542-7z" />
+
+                                                            </svg>
+
                                                             Lihat File
-                                                        </a>
+
+                                                        </button>
                                                     @else
-                                                        -
+                                                        <span class="text-slate-400">
+                                                            -
+                                                        </span>
                                                     @endif
                                                 </td>
                                                 <td class="py-3 px-3">
@@ -450,7 +474,6 @@
                                 </table>
                             </div>
                         </div>
-                    @endif
                 </div>
             @empty
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 text-center text-slate-500">
@@ -582,7 +605,284 @@
 
         </div>
     </div>
+    {{-- ============================================================
+     MODAL BUKU TAMU SPJ
+     OPERATOR - LIGHT MODE
+     ============================================================ --}}
+
+    <div id="modalBukuTamu"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[9999] p-4">
+
+        <div
+            class="bg-white rounded-3xl shadow-2xl
+        w-full max-w-xl
+        max-h-[90vh]
+        overflow-y-auto
+        p-6">
+
+            {{-- HEADER --}}
+            <div class="flex justify-between items-center mb-6">
+
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">
+                        Buku Tamu SPJ
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-1">
+                        Silakan isi tujuan sebelum melihat file SPJ.
+                    </p>
+                </div>
+
+                <button type="button" onclick="tutupBukuTamu()"
+                    class="text-slate-400 hover:text-slate-800 text-2xl transition">
+                    &times;
+                </button>
+
+            </div>
+
+
+            <form id="formBukuTamu" method="POST">
+
+                @csrf
+
+                {{-- NAMA --}}
+                <div class="mb-4">
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Nama
+                    </label>
+
+                    <input type="text" value="{{ session('pegawai_nama') }}" readonly
+                        class="w-full
+                        rounded-2xl
+                        border border-slate-200
+                        bg-slate-50
+                        text-slate-700
+                        px-4 py-3
+                        cursor-not-allowed">
+
+                    <input type="hidden" name="buku_tamu_nama" value="{{ session('pegawai_nama') }}">
+
+                </div>
+
+
+                {{-- NIP --}}
+                <div class="mb-4">
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        NIP
+                    </label>
+
+                    <input type="text" value="{{ session('pegawai_nip') }}" readonly
+                        class="w-full
+                        rounded-2xl
+                        border border-slate-200
+                        bg-slate-50
+                        text-slate-700
+                        px-4 py-3
+                        cursor-not-allowed">
+
+                    <input type="hidden" name="buku_tamu_nip" value="{{ session('pegawai_nip') }}">
+
+                </div>
+
+
+                {{-- UNIT / BIDANG --}}
+                <div class="mb-4">
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Unit / Bidang
+                    </label>
+
+                    <input type="text"
+                        value="{{ session('pegawai_bidang') ?? (session('pegawai_bidang_nama') ?? '-') }}" readonly
+                        class="w-full
+                        rounded-2xl
+                        border border-slate-200
+                        bg-slate-50
+                        text-slate-700
+                        px-4 py-3
+                        cursor-not-allowed">
+
+                    <input type="hidden" name="buku_tamu_unit"
+                        value="{{ session('pegawai_bidang') ?? (session('pegawai_bidang_nama') ?? '-') }}">
+
+                </div>
+
+
+                {{-- TUJUAN --}}
+                <div class="mb-4">
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Tujuan <span class="text-red-500">*</span>
+                    </label>
+
+                    <textarea name="buku_tamu_tujuan" maxlength="255" rows="4" required
+                        placeholder="Contoh: Melihat dokumen SPJ untuk keperluan verifikasi"
+                        class="w-full
+                        rounded-2xl
+                        border border-slate-200
+                        bg-white
+                        text-slate-800
+                        px-4 py-3
+                        outline-none
+                        resize-none
+                        placeholder-slate-400
+                        focus:border-blue-500
+                        focus:ring-2
+                        focus:ring-blue-500/20"></textarea>
+
+                </div>
+
+
+                {{-- INFO --}}
+                <div
+                    class="bg-blue-50
+                border border-blue-100
+                rounded-2xl
+                p-4
+                text-sm
+                text-blue-700">
+
+                    Data kunjungan akan direkam sebagai buku tamu
+                    sebelum file SPJ dibuka.
+
+                </div>
+
+
+                {{-- BUTTON --}}
+                <div class="flex justify-end gap-3 pt-5">
+
+                    <button type="button" onclick="tutupBukuTamu()"
+                        class="px-5 py-3
+                        rounded-2xl
+                        bg-slate-100
+                        text-slate-700
+                        font-semibold
+                        hover:bg-slate-200
+                        transition">
+
+                        Batal
+
+                    </button>
+
+
+                    <button type="submit"
+                        class="px-5 py-3
+                        rounded-2xl
+                        bg-blue-600
+                        text-white
+                        font-semibold
+                        hover:bg-blue-700
+                        transition">
+
+                        Lihat File
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        function bukaBukuTamu(uid) {
+            const modal = document.getElementById('modalBukuTamu');
+            const form = document.getElementById('formBukuTamu');
+
+            if (!modal || !form) {
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | SET ACTION
+            |--------------------------------------------------------------------------
+            */
+
+            form.action =
+                "{{ url('/user/spj') }}/" +
+                uid +
+                "/buku-tamu";
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | RESET FORM
+            |--------------------------------------------------------------------------
+            */
+
+            form.reset();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BUKA MODAL
+            |--------------------------------------------------------------------------
+            */
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            document.body.classList.add('overflow-hidden');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FOCUS
+            |--------------------------------------------------------------------------
+            */
+
+            setTimeout(function() {
+
+                const nama =
+                    form.querySelector(
+                        '[name="buku_tamu_nama"]'
+                    );
+
+                if (nama) {
+                    nama.focus();
+                }
+
+            }, 100);
+        }
+
+
+        function tutupBukuTamu() {
+            const modal =
+                document.getElementById('modalBukuTamu');
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            document.body.classList.remove('overflow-hidden');
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ESC
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener('keydown', function(event) {
+
+            if (event.key === 'Escape') {
+                tutupBukuTamu();
+            }
+
+        });
+    </script>
     <script>
         function openSPJModal(item) {
 

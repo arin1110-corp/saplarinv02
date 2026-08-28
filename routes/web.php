@@ -33,6 +33,7 @@ use App\Http\Controllers\UserPadController;
 use App\Http\Controllers\AdminPadSubkomponenController;
 use App\Http\Controllers\AdminStandarHargaController;
 use App\Http\Controllers\UserStandarHargaController;
+use App\Http\Controllers\UserSPJBukuTamuController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
@@ -242,7 +243,11 @@ Route::middleware(['admin'])
         Route::get('/spj/permintaan', [AdminSPJRequestController::class, 'index'])->name('admin.permintaan.spj');
 
         Route::post('/spj/permintaan/{uid}/toggle', [AdminSPJRequestController::class, 'toggle'])->name('admin.permintaan.spj.toggle');
+    // Daftar Buku Tamu SPJ
+    Route::get('/buku-tamu', [AdminSPJRequestController::class, 'bukuTamuIndex'])->name('admin.permintaan.spj.buku-tamu');
 
+    // Detail Buku Tamu berdasarkan SPJ
+    Route::get('/{uid}/buku-tamu', [AdminSPJRequestController::class, 'bukuTamu'])->name('admin.permintaan.spj.buku-tamu.detail');
         /*
             |--------------------------------------------------------------------------
             | Permintaan Sub Kegiatan
@@ -428,30 +433,30 @@ Route::middleware(['admin'])
         ->group(function () {
             Route::get('/', [AdminStandarHargaController::class, 'index'])->name('index');
 
-            Route::get('/create', [AdminStandarHargaController::class, 'create'])->name('create');
+        Route::get('/create', [AdminStandarHargaController::class, 'create'])->name('create');
 
-            Route::post('/', [AdminStandarHargaController::class, 'store'])->name('store');
+        Route::post('/', [AdminStandarHargaController::class, 'store'])->name('store');
 
-            Route::get('/{id}/edit', [AdminStandarHargaController::class, 'edit'])->name('edit');
+        Route::get('/{id}/edit', [AdminStandarHargaController::class, 'edit'])->name('edit');
 
-            Route::put('/{id}', [AdminStandarHargaController::class, 'update'])->name('update');
+        Route::put('/{id}', [AdminStandarHargaController::class, 'update'])->name('update');
 
-            Route::delete('/{id}', [AdminStandarHargaController::class, 'destroy'])->name('destroy');
+        Route::delete('/{id}', [AdminStandarHargaController::class, 'destroy'])->name('destroy');
 
-            /*
+        /*
         |--------------------------------------------------------------------------
         | STATUS
         |--------------------------------------------------------------------------
         */
 
-            Route::post('/{id}/status', [AdminStandarHargaController::class, 'status'])->name('status');
-            /*
+        Route::post('/{id}/status', [AdminStandarHargaController::class, 'status'])->name('status');
+        /*
                 |--------------------------------------------------------------------------
                 | IMPORT EXCEL
                 '|'
                 */
 
-            Route::get('/import', [AdminStandarHargaController::class, 'importForm'])->name('import');
+        Route::get('/import', [AdminStandarHargaController::class, 'importForm'])->name('import');
 
             Route::post('/import', [AdminStandarHargaController::class, 'importStore'])->name('import.store');
         });
@@ -465,20 +470,10 @@ Route::middleware(['admin'])
     Route::prefix('standar-harga')
         ->name('admin.standar-harga.')
         ->group(function () {
+        Route::get('/permintaan', [AdminStandarHargaController::class, 'permintaan'])->name('permintaan.index');
 
-            Route::get(
-                '/permintaan',
-                [AdminStandarHargaController::class, 'permintaan']
-            )->name('permintaan.index');
-
-            Route::get(
-                '/export',
-                [AdminStandarHargaController::class, 'export']
-            )->name('permintaan.export');
-        Route::get(
-            '/permintaan/export',
-            [AdminStandarHargaController::class, 'exportPermintaan']
-        )->name('permintaan.export');
+        Route::get('/export', [AdminStandarHargaController::class, 'export'])->name('permintaan.export');
+        Route::get('/permintaan/export', [AdminStandarHargaController::class, 'exportPermintaan'])->name('permintaan.export');
         });
     });
 
@@ -579,6 +574,7 @@ Route::prefix('user')
         Route::put('/spj/{uid}', [UserSPJController::class, 'update'])->name('spj.update');
 
         Route::delete('/spj/{uid}', [UserSPJController::class, 'destroy'])->name('spj.destroy');
+    Route::post('/spj/{uid}/buku-tamu', [UserSPJBukuTamuController::class, 'store'])->name('spj.buku-tamu.store');
 
         /*
             |--------------------------------------------------------------------------

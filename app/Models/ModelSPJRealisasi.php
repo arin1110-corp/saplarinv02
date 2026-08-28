@@ -9,28 +9,7 @@ class ModelSPJRealisasi extends Model
     protected $table = 'saplarin_spj_realisasi';
     protected $primaryKey = 'spj_id';
 
-    protected $fillable = [
-        'spj_uid',
-        'spj_pagu_id',
-        'spj_uraian',
-        'spj_nominal',
-        'spj_tanggal',
-        'spj_tanggal_input',
-        'spj_file',
-
-        'spj_operator_id',
-        'spj_operator_nama',
-        'spj_operator_nip',
-
-        'spj_bidang_id',
-        'spj_bidang_nama',
-
-        'spj_status',
-        'spj_catatan_admin',
-        'spj_status_by',
-        'spj_status_by_nama',
-        'spj_status_at',
-    ];
+    protected $fillable = ['spj_uid', 'spj_pagu_id', 'spj_uraian', 'spj_nominal', 'spj_tanggal', 'spj_tanggal_input', 'spj_file', 'spj_operator_id', 'spj_operator_nama', 'spj_operator_nip', 'spj_bidang_id', 'spj_bidang_nama', 'spj_status', 'spj_catatan_admin', 'spj_status_by', 'spj_status_by_nama', 'spj_status_at'];
 
     protected $casts = [
         'spj_tanggal' => 'date',
@@ -41,5 +20,15 @@ class ModelSPJRealisasi extends Model
     public function pagu()
     {
         return $this->belongsTo(ModelSPJPagu::class, 'spj_pagu_id', 'spj_pagu_id');
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | BUKU TAMU SPJ
+    |--------------------------------------------------------------------------
+    */
+
+    public function bukuTamu()
+    {
+        return $this->hasMany(ModelSPJBukuTamu::class, 'buku_tamu_spj_id', 'spj_id')->latest();
     }
 }

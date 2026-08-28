@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ModelSPJRealisasi;
+use App\Models\ModelSPJPagu;
+use App\Models\ModelSPJBukuTamu;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -70,5 +72,64 @@ class AdminSPJRequestController extends Controller
         ]);
 
         return back()->with('success', 'Status SPJ berhasil diperbarui.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUKU TAMU SPJ
+    |--------------------------------------------------------------------------
+    */
+
+    public function bukuTamuIndex(Request $request)
+    {
+        $search = trim($request->search);
+
+        $tamu = ModelSPJBukuTamu::with(['spj'])
+
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query
+                        ->where('buku_tamu_nama', 'like', "%{$search}%")
+                        ->orWhere('buku_tamu_nip', 'like', "%{$search}%")
+                        ->orWhere('buku_tamu_unit', 'like', "%{$search}%")
+                        ->orWhere('buku_tamu_tujuan', 'like', "%{$search}%")
+                        ->orWhere('spj_uid', 'like', "%{$search}%")
+
+                        ->orWhereHas('spj', function ($spjQuery) use ($search) {
+                            $spjQuery
+                                ->where('spj_uraian', 'like', "%{$search}%")
+                                ->orWhere('spj_operator_nama', 'like', "%{$search}%")
+                                ->orWhere('spj_operator_nip', 'like', "%{$search}%");
+                        });
+                });
+            })
+
+            ->latest('buku_tamu_waktu')
+
+            ->paginate(15)
+
+            ->withQueryString();
+
+        return view('administrator-v2.permintaan-spj.buku-tamu', compact('tamu'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL BUKU TAMU
+    |--------------------------------------------------------------------------
+    |
+    | Method ini tetap tersedia kalau nanti ingin dibuat halaman detail.
+    |
+    */
+
+    public function bukuTamu($uid)
+    {
+        $spj = ModelSPJRealisasi::with(['pagu.unit', 'pagu.program', 'pagu.kegiatan', 'pagu.subKegiatan'])
+            ->where('spj_uid', $uid)
+            ->firstOrFail();
+
+        $tamu = ModelSPJBukuTamu::where('spj_uid', $uid)->latest('buku_tamu_waktu')->get();
+
+        return view('administrator-v2.permintaan-spj.buku-tamu-detail', compact('spj', 'tamu'));
     }
 }
