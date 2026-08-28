@@ -3,34 +3,30 @@
 @section('content')
     <div class="space-y-6">
 
-        {{-- =========================================================
-        HEADER
-    ========================================================== --}}
+        {{-- HEADER --}}
         <div>
             <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
                 Buku Tamu SPJ
             </h1>
 
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Daftar pegawai yang meminta akses untuk melihat file SPJ.
+                Daftar akses dan permintaan melihat file SPJ.
             </p>
         </div>
 
 
-        {{-- =========================================================
-        SEARCH
-    ========================================================== --}}
+        {{-- SEARCH --}}
         <div class="rounded-xl bg-white p-5 shadow-sm dark:bg-slate-900">
 
             <form method="GET" action="{{ route('admin.permintaan.spj.buku-tamu') }}"
                 class="flex flex-col gap-3 md:flex-row">
 
-                <div class="relative w-full">
+                <div class="relative flex-1">
 
                     <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
 
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama, NIP, unit, tujuan atau nama file..."
+                        placeholder="Cari nama, NIP, unit, dokumen SPJ atau tujuan..."
                         class="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
                 </div>
@@ -56,9 +52,7 @@
         </div>
 
 
-        {{-- =========================================================
-        TABLE
-    ========================================================== --}}
+        {{-- TABLE --}}
         <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-900">
 
             <div class="overflow-x-auto">
@@ -76,21 +70,24 @@
 
                             <th
                                 class="whitespace-nowrap px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
-                                Pemohon
+                                Nama
+                            </th>
+
+                            <th
+                                class="min-w-[50px] px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
+                                NIP
                             </th>
 
                             <th
                                 class="whitespace-nowrap px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
-                                Unit / Bidang
+                                Unit
                             </th>
 
-                            <th
-                                class="whitespace-nowrap px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
-                                File SPJ
+                            <th class="min-w-[200px] px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
+                                Dokumen SPJ
                             </th>
 
-                            <th
-                                class="whitespace-nowrap px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
+                            <th class="min-w-[120px] px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
                                 Tujuan
                             </th>
 
@@ -122,90 +119,81 @@
                                 </td>
 
 
-                                {{-- PEMOHON --}}
+                                {{-- NAMA --}}
                                 <td class="px-5 py-4">
 
                                     <div class="font-medium text-slate-800 dark:text-white">
-                                        {{ $item->buku_tamu_nama ?? '-' }}
+
+                                        {{ $item->buku_tamu_nama ?: '-' }}
+
                                     </div>
 
-                                    <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                        {{ $item->buku_tamu_nip ?? '-' }}
-                                    </div>
+                                </td>
+
+
+                                {{-- NIP --}}
+                                <td class="min-w-[50px] px-5 py-4 text-slate-600 dark:text-slate-300">
+
+                                    {{ $item->buku_tamu_nip ?: '-' }}
 
                                 </td>
 
 
                                 {{-- UNIT --}}
-                                <td class="px-5 py-4">
+                                <td class="px-5 py-4 text-slate-600 dark:text-slate-300">
 
-                                    <div class="text-slate-700 dark:text-slate-300">
-                                        {{ $item->buku_tamu_unit ?? '-' }}
-                                    </div>
+                                    {{ $item->buku_tamu_unit ?: '-' }}
 
                                 </td>
 
 
-                                {{-- FILE SPJ --}}
-                                <td class="max-w-xs px-5 py-4">
+                                {{-- DOKUMEN SPJ --}}
+                                <td class="px-5 py-4">
 
-                                    @php
+                                    @if ($item->spj)
+                                        <div class="flex items-start gap-3">
 
-                                        $fileUrl = $item->buku_tamu_file ?? null;
+                                            <div
+                                                class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-slate-800 dark:text-blue-400">
 
-                                        $fileName = '-';
+                                                <i class="bi bi-file-earmark-text"></i>
 
-                                        if ($fileUrl) {
-                                            $fileName = basename(parse_url($fileUrl, PHP_URL_PATH));
-                                        }
-
-                                        /*
-                                         * Jika nanti field nama file SPJ dari relasi
-                                         * tersedia, bisa diprioritaskan di sini.
-                                         */
-                                        if (isset($item->spj) && $item->spj && !empty($item->spj->spj_file)) {
-                                            $spjUrl = $item->spj->spj_file;
-
-                                            $fileName = basename(parse_url($spjUrl, PHP_URL_PATH));
-                                        }
-
-                                    @endphp
-
-
-                                    <div class="flex min-w-0 items-center gap-3">
-
-                                        <div
-                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 dark:bg-red-900/20">
-
-                                            <i class="bi bi-file-earmark-pdf"></i>
-
-                                        </div>
-
-
-                                        <div class="min-w-0">
-
-                                            <div class="truncate font-medium text-slate-700 dark:text-slate-300"
-                                                title="{{ $fileName }}">
-                                                {{ $fileName }}
                                             </div>
 
-                                            <div class="mt-1 text-xs text-slate-400">
-                                                SPJ
+                                            <div class="min-w-0">
+
+                                                <div class="font-medium leading-5 text-slate-800 dark:text-white">
+
+                                                    {{ $item->spj->spj_uraian ?: 'Dokumen SPJ' }}
+
+                                                </div>
+
+                                                <div class="mt-1 text-xs text-slate-400">
+
+                                                    UID:
+                                                    {{ $item->spj_uid }}
+
+                                                </div>
+
                                             </div>
 
                                         </div>
-
-                                    </div>
+                                    @else
+                                        <span class="text-slate-400">
+                                            Data SPJ tidak ditemukan
+                                        </span>
+                                    @endif
 
                                 </td>
 
 
                                 {{-- TUJUAN --}}
-                                <td class="max-w-xs px-5 py-4">
+                                <td class="px-5 py-4">
 
-                                    <div class="line-clamp-2 text-slate-600 dark:text-slate-300"
-                                        title="{{ $item->buku_tamu_tujuan ?? '-' }}">
-                                        {{ $item->buku_tamu_tujuan ?? '-' }}
+                                    <div class="max-w-xs leading-5 text-slate-600 dark:text-slate-300">
+
+                                        {{ $item->buku_tamu_tujuan ?: '-' }}
+
                                     </div>
 
                                 </td>
@@ -215,13 +203,7 @@
                                 <td class="whitespace-nowrap px-5 py-4 text-slate-600 dark:text-slate-300">
 
                                     @if ($item->buku_tamu_waktu)
-                                        <div>
-                                            {{ $item->buku_tamu_waktu->format('d/m/Y') }}
-                                        </div>
-
-                                        <div class="mt-1 text-xs text-slate-400">
-                                            {{ $item->buku_tamu_waktu->format('H:i:s') }}
-                                        </div>
+                                        {{ $item->buku_tamu_waktu->format('d/m/Y H:i') }}
                                     @else
                                         -
                                     @endif
@@ -245,20 +227,34 @@
 
                             </tr>
 
+
                         @empty
 
                             <tr>
 
-                                <td colspan="7" class="px-5 py-14 text-center text-slate-500 dark:text-slate-400">
+                                <td colspan="8" class="px-5 py-14 text-center">
 
-                                    <i class="bi bi-journal-x mb-3 block text-4xl"></i>
+                                    <div class="flex flex-col items-center">
 
-                                    <div class="font-medium">
-                                        Belum ada data buku tamu SPJ.
-                                    </div>
+                                        <div
+                                            class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
 
-                                    <div class="mt-1 text-xs">
-                                        Data permintaan akses file SPJ akan muncul di sini.
+                                            <i class="bi bi-journal-x text-2xl text-slate-400"></i>
+
+                                        </div>
+
+                                        <div class="font-medium text-slate-700 dark:text-slate-300">
+
+                                            Belum ada data buku tamu SPJ
+
+                                        </div>
+
+                                        <div class="mt-1 text-sm text-slate-400">
+
+                                            Data akan muncul setelah ada pegawai yang mengakses file SPJ.
+
+                                        </div>
+
                                     </div>
 
                                 </td>
@@ -273,9 +269,7 @@
             </div>
 
 
-            {{-- =====================================================
-            PAGINATION
-        ====================================================== --}}
+            {{-- PAGINATION --}}
             @if ($tamu->hasPages())
                 <div class="border-t border-slate-100 px-5 py-4 dark:border-slate-800">
 
@@ -287,7 +281,6 @@
         </div>
 
     </div>
-
 
 
     {{-- =============================================================
