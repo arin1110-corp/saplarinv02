@@ -73,8 +73,7 @@
                                 Nama
                             </th>
 
-                            <th
-                                class="min-w-[50px] px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
+                            <th class="min-w-[50px] px-5 py-4 text-left font-semibold text-slate-600 dark:text-slate-300">
                                 NIP
                             </th>
 
@@ -416,6 +415,11 @@
                             File SPJ yang Diminta
                         </label>
 
+                        <div id="detailFileLabel"
+                            class="mt-1 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+
+                        </div>
+
 
                         <div
                             class="mt-1 flex items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
@@ -598,13 +602,13 @@
 ============================================================= --}}
     <script>
         /*
-        |--------------------------------------------------------------------------
-        | Data Buku Tamu
-        |--------------------------------------------------------------------------
-        |
-        | Mengambil data dari pagination yang sedang aktif.
-        |
-        */
+            |--------------------------------------------------------------------------
+            | Data Buku Tamu
+            |--------------------------------------------------------------------------
+            |
+            | Mengambil data dari pagination yang sedang aktif.
+            |
+            */
 
         const bukuTamuData = @json($tamu->items());
 
@@ -734,6 +738,9 @@
             | FILE
             |--------------------------------------------------------------------------
             */
+
+            document.getElementById('detailFileLabel').textContent =
+                item.spj?.spj_uraian ?? '-';
 
             let fileUrl = item.buku_tamu_file ?? '';
 
