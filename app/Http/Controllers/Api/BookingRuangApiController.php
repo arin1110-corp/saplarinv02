@@ -66,8 +66,7 @@ class BookingRuangApiController extends Controller
     | SEMUA JADWAL KALENDER
     |--------------------------------------------------------------------------
     |
-    | Hanya booking Disetujui yang ditampilkan.
-    | Ini berbeda dengan index(), karena index hanya milik user login.
+    | Kalender hanya menampilkan booking Disetujui.
     |
     */
 
@@ -75,23 +74,14 @@ class BookingRuangApiController extends Controller
     {
         $query = ModelBookingRuang::with('ruang')->where('booking_status', 'Disetujui');
 
-        /*
-         * Filter berdasarkan ruang jika dikirim.
-         */
         if ($request->filled('ruang_id')) {
             $query->where('booking_ruang_id', $request->ruang_id);
         }
 
-        /*
-         * Filter tanggal mulai jika dikirim.
-         */
         if ($request->filled('start')) {
             $query->whereDate('booking_tanggal', '>=', $request->start);
         }
 
-        /*
-         * Filter tanggal akhir jika dikirim.
-         */
         if ($request->filled('end')) {
             $query->whereDate('booking_tanggal', '<=', $request->end);
         }
@@ -137,13 +127,28 @@ class BookingRuangApiController extends Controller
     |--------------------------------------------------------------------------
     | DETAIL BOOKING
     |--------------------------------------------------------------------------
+    |
+    | Booking milik sendiri:
+    |   boleh dilihat semua status.
+    |
+    | Booking milik orang lain:
+    |   hanya boleh dilihat jika Disetujui.
+    |
+    | Ini supaya kalender bisa menampilkan
+    | siapa yang melakukan booking.
+    |
     */
 
     public function show(Request $request, string $uid): JsonResponse
     {
         $user = $request->user();
 
-        $booking = ModelBookingRuang::with('ruang')->where('booking_uid', $uid)->where('booking_created_by', $user->user_nip)->first();
+        $booking = ModelBookingRuang::with('ruang')
+            ->where('booking_uid', $uid)
+            ->where(function ($query) use ($user) {
+                $query->where('booking_created_by', $user->user_nip)->orWhere('booking_status', 'Disetujui');
+            })
+            ->first();
 
         if (!$booking) {
             return response()->json(
@@ -191,6 +196,7 @@ class BookingRuangApiController extends Controller
         if ($bentrok) {
             return response()->json([
                 'status' => false,
+
                 'message' => 'Ruangan sudah dibooking pada waktu tersebut.',
 
                 'booking' => [
@@ -240,9 +246,6 @@ class BookingRuangApiController extends Controller
 
             'booking_catatan' => ['nullable', 'string', 'max:1000'],
 
-            /*
-             * SURAT OPTIONAL
-             */
             'booking_surat' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
         ]);
 
@@ -259,8 +262,11 @@ class BookingRuangApiController extends Controller
         }
 
         /*
-         * Identitas dari Sanctum user.
-         */
+        |--------------------------------------------------------------------------
+        | IDENTITAS USER LOGIN
+        |--------------------------------------------------------------------------
+        */
+
         $nip = $user->user_nip ?? null;
         $nama = $user->user_nama ?? null;
         $unit = $user->user_bidang ?? null;
@@ -276,8 +282,11 @@ class BookingRuangApiController extends Controller
         }
 
         /*
-         * Pastikan ruang aktif.
-         */
+        |--------------------------------------------------------------------------
+        | CEK RUANG AKTIF
+        |--------------------------------------------------------------------------
+        */
+
         $ruang = ModelRuang::where('ruang_id', $request->booking_ruang_id)->where('ruang_status', 1)->first();
 
         if (!$ruang) {
@@ -291,10 +300,11 @@ class BookingRuangApiController extends Controller
         }
 
         /*
-         * CEK BENTROK FINAL
-         *
-         * Tetap dilakukan di server.
-         */
+        |--------------------------------------------------------------------------
+        | CEK BENTROK FINAL
+        |--------------------------------------------------------------------------
+        */
+
         $bentrok = ModelBookingRuang::where('booking_ruang_id', $request->booking_ruang_id)
             ->whereDate('booking_tanggal', $request->booking_tanggal)
             ->whereIn('booking_status', ['Menunggu', 'Disetujui'])
@@ -313,13 +323,19 @@ class BookingRuangApiController extends Controller
         }
 
         /*
-         * UID.
-         */
+        |--------------------------------------------------------------------------
+        | UID
+        |--------------------------------------------------------------------------
+        */
+
         $bookingUid = (string) Str::uuid();
 
         /*
-         * Surat optional.
-         */
+        |--------------------------------------------------------------------------
+        | SURAT OPTIONAL
+        |--------------------------------------------------------------------------
+        */
+
         $surat = null;
 
         if ($request->hasFile('booking_surat')) {
@@ -329,8 +345,11 @@ class BookingRuangApiController extends Controller
         }
 
         /*
-         * SIMPAN.
-         */
+        |--------------------------------------------------------------------------
+        | SIMPAN BOOKING
+        |--------------------------------------------------------------------------
+        */
+
         $booking = ModelBookingRuang::create([
             'booking_uid' => $bookingUid,
 
