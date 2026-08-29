@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class ModelUser extends Authenticatable
 {
+    use HasApiTokens, HasFactory;
 
-    use HasFactory;
 
     // Tentukan tabel yang digunakan oleh model
     protected $table = 'saplarin_user';
