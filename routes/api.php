@@ -48,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/booking-ruang', [BookingRuangApiController::class, 'index']);
 
+    Route::get('/booking-ruang/events', [BookingRuangApiController::class, 'events']);
+
     Route::post('/booking-ruang/check-availability', [BookingRuangApiController::class, 'checkAvailability']);
 
     Route::post('/booking-ruang', [BookingRuangApiController::class, 'store']);
