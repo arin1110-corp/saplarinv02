@@ -6,39 +6,39 @@ use App\Http\Controllers\Controller;
 use App\Models\ModelBookingRuang;
 use App\Models\ModelRuang;
 use App\Services\ArinDriveService;
-use Illuminate\Http\JsonResponse;
+use App\Services\BBMEmailService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class BookingRuangApiController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | DAFTAR RUANG
+    | ROOMS
     |--------------------------------------------------------------------------
     */
 
-    public function rooms(): JsonResponse
+    public function rooms()
     {
-        $ruangs = ModelRuang::where('ruang_status', 1)->orderBy('ruang_nama')->get();
-
-        $data = $ruangs
-            ->map(function ($ruang) {
-                return [
-                'id' => (int) $ruang->ruang_id,
-                    'nama' => $ruang->ruang_nama,
-                'lokasi' => $ruang->ruang_lokasi ?? '-',
-                'kapasitas' => (int) ($ruang->ruang_kapasitas ?? 0),
-                'keterangan' => $ruang->ruang_keterangan ?? null,
-                'status' => (bool) $ruang->ruang_status,
-            ];
-        })
-            ->values();
+        $ruangs = ModelRuang::query()->where('ruang_status', 1)->orderBy('ruang_nama')->get();
 
         return response()->json([
             'status' => true,
-            'message' => 'Data ruang berhasil diambil.',
-            'data' => $data,
+            'message' => 'Data ruang rapat berhasil diambil.',
+            'data' => $ruangs
+                ->map(function ($ruang) {
+                    return [
+                        'ruang_id' => $ruang->ruang_id,
+                        'ruang_uid' => $ruang->ruang_uid,
+                        'ruang_nama' => $ruang->ruang_nama,
+                        'ruang_lokasi' => $ruang->ruang_lokasi,
+                        'ruang_kapasitas' => $ruang->ruang_kapasitas,
+                        'ruang_keterangan' => $ruang->ruang_keterangan,
+                        'ruang_status' => $ruang->ruang_status,
+                    ];
+                })
+                ->values(),
         ]);
     }
 
@@ -48,7 +48,7 @@ class BookingRuangApiController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $user = $request->user();
 
@@ -63,98 +63,22 @@ class BookingRuangApiController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | SEMUA JADWAL KALENDER
-    |--------------------------------------------------------------------------
-    |
-    | Kalender hanya menampilkan booking Disetujui.
-    |
-    */
-
-    public function events(Request $request): JsonResponse
-    {
-        $query = ModelBookingRuang::with('ruang')->where('booking_status', 'Disetujui');
-
-        if ($request->filled('ruang_id')) {
-            $query->where('booking_ruang_id', $request->ruang_id);
-        }
-
-        if ($request->filled('start')) {
-            $query->whereDate('booking_tanggal', '>=', $request->start);
-        }
-
-        if ($request->filled('end')) {
-            $query->whereDate('booking_tanggal', '<=', $request->end);
-        }
-
-        $bookings = $query->orderBy('booking_tanggal')->orderBy('booking_jam_mulai')->get();
-
-        $data = $bookings
-            ->map(function ($booking) {
-                return [
-                    'uid' => $booking->booking_uid,
-
-                    'ruang_id' => (int) $booking->booking_ruang_id,
-
-                    'ruang_nama' => $booking->ruang ? $booking->ruang->ruang_nama : '-',
-
-                    'tanggal' => $booking->booking_tanggal ? $booking->booking_tanggal->format('Y-m-d') : null,
-
-                    'jam_mulai' => substr($booking->booking_jam_mulai, 0, 5),
-
-                    'jam_selesai' => substr($booking->booking_jam_selesai, 0, 5),
-
-                    'peruntukan' => $booking->booking_peruntukan,
-
-                    'created_by_nama' => $booking->booking_created_by_nama,
-
-                    'created_by_nip' => $booking->booking_created_by_nip,
-
-                    'created_by_unit' => $booking->booking_created_by_unit,
-
-                    'status' => $booking->booking_status,
-                ];
-            })
-            ->values();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Jadwal berhasil diambil.',
-            'data' => $data,
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | DETAIL BOOKING
     |--------------------------------------------------------------------------
-    |
-    | Booking milik sendiri:
-    |   boleh dilihat semua status.
-    |
-    | Booking milik orang lain:
-    |   hanya boleh dilihat jika Disetujui.
-    |
-    | Ini supaya kalender bisa menampilkan
-    | siapa yang melakukan booking.
-    |
     */
 
-    public function show(Request $request, string $uid): JsonResponse
+    public function show(Request $request, string $uid)
     {
         $user = $request->user();
 
-        $booking = ModelBookingRuang::with('ruang')
-            ->where('booking_uid', $uid)
-            ->where(function ($query) use ($user) {
-                $query->where('booking_created_by', $user->user_nip)->orWhere('booking_status', 'Disetujui');
-            })
-            ->first();
+        $booking = ModelBookingRuang::with('ruang')->where('booking_uid', $uid)->where('booking_created_by', $user->user_nip)->first();
 
         if (!$booking) {
             return response()->json(
                 [
                     'status' => false,
                     'message' => 'Booking tidak ditemukan.',
+                    'data' => null,
                 ],
                 404,
             );
@@ -169,113 +93,109 @@ class BookingRuangApiController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | CEK KETERSEDIAAN
+    | EVENTS / KALENDER
     |--------------------------------------------------------------------------
     */
 
-    public function checkAvailability(Request $request): JsonResponse
+    public function events(Request $request)
     {
-        $request->validate([
-            'booking_ruang_id' => ['required', 'integer', 'exists:saplarin_ruang,ruang_id'],
+        $query = ModelBookingRuang::with('ruang')->whereIn('booking_status', ['Disetujui']);
 
-            'booking_tanggal' => ['required', 'date'],
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER RUANG
+        |--------------------------------------------------------------------------
+        */
 
-            'booking_jam_mulai' => ['required', 'date_format:H:i'],
-
-            'booking_jam_selesai' => ['required', 'date_format:H:i', 'after:booking_jam_mulai'],
-        ]);
-
-        $bentrok = ModelBookingRuang::with('ruang')
-            ->where('booking_ruang_id', $request->booking_ruang_id)
-            ->whereDate('booking_tanggal', $request->booking_tanggal)
-            ->whereIn('booking_status', ['Menunggu', 'Disetujui'])
-            ->where('booking_jam_mulai', '<', $request->booking_jam_selesai)
-            ->where('booking_jam_selesai', '>', $request->booking_jam_mulai)
-            ->first();
-
-        if ($bentrok) {
-            return response()->json([
-                'status' => false,
-
-                'message' => 'Ruangan sudah dibooking pada waktu tersebut.',
-
-                'booking' => [
-                    'uid' => $bentrok->booking_uid,
-
-                    'ruang_nama' => $bentrok->ruang?->ruang_nama ?? '-',
-
-                    'tanggal' => $bentrok->booking_tanggal?->format('Y-m-d'),
-
-                    'peruntukan' => $bentrok->booking_peruntukan,
-
-                    'mulai' => substr($bentrok->booking_jam_mulai, 0, 5),
-
-                    'selesai' => substr($bentrok->booking_jam_selesai, 0, 5),
-
-                    'operator' => $bentrok->booking_created_by_nama,
-
-                    'unit' => $bentrok->booking_created_by_unit,
-                ],
-            ]);
+        if ($request->filled('ruang')) {
+            $query->where('booking_ruang_id', $request->ruang);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER TANGGAL
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('start')) {
+            $query->whereDate('booking_tanggal', '>=', $request->start);
+        }
+
+        if ($request->filled('end')) {
+            $query->whereDate('booking_tanggal', '<=', $request->end);
+        }
+
+        $bookings = $query->orderBy('booking_tanggal')->orderBy('booking_jam_mulai')->get();
+
+        $events = $bookings
+            ->map(function ($item) {
+                return [
+                    'id' => $item->booking_uid,
+
+                    'title' => $item->booking_created_by_unit,
+
+                    'start' => $item->booking_tanggal->format('Y-m-d') . 'T' . $item->booking_jam_mulai,
+
+                    'end' => $item->booking_tanggal->format('Y-m-d') . 'T' . $item->booking_jam_selesai,
+
+                    'display' => 'block',
+
+                    'textColor' => '#ffffff',
+
+                    'color' => '#22c55e',
+
+                    'extendedProps' => [
+                        'uid' => $item->booking_uid,
+
+                        'ruang_id' => $item->booking_ruang_id,
+
+                        'ruang_nama' => $item->ruang?->ruang_nama,
+
+                        'peruntukan' => $item->booking_peruntukan,
+
+                        'operator' => $item->booking_created_by_nama,
+
+                        'nip' => $item->booking_created_by_nip,
+
+                        'unit' => $item->booking_created_by_unit,
+
+                        'jam' => substr($item->booking_jam_mulai, 0, 5) . ' - ' . substr($item->booking_jam_selesai, 0, 5),
+                    ],
+                ];
+            })
+            ->values();
 
         return response()->json([
             'status' => true,
-            'message' => 'Ruangan tersedia.',
+            'message' => 'Data kalender berhasil diambil.',
+            'data' => $events,
         ]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | BUAT BOOKING
+    | CHECK AVAILABILITY
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request, ArinDriveService $arinDrive): JsonResponse
+    public function checkAvailability(Request $request)
     {
-        $request->validate([
-            'booking_ruang_id' => ['required', 'integer', 'exists:saplarin_ruang,ruang_id'],
+        $validator = Validator::make($request->all(), [
+            'booking_ruang_id' => 'required|integer',
 
-            'booking_tanggal' => ['required', 'date'],
+            'booking_tanggal' => 'required|date',
 
-            'booking_jam_mulai' => ['required', 'date_format:H:i'],
+            'booking_jam_mulai' => 'required|date_format:H:i',
 
-            'booking_jam_selesai' => ['required', 'date_format:H:i', 'after:booking_jam_mulai'],
-
-            'booking_peruntukan' => ['required', 'string', 'max:500'],
-
-            'booking_catatan' => ['nullable', 'string', 'max:1000'],
-
-            'booking_surat' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'booking_jam_selesai' => 'required|date_format:H:i|after:booking_jam_mulai',
         ]);
 
-        $user = $request->user();
-
-        if (!$user) {
+        if ($validator->fails()) {
             return response()->json(
                 [
                     'status' => false,
-                    'message' => 'User tidak terautentikasi.',
-                ],
-                401,
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | IDENTITAS USER LOGIN
-        |--------------------------------------------------------------------------
-        */
-
-        $nip = $user->user_nip ?? null;
-        $nama = $user->user_nama ?? null;
-        $unit = $user->user_bidang ?? null;
-
-        if (empty($nip)) {
-            return response()->json(
-                [
-                    'status' => false,
-                    'message' => 'NIP user tidak ditemukan.',
+                    'message' => 'Data tidak valid.',
+                    'errors' => $validator->errors(),
                 ],
                 422,
             );
@@ -283,7 +203,7 @@ class BookingRuangApiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CEK RUANG AKTIF
+        | Pastikan ruang masih aktif
         |--------------------------------------------------------------------------
         */
 
@@ -293,32 +213,185 @@ class BookingRuangApiController extends Controller
             return response()->json(
                 [
                     'status' => false,
-                    'message' => 'Ruang rapat tidak tersedia.',
+                    'message' => 'Ruang rapat tidak ditemukan atau tidak aktif.',
+                    'booking' => null,
                 ],
-                422,
+                404,
             );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | CEK BENTROK FINAL
+        | CEK BENTROK
         |--------------------------------------------------------------------------
+        |
+        | Sama dengan logika Laravel web:
+        |
+        | - Menunggu
+        | - Disetujui
+        |
+        */
+
+        $bentrok = ModelBookingRuang::with('ruang')
+            ->where('booking_ruang_id', $request->booking_ruang_id)
+            ->whereDate('booking_tanggal', $request->booking_tanggal)
+            ->whereIn('booking_status', ['Menunggu', 'Disetujui'])
+            ->where(function ($q) use ($request) {
+                $q->whereBetween('booking_jam_mulai', [$request->booking_jam_mulai, $request->booking_jam_selesai])
+
+                    ->orWhereBetween('booking_jam_selesai', [$request->booking_jam_mulai, $request->booking_jam_selesai])
+
+                    ->orWhere(function ($qq) use ($request) {
+                        $qq->where('booking_jam_mulai', '<', $request->booking_jam_mulai)->where('booking_jam_selesai', '>', $request->booking_jam_selesai);
+                    });
+            })
+            ->first();
+
+        if ($bentrok) {
+            return response()->json([
+                'status' => false,
+
+                'message' => 'Ruangan sudah dibooking.',
+
+                'booking' => [
+                    'uid' => $bentrok->booking_uid,
+
+                    'ruang_nama' => $bentrok->ruang?->ruang_nama,
+
+                    'peruntukan' => $bentrok->booking_peruntukan,
+
+                    'mulai' => $bentrok->booking_jam_mulai,
+
+                    'selesai' => $bentrok->booking_jam_selesai,
+
+                    'operator' => $bentrok->booking_created_by_nama,
+
+                    'nip' => $bentrok->booking_created_by_nip,
+
+                    'unit' => $bentrok->booking_created_by_unit,
+
+                    'status' => $bentrok->booking_status,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+
+            'message' => 'Ruangan tersedia.',
+
+            'booking' => null,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE BOOKING
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(Request $request, BBMEmailService $emailService, ArinDriveService $arinDrive)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_ruang_id' => 'required|integer',
+
+            'booking_tanggal' => 'required|date',
+
+            'booking_jam_mulai' => 'required|date_format:H:i',
+
+            'booking_jam_selesai' => 'required|date_format:H:i|after:booking_jam_mulai',
+
+            'booking_peruntukan' => 'required|string',
+
+            'booking_catatan' => 'nullable|string',
+
+            'booking_surat' => 'nullable|file|mimes:pdf|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Data tidak valid.',
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
+        }
+
+        $user = $request->user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK RUANG
+        |--------------------------------------------------------------------------
+        */
+
+        $ruang = ModelRuang::where('ruang_id', $request->booking_ruang_id)->where('ruang_status', 1)->first();
+
+        if (!$ruang) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Ruang rapat tidak ditemukan atau tidak aktif.',
+                ],
+                404,
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK BENTROK LAGI
+        |--------------------------------------------------------------------------
+        |
+        | WAJIB dicek lagi ketika benar-benar menyimpan.
+        |
+        | Jangan hanya mengandalkan checkAvailability
+        | karena setelah user melakukan pengecekan,
+        | user lain bisa saja melakukan booking terlebih dahulu.
+        |
         */
 
         $bentrok = ModelBookingRuang::where('booking_ruang_id', $request->booking_ruang_id)
             ->whereDate('booking_tanggal', $request->booking_tanggal)
             ->whereIn('booking_status', ['Menunggu', 'Disetujui'])
-            ->where('booking_jam_mulai', '<', $request->booking_jam_selesai)
-            ->where('booking_jam_selesai', '>', $request->booking_jam_mulai)
-            ->exists();
+            ->where(function ($q) use ($request) {
+                $q->whereBetween('booking_jam_mulai', [$request->booking_jam_mulai, $request->booking_jam_selesai])
+
+                    ->orWhereBetween('booking_jam_selesai', [$request->booking_jam_mulai, $request->booking_jam_selesai])
+
+                    ->orWhere(function ($qq) use ($request) {
+                        $qq->where('booking_jam_mulai', '<', $request->booking_jam_mulai)->where('booking_jam_selesai', '>', $request->booking_jam_selesai);
+                    });
+            })
+            ->first();
 
         if ($bentrok) {
             return response()->json(
                 [
                     'status' => false,
+
                     'message' => 'Ruangan sudah dibooking pada waktu tersebut.',
+
+                    'booking' => [
+                        'uid' => $bentrok->booking_uid,
+
+                        'peruntukan' => $bentrok->booking_peruntukan,
+
+                        'mulai' => $bentrok->booking_jam_mulai,
+
+                        'selesai' => $bentrok->booking_jam_selesai,
+
+                        'operator' => $bentrok->booking_created_by_nama,
+
+                        'nip' => $bentrok->booking_created_by_nip,
+
+                        'unit' => $bentrok->booking_created_by_unit,
+
+                        'status' => $bentrok->booking_status,
+                    ],
                 ],
-                422,
+                409,
             );
         }
 
@@ -328,30 +401,35 @@ class BookingRuangApiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $bookingUid = (string) Str::uuid();
+        $uid = (string) Str::uuid();
+
+        $surat = null;
 
         /*
         |--------------------------------------------------------------------------
-        | SURAT OPTIONAL
+        | UPLOAD SURAT KE ARINDRIVE
         |--------------------------------------------------------------------------
         */
-
-        $surat = null;
 
         if ($request->hasFile('booking_surat')) {
             $file = $request->file('booking_surat');
 
-            $surat = $arinDrive->upload($file, 'booking_ruang_surat', $bookingUid . '_SURAT.' . $file->getClientOriginalExtension(), $bookingUid);
+            $surat = $arinDrive->upload($file, 'booking_ruang_surat', $uid . '_SURAT.' . $file->getClientOriginalExtension(), $uid);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | SIMPAN BOOKING
+        | BUAT BOOKING
         |--------------------------------------------------------------------------
+        |
+        | Mengikuti Laravel web:
+        |
+        | booking_status = Disetujui
+        |
         */
 
         $booking = ModelBookingRuang::create([
-            'booking_uid' => $bookingUid,
+            'booking_uid' => $uid,
 
             'booking_ruang_id' => $request->booking_ruang_id,
 
@@ -369,21 +447,51 @@ class BookingRuangApiController extends Controller
 
             'booking_status' => 'Disetujui',
 
-            'booking_created_by' => $nip,
+            'booking_created_by' => $user->user_nip,
 
-            'booking_created_by_nama' => $nama,
+            'booking_created_by_nama' => $user->user_nama,
 
-            'booking_created_by_nip' => $nip,
+            'booking_created_by_nip' => $user->user_nip,
 
-            'booking_created_by_unit' => $unit,
+            'booking_created_by_unit' => $user->user_bidang,
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | EMAIL ADMIN
+        |--------------------------------------------------------------------------
+        */
+
+        try {
+            $emailService->kirimKeAdminBBM(
+                'Booking Ruang Rapat oleh - ' . $booking->booking_created_by_nama,
+
+                "Yth. Operator Ruang Rapat,\n\n" . "Terdapat pengajuan booking ruang rapat baru dengan data berikut:\n\n" . "Nama Pengaju       : {$booking->booking_created_by_nama}\n" . "NIP                : {$booking->booking_created_by_nip}\n" . "Bidang             : {$booking->booking_created_by_unit}\n" . "Peruntukan         : {$booking->booking_peruntukan}\n" . "Ruang Rapat        : {$ruang->ruang_nama}\n" . "Tanggal Booking    : {$booking->booking_tanggal}\n" . "Jam Mulai          : {$booking->booking_jam_mulai}\n" . "Jam Selesai        : {$booking->booking_jam_selesai}\n" . "Surat Undangan     : {$booking->booking_surat}\n\n" . "Silakan login ke SAPLARIN untuk memantau status pengajuan.\n\n" . 'SAPLARIN',
+            );
+        } catch (\Throwable $e) {
+            /*
+            |--------------------------------------------------------------------------
+            | Email gagal tidak membatalkan booking.
+            |--------------------------------------------------------------------------
+            */
+
+            report($e);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSE
+        |--------------------------------------------------------------------------
+        */
 
         $booking->load('ruang');
 
         return response()->json(
             [
                 'status' => true,
-                'message' => 'Booking berhasil dibuat.',
+
+                'message' => 'Booking berhasil dikirim.',
+
                 'data' => $this->formatBooking($booking),
             ],
             201,
@@ -396,7 +504,7 @@ class BookingRuangApiController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function cancel(Request $request, string $uid): JsonResponse
+    public function cancel(Request $request, string $uid)
     {
         $user = $request->user();
 
@@ -412,7 +520,7 @@ class BookingRuangApiController extends Controller
             );
         }
 
-        if (!in_array($booking->booking_status, ['Menunggu', 'Disetujui'])) {
+        if (!in_array($booking->booking_status, ['Menunggu', 'Disetujui'], true)) {
             return response()->json(
                 [
                     'status' => false,
@@ -441,53 +549,57 @@ class BookingRuangApiController extends Controller
     private function formatBooking(ModelBookingRuang $booking): array
     {
         return [
-            'uid' => $booking->booking_uid,
+            'booking_id' => $booking->booking_id,
 
-            'ruang_id' => (int) $booking->booking_ruang_id,
+            'booking_uid' => $booking->booking_uid,
+
+            'booking_ruang_id' => $booking->booking_ruang_id,
+
+            'booking_tanggal' => $booking->booking_tanggal?->format('Y-m-d'),
+
+            'booking_jam_mulai' => $booking->booking_jam_mulai,
+
+            'booking_jam_selesai' => $booking->booking_jam_selesai,
+
+            'booking_peruntukan' => $booking->booking_peruntukan,
+
+            'booking_surat' => $booking->booking_surat,
+
+            'booking_catatan' => $booking->booking_catatan,
+
+            'booking_status' => $booking->booking_status,
+
+            'booking_created_by' => $booking->booking_created_by,
+
+            'booking_created_by_nama' => $booking->booking_created_by_nama,
+
+            'booking_created_by_nip' => $booking->booking_created_by_nip,
+
+            'booking_created_by_unit' => $booking->booking_created_by_unit,
+
+            'booking_verifikator' => $booking->booking_verifikator,
+
+            'booking_verifikasi_at' => $booking->booking_verifikasi_at?->toDateTimeString(),
+
+            'booking_catatan_admin' => $booking->booking_catatan_admin,
 
             'ruang' => $booking->ruang
                 ? [
-                'id' => (int) $booking->ruang->ruang_id,
+                    'ruang_id' => $booking->ruang->ruang_id,
 
-                'nama' => $booking->ruang->ruang_nama,
+                    'ruang_uid' => $booking->ruang->ruang_uid,
 
-                'lokasi' => $booking->ruang->ruang_lokasi ?? '-',
+                    'ruang_nama' => $booking->ruang->ruang_nama,
 
-                'kapasitas' => (int) ($booking->ruang->ruang_kapasitas ?? 0),
+                    'ruang_lokasi' => $booking->ruang->ruang_lokasi,
 
-                'keterangan' => $booking->ruang->ruang_keterangan ?? null,
+                    'ruang_kapasitas' => $booking->ruang->ruang_kapasitas,
+
+                    'ruang_keterangan' => $booking->ruang->ruang_keterangan,
+
+                    'ruang_status' => $booking->ruang->ruang_status,
                 ]
                 : null,
-
-            'tanggal' => $booking->booking_tanggal ? $booking->booking_tanggal->format('Y-m-d') : null,
-
-            'jam_mulai' => substr($booking->booking_jam_mulai, 0, 5),
-
-            'jam_selesai' => substr($booking->booking_jam_selesai, 0, 5),
-
-            'peruntukan' => $booking->booking_peruntukan,
-
-            'surat' => $booking->booking_surat,
-
-            'catatan' => $booking->booking_catatan,
-
-            'status' => $booking->booking_status,
-
-            'created_by' => $booking->booking_created_by,
-
-            'created_by_nama' => $booking->booking_created_by_nama,
-
-            'created_by_nip' => $booking->booking_created_by_nip,
-
-            'created_by_unit' => $booking->booking_created_by_unit,
-
-            'verifikator' => $booking->booking_verifikator,
-
-            'verifikasi_at' => $booking->booking_verifikasi_at ? $booking->booking_verifikasi_at->toIso8601String() : null,
-
-            'catatan_admin' => $booking->booking_catatan_admin,
-
-            'created_at' => $booking->created_at ? $booking->created_at->toIso8601String() : null,
         ];
     }
 }

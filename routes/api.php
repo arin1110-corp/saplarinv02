@@ -21,7 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/me', [AuthApiController::class, 'me']);
-
     Route::post('/logout', [AuthApiController::class, 'logout']);
 
     /*
@@ -31,11 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/bbm', [BBMApiController::class, 'index']);
-
     Route::post('/bbm', [BBMApiController::class, 'store']);
-
     Route::get('/bbm/{uid}', [BBMApiController::class, 'show']);
-
     Route::post('/bbm/{uid}/laporan', [BBMApiController::class, 'uploadLaporan']);
 
     /*
@@ -50,11 +46,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/booking-ruang/events', [BookingRuangApiController::class, 'events']);
 
+    Route::get('/booking-ruang/{uid}', [BookingRuangApiController::class, 'show']);
+
     Route::post('/booking-ruang/check-availability', [BookingRuangApiController::class, 'checkAvailability']);
 
     Route::post('/booking-ruang', [BookingRuangApiController::class, 'store']);
-
-    Route::get('/booking-ruang/{uid}', [BookingRuangApiController::class, 'show']);
 
     Route::post('/booking-ruang/{uid}/batal', [BookingRuangApiController::class, 'cancel']);
 });
