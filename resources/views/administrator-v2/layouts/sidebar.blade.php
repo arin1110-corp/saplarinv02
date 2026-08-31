@@ -55,7 +55,7 @@
 
             <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow">
 
-                <img src="{{ asset('image/pemprov.png') }}" alt="Pemprov Bali" class="w-9 h-9 object-contain">
+                <img src="{{ asset('image/logo-saplarin.png') }}" alt="Pemprov Bali" class="w-9 h-9 object-contain">
 
             </div>
 

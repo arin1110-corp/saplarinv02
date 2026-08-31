@@ -7,7 +7,7 @@
     <title>SAPLARIN</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ asset('image/pemprov.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/logo-saplarin.png') }}" type="image/png">
 
     <style>
         body {
@@ -39,15 +39,10 @@
             <div class="hidden md:flex flex-col justify-center p-12 text-white relative">
 
                 <div>
-                    <h1 class="text-5xl font-bold tracking-wide mb-3">
-                        SAPLAR<span class="IN">IN</span>
-                    </h1>
+                    <img src="{{ asset('image/logo-saplarin-full.png') }}" alt="Logo" class="w-200 mb-4">
+                    
 
                     <div class="w-24 h-1 bg-yellow-400 rounded-full mb-5"></div>
-
-                    <h2 class="text-xl font-semibold mb-4">
-                        Sistem Penataan Laporan Internal
-                    </h2>
 
                     <p class="text-slate-200 leading-relaxed">
                         Platform digital pengelolaan laporan internal
@@ -71,11 +66,7 @@
                 <div class="text-center mb-8">
 
                     {{-- Logo --}}
-                    <img src="{{ asset('image/pemprov.png') }}" alt="Logo" class="w-24 mx-auto mb-4">
-
-                    <h3 class="text-3xl font-bold text-slate-800">
-                        SAPLAR<span class="IN">IN</span>
-                    </h3>
+                    <img src="{{ asset('image/logo-saplarin-bawah.png') }}" alt="Logo" class="w-48 mx-auto mb-4">
 
                 </div>
                 @if (session('error'))

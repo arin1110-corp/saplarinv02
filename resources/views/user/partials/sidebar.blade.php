@@ -25,7 +25,7 @@
         <div class="flex items-center gap-3">
 
             <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <img src="{{ asset('image/pemprov.png') }}" class="w-9 h-9 object-contain">
+                <img src="{{ asset('image/logo-saplarin.png') }}" class="w-9 h-9 object-contain">
             </div>
 
             <div>
