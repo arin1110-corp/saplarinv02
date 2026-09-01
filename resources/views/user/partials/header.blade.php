@@ -3,7 +3,9 @@
 
 <title>@yield('title', 'SAPLARIN User')</title>
 
-<script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+
+<script src="{{ asset('js/tailwindcss.js') }}"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 

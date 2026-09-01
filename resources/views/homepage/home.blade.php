@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAPLARIN</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link rel="icon" href="{{ asset('image/logo-saplarin.png') }}" type="image/png">
 
     <style>

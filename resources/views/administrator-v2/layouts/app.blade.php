@@ -18,7 +18,8 @@
 
     <link rel="icon" href="{{ asset('image/logo-saplarin.png') }}" type="image/png">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
 
     <script>
         tailwind.config = {
