@@ -10,7 +10,51 @@
 
     <div class="space-y-6">
 
+        {{-- FILTER TAHUN --}}
+        <div class="flex items-center justify-between gap-4 flex-wrap">
 
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">
+                    Dashboard Tahun Anggaran
+                </h3>
+
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Pilih tahun untuk melihat data sesuai tahun anggaran.
+                </p>
+            </div>
+
+            <form method="GET" action="{{ url()->current() }}" class="flex items-center gap-3">
+
+                <div class="relative">
+
+                    <i class="bi bi-calendar3 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+                    <select name="tahun" onchange="this.form.submit()"
+                        class="appearance-none pl-11 pr-10 py-3 rounded-2xl
+                       border border-slate-200 dark:border-slate-700
+                       bg-white dark:bg-slate-900
+                       text-slate-700 dark:text-white
+                       font-semibold text-sm
+                       shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500
+                       cursor-pointer">
+
+                        @for ($y = date('Y') + 1; $y >= 2020; $y--)
+                            <option value="{{ $y }}" {{ (string) $tahun === (string) $y ? 'selected' : '' }}>
+                                Tahun {{ $y }}
+                            </option>
+                        @endfor
+
+                    </select>
+
+                    <i
+                        class="bi bi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+
+                </div>
+
+            </form>
+
+        </div>
 
         {{-- Statistic --}}
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -385,7 +429,8 @@
 
                     </div>
 
-                    <div class="w-16 h-16 rounded-3xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <div
+                        class="w-16 h-16 rounded-3xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
 
                         <i class="bi bi-people text-3xl text-indigo-600"></i>
 
@@ -423,7 +468,8 @@
 
                     </div>
 
-                    <div class="w-16 h-16 rounded-3xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                    <div
+                        class="w-16 h-16 rounded-3xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
 
                         <i class="bi bi-fuel-pump text-3xl text-yellow-600"></i>
 
