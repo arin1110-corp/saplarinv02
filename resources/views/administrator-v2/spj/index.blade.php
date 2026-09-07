@@ -373,25 +373,23 @@
         <div
             class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
 
+            {{-- HEADER --}}
             <div class="flex items-center justify-between px-7 py-5 border-b border-slate-200 dark:border-slate-700">
 
                 <div>
 
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-
                         Tambah Pagu SPJ
-
                     </h2>
 
                     <p class="text-sm text-slate-500 dark:text-slate-400">
-
                         Pilih Unit, Program, Kegiatan, Sub Kegiatan lalu input riwayat pagu.
-
                     </p>
 
                 </div>
 
-                <button onclick="closeModal()" class="w-11 h-11 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button type="button" onclick="closeModal()"
+                    class="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-300">
 
                     <i class="bi bi-x-lg text-lg"></i>
 
@@ -399,44 +397,46 @@
 
             </div>
 
+
+            {{-- FORM --}}
             <form method="POST" action="{{ route('admin.spj.store') }}" class="flex flex-col flex-1 overflow-hidden">
 
                 @csrf
 
+
+                {{-- CONTENT --}}
                 <div class="flex-1 overflow-y-auto px-7 py-6">
 
+                    {{-- TAHUN + UNIT --}}
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
+                        {{-- TAHUN --}}
                         <div>
 
-                            <label class="block text-sm font-semibold mb-2">
-
+                            <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                                 Tahun Anggaran
-
                             </label>
 
                             <input type="number" name="spj_pagu_tahun" value="{{ date('Y') }}"
-                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 required>
 
                         </div>
 
+
+                        {{-- UNIT --}}
                         <div>
 
-                            <label class="block text-sm font-semibold mb-2">
-
+                            <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                                 Unit Pengampu
-
                             </label>
 
                             <select name="spj_pagu_unit_id"
-                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 required>
 
                                 <option value="">
-
                                     Pilih Unit
-
                                 </option>
 
                                 @foreach ($units as $unit)
@@ -454,24 +454,23 @@
 
                     </div>
 
+
+                    {{-- PROGRAM + KEGIATAN --}}
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
 
+                        {{-- PROGRAM --}}
                         <div>
 
-                            <label class="block text-sm font-semibold mb-2">
-
+                            <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                                 Program
-
                             </label>
 
                             <select id="programSelect" onchange="filterKegiatan()"
-                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 required>
 
                                 <option value="">
-
                                     Pilih Program
-
                                 </option>
 
                                 @foreach ($programs as $program)
@@ -487,22 +486,20 @@
 
                         </div>
 
+
+                        {{-- KEGIATAN --}}
                         <div>
 
-                            <label class="block text-sm font-semibold mb-2">
-
+                            <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                                 Kegiatan
-
                             </label>
 
                             <select id="kegiatanSelect" onchange="filterSubKegiatan()"
-                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                                class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 required>
 
                                 <option value="">
-
                                     Pilih Kegiatan
-
                                 </option>
 
                                 @foreach ($kegiatans as $kegiatan)
@@ -521,22 +518,20 @@
 
                     </div>
 
+
+                    {{-- SUB KEGIATAN --}}
                     <div class="mt-5">
 
-                        <label class="block text-sm font-semibold mb-2">
-
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                             Sub Kegiatan
-
                         </label>
 
                         <select id="subKegiatanSelect" name="spj_pagu_sub_kegiatan_id" onchange="setMasterHidden()"
-                            class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
+                            class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             required>
 
                             <option value="">
-
                                 Pilih Sub Kegiatan
-
                             </option>
 
                             @foreach ($subKegiatans as $sub)
@@ -553,102 +548,118 @@
 
                     </div>
 
+
+                    {{-- HIDDEN MASTER ID --}}
                     <input type="hidden" id="spj_pagu_program_id" name="spj_pagu_program_id">
 
                     <input type="hidden" id="spj_pagu_kegiatan_id" name="spj_pagu_kegiatan_id">
+
+
+                    {{-- RIWAYAT PAGU --}}
                     <div class="mt-6">
 
-                        <label class="block text-sm font-semibold mb-3">
-
+                        <label class="block text-sm font-semibold mb-3 text-slate-700 dark:text-slate-200">
                             Riwayat Pagu
-
                         </label>
 
                         <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
 
-                            <table class="min-w-full text-sm" id="tablePagu">
+                            <div class="overflow-x-auto">
 
-                                <thead class="bg-slate-100 dark:bg-slate-800">
+                                <table class="min-w-full text-sm">
 
-                                    <tr>
+                                    <thead class="bg-slate-100 dark:bg-slate-800">
 
-                                        <th class="px-4 py-3 text-left">
-                                            Jenis
-                                        </th>
+                                        <tr>
 
-                                        <th class="px-4 py-3 text-left">
-                                            Nominal
-                                        </th>
+                                            <th
+                                                class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                                                Jenis
+                                            </th>
 
-                                        <th class="px-4 py-3 text-left">
-                                            Keterangan
-                                        </th>
+                                            <th
+                                                class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                                                Nominal
+                                            </th>
 
-                                        <th width="70" class="text-center">
-                                            Aksi
-                                        </th>
+                                            <th
+                                                class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                                                Keterangan
+                                            </th>
 
-                                    </tr>
+                                            <th width="70"
+                                                class="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
+                                                Aksi
+                                            </th>
 
-                                </thead>
+                                        </tr>
 
-                                <tbody id="tbodyPagu">
+                                    </thead>
 
-                                    <tr>
 
-                                        <td class="px-4 py-3">
+                                    <tbody id="tbodyPagu">
 
-                                            <select name="jenis[]"
-                                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2">
+                                        {{-- BARIS PERTAMA --}}
+                                        <tr>
 
-                                                <option value="Induk">
+                                            {{-- JENIS --}}
+                                            <td class="px-4 py-3">
 
-                                                    Pagu Induk
+                                                <select name="pagu_jenis[]"
+                                                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
 
-                                                </option>
+                                                    <option value="Induk">
+                                                        Pagu Induk
+                                                    </option>
 
-                                                <option value="Pergeseran">
+                                                    <option value="Pergeseran">
+                                                        Pergeseran
+                                                    </option>
 
-                                                    Pergeseran
+                                                </select>
 
-                                                </option>
+                                            </td>
 
-                                            </select>
 
-                                        </td>
+                                            {{-- NOMINAL --}}
+                                            <td class="px-4 py-3">
 
-                                        <td class="px-4 py-3">
+                                                <input type="text" name="pagu_nominal[]"
+                                                    class="inputNominal w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                                    placeholder="0" inputmode="numeric" autocomplete="off" required>
 
-                                            <input type="number" name="nominal[]"
-                                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2"
-                                                required>
+                                            </td>
 
-                                        </td>
 
-                                        <td class="px-4 py-3">
+                                            {{-- KETERANGAN --}}
+                                            <td class="px-4 py-3">
 
-                                            <input type="text" name="keterangan[]"
-                                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2"
-                                                placeholder="Keterangan">
+                                                <input type="text" name="pagu_keterangan[]"
+                                                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                                    placeholder="Keterangan">
 
-                                        </td>
+                                            </td>
 
-                                        <td class="text-center">
 
-                                            <button type="button" onclick="addRowPagu()"
-                                                class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
+                                            {{-- AKSI --}}
+                                            <td class="px-3 py-3 text-center">
 
-                                                <i class="bi bi-plus-lg"></i>
+                                                <button type="button" onclick="addRowPagu()"
+                                                    class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition">
 
-                                            </button>
+                                                    <i class="bi bi-plus-lg"></i>
 
-                                        </td>
+                                                </button>
 
-                                    </tr>
+                                            </td>
 
-                                </tbody>
+                                        </tr>
 
-                            </table>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
 
                         </div>
 
@@ -656,17 +667,21 @@
 
                 </div>
 
-                <div class="flex items-center justify-end gap-3 px-7 py-5 border-t border-slate-200 dark:border-slate-700">
+
+                {{-- FOOTER --}}
+                <div
+                    class="flex items-center justify-end gap-3 px-7 py-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
 
                     <button type="button" onclick="closeModal()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
 
                         Batal
 
                     </button>
 
+
                     <button type="submit"
-                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-white font-semibold">
+                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-white font-semibold transition">
 
                         <i class="bi bi-check-circle me-2"></i>
 
@@ -1793,6 +1808,182 @@
                 closeDetailModal();
 
             }
+
+        });
+    </script>
+    {{-- JAVASCRIPT MODAL PAGU --}}
+    <script>
+        /*
+        |--------------------------------------------------------------------------
+        | TAMBAH BARIS PAGU
+        |--------------------------------------------------------------------------
+        */
+
+        function addRowPagu() {
+
+            const tbody = document.getElementById('tbodyPagu');
+
+            if (!tbody) {
+                return;
+            }
+
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+
+            <td class="px-4 py-3">
+
+                <select
+                    name="pagu_jenis[]"
+                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+
+                    <option value="Induk">
+                        Pagu Induk
+                    </option>
+
+                    <option value="Pergeseran">
+                        Pergeseran
+                    </option>
+
+                </select>
+
+            </td>
+
+
+            <td class="px-4 py-3">
+
+                <input
+                    type="text"
+                    name="pagu_nominal[]"
+                    class="inputNominal w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="0"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    required>
+
+            </td>
+
+
+            <td class="px-4 py-3">
+
+                <input
+                    type="text"
+                    name="pagu_keterangan[]"
+                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Keterangan">
+
+            </td>
+
+
+            <td class="px-3 py-3 text-center">
+
+                <button
+                    type="button"
+                    onclick="removeRowPagu(this)"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-500 hover:bg-red-600 text-white transition">
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
+
+            </td>
+
+        `;
+
+            tbody.appendChild(row);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS BARIS PAGU
+        |--------------------------------------------------------------------------
+        */
+
+        function removeRowPagu(button) {
+
+            const tbody = document.getElementById('tbodyPagu');
+
+            if (!tbody) {
+                return;
+            }
+
+            if (tbody.children.length <= 1) {
+                return;
+            }
+
+            const row = button.closest('tr');
+
+            if (row) {
+                row.remove();
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT NOMINAL
+        |--------------------------------------------------------------------------
+        |
+        | 1000000
+        | menjadi
+        | 1.000.000
+        |
+        */
+
+        document.addEventListener('input', function(event) {
+
+            if (!event.target.classList.contains('inputNominal')) {
+                return;
+            }
+
+            let value = event.target.value;
+
+            value = value.replace(/\D/g, '');
+
+            if (!value) {
+
+                event.target.value = '';
+
+                return;
+
+            }
+
+            event.target.value = new Intl.NumberFormat('id-ID').format(value);
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BERSIHKAN NOMINAL SEBELUM SUBMIT
+        |--------------------------------------------------------------------------
+        |
+        | 1.500.000
+        | menjadi
+        | 1500000
+        |
+        */
+
+        document.addEventListener('submit', function(event) {
+
+            const form = event.target;
+
+            const nominalInputs = form.querySelectorAll(
+                'input[name="pagu_nominal[]"]'
+            );
+
+            if (!nominalInputs.length) {
+                return;
+            }
+
+            nominalInputs.forEach(function(input) {
+
+                input.value = input.value.replace(/\./g, '');
+
+            });
 
         });
     </script>
