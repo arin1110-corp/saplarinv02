@@ -51,8 +51,8 @@
                     </p>
                 </div>
 
-                    <button type="button" onclick="bukaTutorialSPJ()"
-                        class="inline-flex items-center justify-center gap-2
+                <button type="button" onclick="bukaTutorialSPJ()"
+                    class="inline-flex items-center justify-center gap-2
                        px-5 py-3
                        rounded-2xl
                        bg-white/15
@@ -63,10 +63,10 @@
                        transition
                        whitespace-nowrap">
 
-                        <span class="text-lg">📖</span>
-                        Panduan SPJ
+                    <span class="text-lg">📖</span>
+                    Panduan SPJ
 
-                    </button>
+                </button>
 
             </div>
         </div>
@@ -441,11 +441,11 @@
 
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M2.458 12C3.732 7.943
-                                                                   7.523 5 12 5c4.478 0
-                                                                   8.268 2.943 9.542 7
-                                                                   -1.274 4.057-5.064
-                                                                   7-9.542 7-4.477
-                                                                   0-8.268-2.943-9.542-7z" />
+                                                                       7.523 5 12 5c4.478 0
+                                                                       8.268 2.943 9.542 7
+                                                                       -1.274 4.057-5.064
+                                                                       7-9.542 7-4.477
+                                                                       0-8.268-2.943-9.542-7z" />
 
                                                         </svg>
 
@@ -465,23 +465,27 @@
                                             @if ($canInputSPJ)
                                                 <td class="py-3 px-3">
 
-                                                    <div class="flex gap-2">
+                                                    @if ((string) $spj->spj_operator_id === (string) session('pegawai_id'))
+                                                        <div class="flex gap-2">
 
-                                                        <button type="button" onclick="editSPJ('{{ $spj->spj_uid }}')"
-                                                            class="px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">
+                                                            <button type="button"
+                                                                onclick="editSPJ('{{ $spj->spj_uid }}')"
+                                                                class="px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">
+                                                                Edit
+                                                            </button>
 
-                                                            Edit
+                                                            <button type="button"
+                                                                onclick="hapusSPJ('{{ $spj->spj_uid }}')"
+                                                                class="px-3 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
+                                                                Hapus
+                                                            </button>
 
-                                                        </button>
-
-                                                        <button type="button" onclick="hapusSPJ('{{ $spj->spj_uid }}')"
-                                                            class="px-3 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
-
-                                                            Hapus
-
-                                                        </button>
-
-                                                    </div>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-xs text-slate-400">
+                                                            -
+                                                        </span>
+                                                    @endif
 
                                                 </td>
                                             @endif
@@ -1382,8 +1386,8 @@
     </script>
     <script>
         /* ============================================================
-                   TUTORIAL SPJ
-                   ============================================================ */
+                       TUTORIAL SPJ
+                       ============================================================ */
 
         const tutorialSPJPages = [
             "{{ asset('assets/tutorial/spj/halaman-1.png') }}",
@@ -1579,8 +1583,8 @@
     </script>
     <script>
         /* ============================================================
-           ZOOM TUTORIAL SPJ
-           ============================================================ */
+               ZOOM TUTORIAL SPJ
+               ============================================================ */
 
         let tutorialZoom = 0.6;
 
