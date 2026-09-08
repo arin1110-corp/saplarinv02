@@ -19,7 +19,7 @@
 
         .glass {
             backdrop-filter: blur(15px);
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(161, 194, 255, 0.562);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
@@ -39,7 +39,7 @@
             <div class="hidden md:flex flex-col justify-center p-12 text-white relative">
 
                 <div>
-                    <img src="{{ asset('image/logo-saplarin-full.png') }}" alt="Logo" class="w-200 mb-4">
+                    <img src="{{ asset('image/logo-saplarin-samping.png') }}" alt="Logo" class="w-200 mb-4">
                     
 
                     <div class="w-24 h-1 bg-yellow-400 rounded-full mb-5"></div>
@@ -66,7 +66,7 @@
                 <div class="text-center mb-8">
 
                     {{-- Logo --}}
-                    <img src="{{ asset('image/logo-saplarin-bawah.png') }}" alt="Logo" class="w-48 mx-auto mb-4">
+                    <img src="{{ asset('image/logo-saplarin-bawah.png') }}" alt="Logo" class="w-28 mx-auto mb-4">
 
                 </div>
                 @if (session('error'))
