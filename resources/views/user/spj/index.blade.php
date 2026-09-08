@@ -524,6 +524,8 @@
                     <p id="modal_spj_subkegiatan" class="text-sm text-slate-500"></p>
 
                     <p id="modal_spj_unit" class="text-sm font-semibold text-blue-600 mt-1"></p>
+                    
+                    <p id="modal_spj_tahun" class="text-sm font-semibold text-blue-600 mt-1"></p>
                 </div>
 
                 <button type="button" onclick="closeSPJModal()" class="text-slate-400 hover:text-slate-800 text-xl">
@@ -893,9 +895,13 @@
             let unit = item.unit ?
                 item.unit.unit_nama :
                 '-';
+            let tahun = item.spj_pagu_tahun ?
+                item.spj_pagu_tahun :
+                '-';
 
             document.getElementById('modal_spj_subkegiatan').innerText = subKegiatan;
             document.getElementById('modal_spj_unit').innerText = 'Unit Pengampu: ' + unit;
+            document.getElementById('modal_spj_tahun').innerText = 'Tahun Anggaran: ' + tahun;
 
             // Reset form
             document.getElementById('spjForm').reset();

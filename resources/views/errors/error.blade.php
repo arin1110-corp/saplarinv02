@@ -57,7 +57,7 @@
 
     <meta name="robots" content="noindex, nofollow">
 
-    <link rel="icon" href="{{ asset('assets/images/logo-samperin.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('image/logo-saplarin.png') }}" type="image/png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -73,7 +73,7 @@
             --samperin-blue: #1677ff;
             --samperin-blue-dark: #0868eb;
             --samperin-blue-soft: #edf5ff;
-            --samperin-orange: #f28c28;
+            --samperin-orange: #d3feff;
             --samperin-text: #405a82;
             --samperin-border: #dfe8f3;
             --samperin-bg: #f4f9ff;
@@ -398,12 +398,12 @@
 
         <div class="samperin-error-wrapper">
 
+
             {{-- LOGO SAMPERIN --}}
-            <img src="{{ asset('assets/images/logo-samperin-full.png') }}" class="samperin-error-logo" alt="SAMPERIN">
+            <img src="{{ asset('image/logo-saplarin-bawah.png') }}" class="samperin-error-logo" alt="SAPLARIN">
 
             {{-- ERROR CARD --}}
             <section class="samperin-error-card">
-
                 <div class="samperin-error-icon">
                     <i class="bi {{ $currentError['icon'] }}"></i>
                 </div>
@@ -447,11 +447,7 @@
             {{-- FOOTER --}}
             <div class="samperin-error-footer">
 
-                <strong>SAMPERIN</strong><br>
-
-                Sistem Manajemen Pegawai dan Berkas Internal<br>
-
-                Dinas Kebudayaan Provinsi Bali
+                &copy; {{ date('Y') }} <strong>SAPLARIN</strong>. Dinas Kebudayaan Provinsi Bali.
 
             </div>
 
