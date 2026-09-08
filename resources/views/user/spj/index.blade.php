@@ -51,7 +51,6 @@
                     </p>
                 </div>
 
-                @if ($canInputSPJ)
                     <button type="button" onclick="bukaTutorialSPJ()"
                         class="inline-flex items-center justify-center gap-2
                        px-5 py-3
@@ -68,7 +67,6 @@
                         Panduan SPJ
 
                     </button>
-                @endif
 
             </div>
         </div>
