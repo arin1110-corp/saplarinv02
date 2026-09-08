@@ -11,7 +11,7 @@
     $canLaporanAktivitas = $isOperator;
     $canLaporanSubKegiatan = $isOperator;
     $canInputSPJ = in_array($activeRole, ['Operator', 'Operator SPJ']);
-    $canPAD = in_array($activeRole, ['Operator SPJ']);
+    $canPAD = in_array($activeRole, ['Operator PAD']);
     $canStandarHarga = in_array($activeRole, ['Operator']);
     $canSHS = $isOperator;
 @endphp
@@ -167,7 +167,6 @@
             </a>
         @endif
 
-        @if ($canInputSPJ)
             {{-- PENERIMAAN PAD --}}
 
             @if ($canPAD)
@@ -183,6 +182,7 @@
 
                 </a>
             @endif
+        @if ($canInputSPJ)
             <a href="{{ route('user.spj.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
                 {{ request()->routeIs('user.spj*')

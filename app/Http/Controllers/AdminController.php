@@ -223,7 +223,7 @@ class AdminController extends Controller
 
         $roles = ModelUser::where('user_uid', session('pegawai_id'))->pluck('user_role')->toArray();
 
-        $availableRoles = ['Admin Full', 'Admin BBM', 'Admin Arsiparis', 'Pegawai', 'Operator', 'Operator SPJ'];
+        $availableRoles = ['Admin Full', 'Admin BBM', 'Admin Arsiparis', 'Pegawai', 'Operator', 'Operator SPJ', 'Operator PAD'];
 
         $search = strtolower(trim(request('search', '')));
 
