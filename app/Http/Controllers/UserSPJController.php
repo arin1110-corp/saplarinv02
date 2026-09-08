@@ -53,7 +53,11 @@ class UserSPJController extends Controller
 
         $filename = $spjUid . '_SPJ_' . date('Ymd_His') . '.' . $file->getClientOriginalExtension();
 
-        $spjFile = $arinDrive->uploadSPJ($file, 'spj', $filename, $spjUid);
+        $tahun = $pagu->spj_pagu_tahun;
+
+        $folderSPJ = 'spj_' . $tahun;
+
+        $spjFile = $arinDrive->uploadSPJ($file, $folderSPJ, $filename, $spjUid);
 
         ModelSPJRealisasi::create([
             'spj_uid' => $spjUid,
@@ -110,8 +114,7 @@ class UserSPJController extends Controller
         $spj = ModelSPJRealisasi::where('spj_uid', $uid)->firstOrFail();
 
         $this->checkPermission($spj);
-        $pagu = ModelSPJPagu::with('realisasi')
-            ->findOrFail($spj->spj_pagu_id);
+        $pagu = ModelSPJPagu::with('realisasi')->findOrFail($spj->spj_pagu_id);
 
         $request->validate([
             'spj_uraian' => 'required|string',
@@ -119,19 +122,12 @@ class UserSPJController extends Controller
             'spj_tanggal' => 'required|date',
             'spj_file' => 'nullable|file|max:204800',
         ]);
-        $totalRealisasi = $pagu->realisasi()
-            ->where('spj_status', 'Aktif')
-            ->where('spj_id', '!=', $spj->spj_id)
-            ->sum('spj_nominal');
+        $totalRealisasi = $pagu->realisasi()->where('spj_status', 'Aktif')->where('spj_id', '!=', $spj->spj_id)->sum('spj_nominal');
 
         $sisaPagu = $pagu->spj_pagu_final - $totalRealisasi;
 
-        if ((float)$request->spj_nominal > (float)$sisaPagu) {
-            return back()->with(
-                'error',
-                'Nominal SPJ melebihi sisa pagu. Sisa pagu: Rp ' .
-                    number_format($sisaPagu, 0, ',', '.')
-            );
+        if ((float) $request->spj_nominal > (float) $sisaPagu) {
+            return back()->with('error', 'Nominal SPJ melebihi sisa pagu. Sisa pagu: Rp ' . number_format($sisaPagu, 0, ',', '.'));
         }
 
         $spj->spj_uraian = $request->spj_uraian;
