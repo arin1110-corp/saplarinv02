@@ -10,7 +10,9 @@ class AdminSHSController extends Controller
 {
     public function index()
     {
-        $shs = ModelSHS::orderByDesc('created_at')->get();
+        $shs = ModelSHS::with('referensiHarga')
+            ->orderByDesc('created_at')
+            ->paginate(25);
 
         return view(
             'administrator-v2.shs.index',
@@ -20,10 +22,12 @@ class AdminSHSController extends Controller
 
     public function show($uid)
     {
-        $shs = ModelSHS::where(
-            'shs_uid',
-            $uid
-        )->firstOrFail();
+        $shs = ModelSHS::with('referensiHarga')
+            ->where(
+                'shs_uid',
+                $uid
+            )
+            ->firstOrFail();
 
         return response()->json($shs);
     }
@@ -31,9 +35,7 @@ class AdminSHSController extends Controller
     public function verifikasi(Request $request, $uid)
     {
         $request->validate([
-
             'shs_catatan_admin' => 'nullable|string'
-
         ]);
 
         $shs = ModelSHS::where(
@@ -42,21 +44,13 @@ class AdminSHSController extends Controller
         )->firstOrFail();
 
         $shs->update([
-
             'shs_status' => 'Diverifikasi',
-
             'shs_catatan_admin' => $request->shs_catatan_admin,
-
             'shs_verifikasi_at' => now(),
-
             'shs_verifikasi_nama' => session('admin_nama'),
-
             'shs_verifikasi_nip' => session('admin_nip'),
-
             'shs_verifikasi_jabatan' => session('admin_jabatan'),
-
             'shs_verifikasi_bidang' => session('admin_bidang'),
-
         ]);
 
         return back()->with(
@@ -73,9 +67,7 @@ class AdminSHSController extends Controller
         )->firstOrFail();
 
         $shs->update([
-
             'shs_status' => 'Diajukan',
-
         ]);
 
         return back()->with(
@@ -92,11 +84,8 @@ class AdminSHSController extends Controller
         )->firstOrFail();
 
         $shs->update([
-
             'shs_status' => 'Tidak Diajukan',
-
             'shs_catatan_admin' => $request->shs_catatan_admin
-
         ]);
 
         return back()->with(

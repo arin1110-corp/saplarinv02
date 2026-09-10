@@ -1,67 +1,85 @@
 @extends('administrator-v2.layouts.app')
 
 @section('title', 'Laporan SHS')
-
 @section('page-title', 'Laporan SHS')
-
 @section('page-description', 'Verifikasi usulan Standar Harga Satuan')
 
 @section('content')
 
+    {{-- =========================================================
+        ALERT SUCCESS
+    ========================================================== --}}
     @if (session('success'))
         <div
-            class="mb-6 rounded-2xl border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800 px-5 py-4">
+            class="mb-6 rounded-2xl border border-green-200
+                   bg-green-50 dark:bg-green-900/20
+                   dark:border-green-800 px-5 py-4">
 
             <div class="flex items-center gap-3">
-
                 <i class="bi bi-check-circle-fill text-green-600 text-xl"></i>
 
                 <span class="text-green-700 dark:text-green-300">
-
                     {{ session('success') }}
-
                 </span>
-
             </div>
 
         </div>
     @endif
 
+
+    {{-- =========================================================
+        ALERT ERROR
+    ========================================================== --}}
     @if (session('error'))
-        <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-5 py-4">
+        <div
+            class="mb-6 rounded-2xl border border-red-200
+                   bg-red-50 dark:bg-red-900/20
+                   dark:border-red-800 px-5 py-4">
 
             <div class="flex items-center gap-3">
-
                 <i class="bi bi-x-circle-fill text-red-600 text-xl"></i>
 
                 <span class="text-red-700 dark:text-red-300">
-
                     {{ session('error') }}
-
                 </span>
-
             </div>
 
         </div>
     @endif
 
-    @if ($errors->any())
 
-        <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-5 py-4">
+    {{-- =========================================================
+        VALIDATION ERROR
+    ========================================================== --}}
+    @if ($errors->any())
+        <div
+            class="mb-6 rounded-2xl border border-red-200
+                   bg-red-50 dark:bg-red-900/20
+                   dark:border-red-800 px-5 py-4">
 
             <div class="flex items-start gap-3">
 
-                <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl mt-1"></i>
+                <i class="bi bi-exclamation-triangle-fill
+                           text-red-600 text-xl mt-1">
+                </i>
 
                 <div>
 
-                    <h4 class="font-semibold text-red-700 dark:text-red-300 mb-2">
-
+                    <h4
+                        class="font-semibold
+                               text-red-700
+                               dark:text-red-300
+                               mb-2">
                         Terjadi Kesalahan
-
                     </h4>
 
-                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-300 space-y-1">
+                    <ul
+                        class="list-disc
+                               list-inside
+                               text-sm
+                               text-red-600
+                               dark:text-red-300
+                               space-y-1">
 
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -74,26 +92,50 @@
             </div>
 
         </div>
-
     @endif
 
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-        <form method="GET">
+    {{-- =========================================================
+        HEADER
+    ========================================================== --}}
+    <div
+        class="flex flex-col
+               lg:flex-row
+               lg:items-center
+               lg:justify-between
+               gap-4
+               mb-6">
 
-            <div class="relative w-full lg:w-80">
+        <div>
 
-                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <h2
+                class="text-2xl
+                       font-bold
+                       text-slate-800
+                       dark:text-white">
+                Laporan SHS
+            </h2>
 
-                <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Cari Pengaju / NIP / Plat..."
-                    class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-4 py-3">
+            <p class="text-slate-500
+                       dark:text-slate-400">
+                Verifikasi usulan Standar Harga Satuan
+                dari seluruh operator.
+            </p>
 
-            </div>
+        </div>
 
-        </form>
-        <button onclick="openExportModal()"
-            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-white font-semibold transition">
+
+        <button type="button" onclick="openExportModal()"
+            class="inline-flex
+                   items-center
+                   gap-2
+                   rounded-xl
+                   bg-emerald-600
+                   hover:bg-emerald-700
+                   px-5 py-3
+                   text-white
+                   font-semibold
+                   transition">
 
             <i class="bi bi-file-earmark-excel"></i>
 
@@ -103,80 +145,222 @@
 
     </div>
 
+
+    {{-- =========================================================
+        SEARCH
+    ========================================================== --}}
     <div
-        class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        class="mb-6
+               bg-white
+               dark:bg-slate-900
+               rounded-3xl
+               border
+               border-slate-200
+               dark:border-slate-800
+               shadow-sm
+               p-5">
+
+        <form method="GET" action="{{ url()->current() }}"
+            class="flex flex-col
+                   md:flex-row
+                   md:items-center
+                   gap-3">
+
+            <div class="relative flex-1">
+
+                <i
+                    class="bi bi-search
+                           absolute
+                           left-4
+                           top-1/2
+                           -translate-y-1/2
+                           text-slate-400">
+                </i>
+
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari barang, unit, kelompok, operator, NIP..."
+                    class="w-full
+                           rounded-xl
+                           border
+                           border-slate-300
+                           dark:border-slate-700
+                           bg-white
+                           dark:bg-slate-800
+                           text-slate-800
+                           dark:text-white
+                           pl-11
+                           pr-4
+                           py-3
+                           focus:outline-none
+                           focus:border-blue-500
+                           focus:ring-2
+                           focus:ring-blue-500/20">
+
+            </div>
+
+
+            <button type="submit"
+                class="inline-flex
+                       items-center
+                       justify-center
+                       gap-2
+                       rounded-xl
+                       bg-blue-600
+                       hover:bg-blue-700
+                       px-5 py-3
+                       text-white
+                       font-semibold">
+
+                <i class="bi bi-search"></i>
+
+                Cari
+
+            </button>
+
+
+            @if (request('search'))
+                <a href="{{ url()->current() }}"
+                    class="inline-flex
+                           items-center
+                           justify-center
+                           gap-2
+                           rounded-xl
+                           border
+                           border-slate-300
+                           dark:border-slate-700
+                           px-5 py-3
+                           text-slate-700
+                           dark:text-slate-200
+                           hover:bg-slate-100
+                           dark:hover:bg-slate-800">
+
+                    <i class="bi bi-x-circle"></i>
+
+                    Reset
+
+                </a>
+            @endif
+
+        </form>
+
+    </div>
+
+
+    {{-- =========================================================
+        TABLE
+    ========================================================== --}}
+    <div
+        class="bg-white
+               dark:bg-slate-900
+               rounded-3xl
+               border
+               border-slate-200
+               dark:border-slate-800
+               shadow-sm
+               overflow-hidden">
 
         <div class="overflow-x-auto">
 
             <table class="min-w-full text-sm">
 
-                <thead class="bg-slate-100 dark:bg-slate-800">
+                <thead class="bg-slate-100
+                           dark:bg-slate-800">
 
                     <tr>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Aksi
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             No
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Unit
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Barang
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Kelompok
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Harga
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Operator
-
                         </th>
 
-                        <th class="px-4 py-4 text-left">
-
+                        <th
+                            class="px-4 py-4
+                                   text-left
+                                   whitespace-nowrap">
                             Status
-
                         </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
-                    @foreach ($shs as $item)
-                        <tr class="border-t border-slate-200 dark:border-slate-800">
+                    @forelse ($shs as $item)
+                        <tr
+                            class="border-t
+                                   border-slate-200
+                                   dark:border-slate-800
+                                   hover:bg-slate-50
+                                   dark:hover:bg-slate-800/50">
 
+                            {{-- =================================================
+                                AKSI
+                            ================================================== --}}
                             <td class="px-4 py-4">
 
-                                <div class="flex flex-wrap gap-2">
+                                <div
+                                    class="flex
+                                           flex-wrap
+                                           gap-2">
 
-                                    <button onclick='detailSHS(@json($item))'
-                                        class="inline-flex items-center gap-2 rounded-lg bg-slate-700 hover:bg-slate-800 px-3 py-2 text-xs font-medium text-white">
+                                    {{-- DETAIL --}}
+                                    <button type="button" onclick='detailSHS(@json($item->loadMissing('referensiHarga')))'
+                                        class="inline-flex
+                                               items-center
+                                               gap-2
+                                               rounded-lg
+                                               bg-slate-700
+                                               hover:bg-slate-800
+                                               px-3 py-2
+                                               text-xs
+                                               font-medium
+                                               text-white">
 
                                         <i class="bi bi-eye"></i>
 
@@ -184,39 +368,42 @@
 
                                     </button>
 
-                                    @if ($item->shs_status == 'Draft')
-                                        <button onclick='verifikasiSHS(@json($item))'
-                                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-medium text-white">
+
+                                    {{-- DIAJUKAN --}}
+                                    @if ($item->shs_status === 'Diajukan')
+                                        <button type="button" onclick='verifikasiSHS(@json($item))'
+                                            class="inline-flex
+                                                   items-center
+                                                   gap-2
+                                                   rounded-lg
+                                                   bg-blue-600
+                                                   hover:bg-blue-700
+                                                   px-3 py-2
+                                                   text-xs
+                                                   font-medium
+                                                   text-white">
 
                                             <i class="bi bi-check-circle"></i>
 
                                             Verifikasi
 
                                         </button>
-                                    @elseif($item->shs_status == 'Tidak Diajukan')
-                                        <form method="POST"
-                                            action="{{ route('admin.laporan-shs.aktif', $item->shs_uid) }}">
+
+
+                                        <form method="POST" action="{{ route('admin.shs.nonaktif', $item->shs_uid) }}">
 
                                             @csrf
 
-                                            <button
-                                                class="inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-700 px-3 py-2 text-xs text-white">
-
-                                                <i class="bi bi-send"></i>
-
-                                                Diajukan
-
-                                            </button>
-
-                                        </form>
-                                    @else
-                                        <form method="POST"
-                                            action="{{ route('admin.laporan-shs.nonaktif', $item->shs_uid) }}">
-
-                                            @csrf
-
-                                            <button
-                                                class="inline-flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs text-white">
+                                            <button type="submit"
+                                                class="inline-flex
+                                                       items-center
+                                                       gap-2
+                                                       rounded-lg
+                                                       bg-red-600
+                                                       hover:bg-red-700
+                                                       px-3 py-2
+                                                       text-xs
+                                                       text-white">
 
                                                 <i class="bi bi-x-circle"></i>
 
@@ -225,33 +412,114 @@
                                             </button>
 
                                         </form>
+
+
+                                        {{-- TIDAK DIAJUKAN --}}
+                                    @elseif ($item->shs_status === 'Tidak Diajukan')
+                                        <form method="POST"
+                                            action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
+
+                                            @csrf
+
+                                            <button type="submit"
+                                                class="inline-flex
+                                                       items-center
+                                                       gap-2
+                                                       rounded-lg
+                                                       bg-green-600
+                                                       hover:bg-green-700
+                                                       px-3 py-2
+                                                       text-xs
+                                                       text-white">
+
+                                                <i class="bi bi-send"></i>
+
+                                                Diajukan
+
+                                            </button>
+
+                                        </form>
+
+
+                                        {{-- DIVERIFIKASI --}}
+                                    @elseif ($item->shs_status === 'Diverifikasi')
+                                        <span
+                                            class="inline-flex
+                                                   items-center
+                                                   gap-2
+                                                   rounded-lg
+                                                   bg-blue-100
+                                                   dark:bg-blue-900/20
+                                                   px-3 py-2
+                                                   text-xs
+                                                   font-semibold
+                                                   text-blue-700
+                                                   dark:text-blue-300">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Sudah Diverifikasi
+
+                                        </span>
                                     @endif
 
                                 </div>
 
                             </td>
 
-                            <td class="px-4 py-4">
 
-                                {{ $loop->iteration }}
+                            {{-- NOMOR --}}
+                            <td class="px-4 py-4
+                                       whitespace-nowrap">
 
-                            </td>
-
-                            <td class="px-4 py-4">
-
-                                {{ $item->shs_unit_nama }}
+                                {{ $shs->firstItem() + $loop->index }}
 
                             </td>
 
+
+                            {{-- UNIT --}}
                             <td class="px-4 py-4">
 
-                                <div class="font-semibold">
+                                <div
+                                    class="font-medium
+                                           text-slate-800
+                                           dark:text-white">
+
+                                    {{ $item->shs_unit_nama }}
+
+                                </div>
+
+                                @if ($item->shs_unit_kode)
+                                    <div
+                                        class="text-xs
+                                               text-slate-500
+                                               dark:text-slate-400">
+
+                                        {{ $item->shs_unit_kode }}
+
+                                    </div>
+                                @endif
+
+                            </td>
+
+
+                            {{-- BARANG --}}
+                            <td class="px-4 py-4">
+
+                                <div
+                                    class="font-semibold
+                                           text-slate-800
+                                           dark:text-white">
 
                                     {{ $item->shs_barang }}
 
                                 </div>
 
-                                <div class="text-xs text-slate-500">
+                                <div
+                                    class="text-xs
+                                           text-slate-500
+                                           dark:text-slate-400
+                                           mt-1">
 
                                     {{ $item->shs_satuan }}
 
@@ -259,27 +527,44 @@
 
                             </td>
 
+
+                            {{-- KELOMPOK --}}
                             <td class="px-4 py-4">
 
                                 {{ $item->shs_kelompok_barang }}
 
                             </td>
 
-                            <td class="px-4 py-4 font-semibold">
 
-                                Rp {{ number_format($item->shs_harga, 0, ',', '.') }}
+                            {{-- HARGA --}}
+                            <td
+                                class="px-4 py-4
+                                       font-semibold
+                                       whitespace-nowrap">
+
+                                Rp
+                                {{ number_format((float) $item->shs_harga, 0, ',', '.') }}
 
                             </td>
 
+
+                            {{-- OPERATOR --}}
                             <td class="px-4 py-4">
 
-                                <div class="font-semibold">
+                                <div
+                                    class="font-semibold
+                                           text-slate-800
+                                           dark:text-white">
 
                                     {{ $item->shs_operator_nama }}
 
                                 </div>
 
-                                <div class="text-xs text-slate-500">
+                                <div
+                                    class="text-xs
+                                           text-slate-500
+                                           dark:text-slate-400
+                                           mt-1">
 
                                     {{ $item->shs_operator_nip }}
 
@@ -287,18 +572,51 @@
 
                             </td>
 
+
+                            {{-- STATUS --}}
                             <td class="px-4 py-4">
 
-                                @if ($item->shs_status == 'Diajukan')
+                                @if ($item->shs_status === 'Diajukan')
                                     <span
-                                        class="inline-flex rounded-full bg-green-100 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
+                                        class="inline-flex
+                                               rounded-full
+                                               bg-green-100
+                                               dark:bg-green-900/20
+                                               px-3 py-1
+                                               text-xs
+                                               font-semibold
+                                               text-green-700
+                                               dark:text-green-300">
 
                                         Diajukan
 
                                     </span>
+                                @elseif ($item->shs_status === 'Diverifikasi')
+                                    <span
+                                        class="inline-flex
+                                               rounded-full
+                                               bg-blue-100
+                                               dark:bg-blue-900/20
+                                               px-3 py-1
+                                               text-xs
+                                               font-semibold
+                                               text-blue-700
+                                               dark:text-blue-300">
+
+                                        Diverifikasi
+
+                                    </span>
                                 @else
                                     <span
-                                        class="inline-flex rounded-full bg-red-100 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
+                                        class="inline-flex
+                                               rounded-full
+                                               bg-red-100
+                                               dark:bg-red-900/20
+                                               px-3 py-1
+                                               text-xs
+                                               font-semibold
+                                               text-red-700
+                                               dark:text-red-300">
 
                                         Tidak Diajukan
 
@@ -308,57 +626,188 @@
                             </td>
 
                         </tr>
-                    @endforeach
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="8" class="px-6 py-16
+                                       text-center">
+
+                                <div
+                                    class="flex
+                                           flex-col
+                                           items-center
+                                           justify-center">
+
+                                    <i
+                                        class="bi bi-inbox
+                                               text-5xl
+                                               text-slate-300
+                                               dark:text-slate-700
+                                               mb-4">
+                                    </i>
+
+                                    <div
+                                        class="font-semibold
+                                               text-slate-700
+                                               dark:text-slate-300">
+
+                                        Data SHS tidak ditemukan
+
+                                    </div>
+
+                                    <div
+                                        class="text-sm
+                                               text-slate-500
+                                               dark:text-slate-400
+                                               mt-1">
+
+                                        Belum ada data yang dapat ditampilkan.
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    @endforelse
 
                 </tbody>
 
             </table>
 
         </div>
-        <div
-            class="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
 
-            <div class="text-sm text-slate-500">
 
-                Menampilkan
+        {{-- =====================================================
+            PAGINATION
+        ====================================================== --}}
+        @if ($shs->hasPages())
+            <div
+                class="flex
+                       flex-col
+                       md:flex-row
+                       md:items-center
+                       md:justify-between
+                       gap-4
+                       border-t
+                       border-slate-200
+                       dark:border-slate-800
+                       px-5 py-4">
 
-                <b>{{ $shs->firstItem() }}</b>
+                <div
+                    class="text-sm
+                           text-slate-500
+                           dark:text-slate-400">
 
-                -
+                    Menampilkan
 
-                <b>{{ $shs->lastItem() }}</b>
+                    <span
+                        class="font-semibold
+                               text-slate-700
+                               dark:text-slate-200">
 
-                dari
+                        {{ $shs->firstItem() }}
 
-                <b>{{ $shs->total() }}</b>
+                    </span>
 
-                data
+                    -
 
-            </div>
+                    <span
+                        class="font-semibold
+                               text-slate-700
+                               dark:text-slate-200">
 
-            {{ $shs->links() }}
+                        {{ $shs->lastItem() }}
 
-        </div>
+                    </span>
 
-    </div>
+                    dari
 
-    <!-- ======================= MODAL DETAIL ======================= -->
-    <div id="modalDetail" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <span
+                        class="font-semibold
+                               text-slate-700
+                               dark:text-slate-200">
 
-        <div
-            class="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+                        {{ $shs->total() }}
 
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+                    </span>
+
+                    data
+
+                </div>
+
 
                 <div>
 
-                    <h3 class="text-2xl font-bold text-slate-800 dark:text-white">
+                    {{ $shs->withQueryString()->links() }}
+
+                </div>
+
+            </div>
+        @endif
+
+    </div>
+
+
+
+    {{-- =========================================================
+        MODAL DETAIL
+    ========================================================== --}}
+    <div id="modalDetail"
+        class="fixed
+               inset-0
+               z-50
+               hidden
+               items-center
+               justify-center
+               bg-black/60
+               backdrop-blur-sm
+               p-4">
+
+        <div
+            class="w-full
+                   max-w-6xl
+                   max-h-[92vh]
+                   overflow-hidden
+                   rounded-3xl
+                   bg-white
+                   dark:bg-slate-900
+                   border
+                   border-slate-200
+                   dark:border-slate-700
+                   shadow-2xl
+                   flex
+                   flex-col">
+
+            {{-- HEADER --}}
+            <div
+                class="flex
+                       items-center
+                       justify-between
+                       border-b
+                       border-slate-200
+                       dark:border-slate-700
+                       px-6 py-5">
+
+                <div>
+
+                    <h3
+                        class="text-2xl
+                               font-bold
+                               text-slate-800
+                               dark:text-white">
 
                         Detail Usulan SHS
 
                     </h3>
 
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400">
 
                         Detail usulan yang dikirim operator.
 
@@ -366,8 +815,14 @@
 
                 </div>
 
+
                 <button type="button" onclick="closeDetail()"
-                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    class="w-10
+                           h-10
+                           rounded-xl
+                           hover:bg-slate-100
+                           dark:hover:bg-slate-800
+                           transition">
 
                     <i class="bi bi-x-lg"></i>
 
@@ -375,183 +830,462 @@
 
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6">
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {{-- BODY --}}
+            <div class="flex-1
+                       overflow-y-auto
+                       p-6">
 
+                {{-- =================================================
+                    DATA UTAMA
+                ================================================== --}}
+                <div
+                    class="grid
+                           grid-cols-1
+                           lg:grid-cols-2
+                           gap-6">
+
+                    {{-- TAHUN --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Tahun
 
                         </label>
 
                         <input id="d_tahun"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- UNIT --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Unit
 
                         </label>
 
                         <input id="d_unit"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- KELOMPOK BARANG --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Kelompok Barang
 
                         </label>
 
                         <input id="d_kelompok"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- KODE KELOMPOK --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Kode Kelompok
 
                         </label>
 
                         <input id="d_kode"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- BARANG --}}
                     <div class="lg:col-span-2">
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Nama Barang
 
                         </label>
 
                         <input id="d_barang"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- SATUAN --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Satuan
 
                         </label>
 
                         <input id="d_satuan"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- KELOMPOK SHS --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Kelompok SHS
 
                         </label>
 
                         <input id="d_tipe"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- HARGA USULAN --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
-                            Harga
+                            Harga Usulan
 
                         </label>
 
                         <input id="d_harga"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3
+                                   font-semibold"
                             readonly>
 
                     </div>
 
+
+                    {{-- TKDN --}}
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             TKDN
 
                         </label>
 
                         <input id="d_tkdn"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
+                    {{-- SPESIFIKASI --}}
                     <div class="lg:col-span-2">
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Spesifikasi
 
                         </label>
 
                         <textarea id="d_spesifikasi" rows="6"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
-                            readonly></textarea>
-
-                    </div>
-
-                    <div class="lg:col-span-2">
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Link Survei
-
-                        </label>
-
-                        <textarea id="d_link" rows="5"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-50
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly></textarea>
 
                     </div>
 
                 </div>
 
-                <div class="mt-8 border-t border-slate-200 dark:border-slate-700 pt-6">
 
-                    <h4 class="text-lg font-semibold mb-4">
+                {{-- =================================================
+                    REFERENSI HARGA
+                ================================================== --}}
+                <div
+                    class="mt-8
+                           border-t
+                           border-slate-200
+                           dark:border-slate-700
+                           pt-6">
+
+                    <div class="mb-4">
+
+                        <h4
+                            class="text-lg
+                                   font-semibold
+                                   text-slate-800
+                                   dark:text-white">
+
+                            Referensi Harga
+
+                        </h4>
+
+                        <p
+                            class="text-sm
+                                   text-slate-500
+                                   dark:text-slate-400">
+
+                            Harga pembanding dan sumber/link referensi.
+
+                        </p>
+
+                    </div>
+
+
+                    {{-- CONTAINER REFERENSI --}}
+                    <div id="d_referensi" class="w-full">
+
+                        {{-- Diisi JavaScript --}}
+
+                    </div>
+
+                </div>
+
+
+                {{-- =================================================
+                    LINK SURVEI LAMA
+                ================================================== --}}
+                <div
+                    class="mt-8
+                           border-t
+                           border-slate-200
+                           dark:border-slate-700
+                           pt-6">
+
+                    <h4
+                        class="text-lg
+                               font-semibold
+                               text-slate-800
+                               dark:text-white
+                               mb-2">
+
+                        Link Survei Lama
+
+                    </h4>
+
+                    <p
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400
+                               mb-4">
+
+                        Data link survei lama yang tersimpan pada data utama.
+
+                    </p>
+
+                    <textarea id="d_link" rows="5"
+                        class="w-full
+                               rounded-xl
+                               border
+                               border-slate-300
+                               dark:border-slate-700
+                               bg-slate-50
+                               dark:bg-slate-800
+                               px-4 py-3
+                               text-sm"
+                        readonly></textarea>
+
+                </div>
+
+
+                {{-- =================================================
+                    DATA OPERATOR
+                ================================================== --}}
+                <div
+                    class="mt-8
+                           border-t
+                           border-slate-200
+                           dark:border-slate-700
+                           pt-6">
+
+                    <h4
+                        class="text-lg
+                               font-semibold
+                               text-slate-800
+                               dark:text-white
+                               mb-4">
 
                         Data Operator
 
                     </h4>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                        <input id="d_operator"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
-                            readonly>
+                    <div
+                        class="grid
+                               grid-cols-1
+                               lg:grid-cols-2
+                               gap-5">
 
-                        <input id="d_nip"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
-                            readonly>
+                        <div>
+
+                            <label
+                                class="block
+                                       mb-2
+                                       text-sm
+                                       font-medium">
+
+                                Nama Operator
+
+                            </label>
+
+                            <input id="d_operator"
+                                class="w-full
+                                       rounded-xl
+                                       border
+                                       border-slate-300
+                                       dark:border-slate-700
+                                       bg-slate-50
+                                       dark:bg-slate-800
+                                       px-4 py-3"
+                                readonly>
+
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                class="block
+                                       mb-2
+                                       text-sm
+                                       font-medium">
+
+                                NIP Operator
+
+                            </label>
+
+                            <input id="d_nip"
+                                class="w-full
+                                       rounded-xl
+                                       border
+                                       border-slate-300
+                                       dark:border-slate-700
+                                       bg-slate-50
+                                       dark:bg-slate-800
+                                       px-4 py-3"
+                                readonly>
+
+                        </div>
 
                     </div>
 
@@ -562,24 +1296,59 @@
         </div>
 
     </div>
-    <!-- ======================= MODAL VERIFIKASI ======================= -->
+
+
+
+    {{-- =========================================================
+        MODAL VERIFIKASI
+    ========================================================== --}}
     <div id="modalVerifikasi"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        class="fixed
+               inset-0
+               z-50
+               hidden
+               items-center
+               justify-center
+               bg-black/60
+               backdrop-blur-sm
+               p-4">
 
         <div
-            class="w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            class="w-full
+                   max-w-2xl
+                   rounded-3xl
+                   bg-white
+                   dark:bg-slate-900
+                   border
+                   border-slate-200
+                   dark:border-slate-700
+                   shadow-2xl">
 
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+            <div
+                class="flex
+                       items-center
+                       justify-between
+                       border-b
+                       border-slate-200
+                       dark:border-slate-700
+                       px-6 py-5">
 
                 <div>
 
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+                    <h3
+                        class="text-xl
+                               font-bold
+                               text-slate-800
+                               dark:text-white">
 
                         Verifikasi SHS
 
                     </h3>
 
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400">
 
                         Berikan keputusan terhadap usulan SHS.
 
@@ -587,14 +1356,20 @@
 
                 </div>
 
+
                 <button type="button" onclick="closeVerifikasi()"
-                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                    class="w-10
+                           h-10
+                           rounded-xl
+                           hover:bg-slate-100
+                           dark:hover:bg-slate-800">
 
                     <i class="bi bi-x-lg"></i>
 
                 </button>
 
             </div>
+
 
             <form id="formVerifikasi" method="POST">
 
@@ -604,97 +1379,119 @@
 
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Barang
 
                         </label>
 
                         <input id="v_barang"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-100
+                                   dark:bg-slate-800
+                                   px-4 py-3"
                             readonly>
 
                     </div>
 
+
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
                             Harga
 
                         </label>
 
                         <input id="v_harga"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-4 py-3"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-slate-100
+                                   dark:bg-slate-800
+                                   px-4 py-3
+                                   font-semibold"
                             readonly>
 
                     </div>
 
-                    <div>
-
-                        <label class="block mb-2 text-sm font-medium">
-
-                            Keputusan
-
-                        </label>
-
-                        <select id="verifikasi_status" name="status"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            required>
-
-                            <option value="">
-
-                                Pilih Keputusan
-
-                            </option>
-
-                            <option value="Disetujui">
-
-                                Disetujui
-
-                            </option>
-
-                            <option value="Ditolak">
-
-                                Ditolak
-
-                            </option>
-
-                        </select>
-
-                    </div>
 
                     <div>
 
-                        <label class="block mb-2 text-sm font-medium">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-medium">
 
-                            Catatan Verifikator
+                            Catatan Admin
 
                         </label>
 
-                        <textarea name="catatan" rows="5"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3"
-                            placeholder="Masukkan catatan verifikasi..."></textarea>
+                        <textarea name="shs_catatan_admin" rows="5"
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-white
+                                   dark:bg-slate-800
+                                   px-4 py-3"
+                            placeholder="Masukkan catatan verifikasi jika diperlukan..."></textarea>
 
                     </div>
 
                 </div>
 
-                <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+
+                <div
+                    class="flex
+                           justify-end
+                           gap-3
+                           border-t
+                           border-slate-200
+                           dark:border-slate-700
+                           px-6 py-5">
 
                     <button type="button" onclick="closeVerifikasi()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        class="rounded-xl
+                               border
+                               border-slate-300
+                               dark:border-slate-700
+                               px-5 py-2.5
+                               hover:bg-slate-100
+                               dark:hover:bg-slate-800">
 
                         Batal
 
                     </button>
 
+
                     <button type="submit"
-                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 font-semibold text-white">
+                        class="rounded-xl
+                               bg-blue-600
+                               hover:bg-blue-700
+                               px-5 py-2.5
+                               font-semibold
+                               text-white">
 
                         <i class="bi bi-check-circle me-2"></i>
 
-                        Simpan Verifikasi
+                        Verifikasi
 
                     </button>
 
@@ -706,34 +1503,74 @@
 
     </div>
 
-    <!-- ======================= MODAL EXPORT ======================= -->
-    <div id="modalExport" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+
+    {{-- =========================================================
+        MODAL EXPORT
+    ========================================================== --}}
+    <div id="modalExport"
+        class="fixed
+               inset-0
+               z-50
+               hidden
+               items-center
+               justify-center
+               bg-black/60
+               backdrop-blur-sm
+               p-4">
 
         <div
-            class="w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+            class="w-full
+                   max-w-4xl
+                   max-h-[90vh]
+                   overflow-y-auto
+                   rounded-3xl
+                   bg-white
+                   dark:bg-slate-900
+                   border
+                   border-slate-200
+                   dark:border-slate-700
+                   shadow-2xl">
 
-            <!-- HEADER -->
             <div
-                class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5 flex-shrink-0">
+                class="flex
+                       items-center
+                       justify-between
+                       border-b
+                       border-slate-200
+                       dark:border-slate-700
+                       px-6 py-5">
 
                 <div>
 
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+                    <h3
+                        class="text-xl
+                               font-bold
+                               text-slate-800
+                               dark:text-white">
 
                         Export Usulan SHS
 
                     </h3>
 
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400">
 
-                        Pilih kolom yang ingin diexport ke Excel.
+                        Pilih data yang ingin diexport ke Excel.
 
                     </p>
 
                 </div>
 
+
                 <button type="button" onclick="closeExportModal()"
-                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    class="w-10
+                           h-10
+                           rounded-xl
+                           hover:bg-slate-100
+                           dark:hover:bg-slate-800">
 
                     <i class="bi bi-x-lg"></i>
 
@@ -741,22 +1578,33 @@
 
             </div>
 
-            <form action="{{ route('admin.laporan-shs.export') }}" method="GET"
-                class="flex flex-col flex-1 overflow-hidden">
 
-                <!-- BODY -->
-                <div class="flex-1 overflow-y-auto p-6">
+            <form action="{{ route('admin.laporan-shs.export') }}" method="GET">
 
+                <div class="p-6">
+
+                    {{-- FILTER STATUS --}}
                     <div class="mb-6">
 
-                        <label class="block mb-2 text-sm font-semibold">
+                        <label
+                            class="block
+                                   mb-2
+                                   text-sm
+                                   font-semibold">
 
                             Filter Status
 
                         </label>
 
                         <select name="status"
-                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
+                            class="w-full
+                                   rounded-xl
+                                   border
+                                   border-slate-300
+                                   dark:border-slate-700
+                                   bg-white
+                                   dark:bg-slate-800
+                                   px-4 py-3">
 
                             <option value="">
                                 Semua Data
@@ -764,6 +1612,10 @@
 
                             <option value="Diajukan">
                                 Diajukan
+                            </option>
+
+                            <option value="Diverifikasi">
+                                Diverifikasi
                             </option>
 
                             <option value="Tidak Diajukan">
@@ -774,10 +1626,20 @@
 
                     </div>
 
-                    <div class="flex flex-wrap gap-3 mb-6">
+
+                    {{-- BUTTON CHECK --}}
+                    <div
+                        class="flex
+                               flex-wrap
+                               gap-3
+                               mb-6">
 
                         <button type="button" id="checkAll"
-                            class="rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white">
+                            class="rounded-xl
+                                   bg-blue-600
+                                   hover:bg-blue-700
+                                   px-4 py-2
+                                   text-white">
 
                             <i class="bi bi-check2-square me-2"></i>
 
@@ -785,8 +1647,13 @@
 
                         </button>
 
+
                         <button type="button" id="uncheckAll"
-                            class="rounded-xl bg-slate-600 hover:bg-slate-700 px-4 py-2 text-white">
+                            class="rounded-xl
+                                   bg-slate-600
+                                   hover:bg-slate-700
+                                   px-4 py-2
+                                   text-white">
 
                             <i class="bi bi-square me-2"></i>
 
@@ -796,70 +1663,113 @@
 
                     </div>
 
-                    <div class="max-h-[420px] overflow-y-auto pr-2">
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @php
 
-                            @php
+                        $fields = [
+                            ['shs_tahun', 'Tahun', true],
 
-                                $fields = [
-                                    ['shs_tahun', 'Tahun', true],
-                                    ['shs_unit_nama', 'Unit', true],
-                                    ['shs_kode_kelompok', 'Kode Kelompok', true],
-                                    ['shs_kelompok_barang', 'Kelompok Barang', true],
-                                    ['shs_barang', 'Nama Barang', true],
-                                    ['shs_merek', 'Merek', false],
-                                    ['shs_tipe', 'Tipe / Model', false],
-                                    ['shs_spesifikasi', 'Spesifikasi', false],
-                                    ['shs_satuan', 'Satuan', false],
-                                    ['shs_harga', 'Harga', false],
-                                    ['shs_tkdn', 'TKDN', false],
-                                    ['shs_link_survei', 'Link Survei', false],
-                                    ['shs_kelompok', 'Kelompok SHS', false],
-                                    ['shs_dasar_usulan', 'Dasar Usulan', false],
-                                    ['shs_keterangan', 'Keterangan', false],
-                                    ['shs_status', 'Status', false],
-                                    ['shs_operator_nama', 'Operator', false],
-                                    ['created_at', 'Tanggal Input', false],
-                                ];
+                            ['shs_unit_nama', 'Unit', true],
 
-                            @endphp
+                            ['shs_kode_kelompok', 'Kode Kelompok', true],
 
-                            @foreach ($fields as $field)
-                                <label
-                                    class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 p-3 cursor-pointer transition">
+                            ['shs_kelompok_barang', 'Kelompok Barang', true],
 
-                                    <input type="checkbox" class="field h-4 w-4 rounded text-blue-600" name="field[]"
-                                        value="{{ $field[0] }}" {{ $field[2] ? 'checked' : '' }}>
+                            ['shs_barang', 'Nama Barang', true],
 
-                                    <span class="text-sm">
+                            ['shs_merek', 'Merek', false],
 
-                                        {{ $field[1] }}
+                            ['shs_tipe', 'Tipe / Model', false],
 
-                                    </span>
+                            ['shs_spesifikasi', 'Spesifikasi', false],
 
-                                </label>
-                            @endforeach
+                            ['shs_satuan', 'Satuan', false],
 
-                        </div>
+                            ['shs_harga', 'Harga', false],
+
+                            ['shs_tkdn', 'TKDN', false],
+
+                            ['shs_link_survei', 'Link Survei Lama', false],
+
+                            ['shs_kelompok', 'Kelompok SHS', false],
+
+                            ['shs_dasar_usulan', 'Dasar Usulan', false],
+
+                            ['shs_keterangan', 'Keterangan', false],
+
+                            ['shs_status', 'Status', false],
+
+                            ['shs_operator_nama', 'Operator', false],
+
+                            ['created_at', 'Tanggal Input', false],
+                        ];
+
+                    @endphp
+
+
+                    <div
+                        class="grid
+                               grid-cols-1
+                               md:grid-cols-2
+                               lg:grid-cols-3
+                               gap-3">
+
+                        @foreach ($fields as $field)
+                            <label
+                                class="flex
+                                       items-center
+                                       gap-3
+                                       rounded-xl
+                                       border
+                                       border-slate-200
+                                       dark:border-slate-700
+                                       p-3
+                                       hover:border-blue-500
+                                       cursor-pointer">
+
+                                <input type="checkbox" class="field rounded" name="field[]" value="{{ $field[0] }}"
+                                    {{ $field[2] ? 'checked' : '' }}>
+
+                                <span>
+                                    {{ $field[1] }}
+                                </span>
+
+                            </label>
+                        @endforeach
 
                     </div>
 
                 </div>
 
-                <!-- FOOTER -->
+
                 <div
-                    class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5 flex-shrink-0">
+                    class="flex
+                           justify-end
+                           gap-3
+                           border-t
+                           border-slate-200
+                           dark:border-slate-700
+                           px-6 py-5">
 
                     <button type="button" onclick="closeExportModal()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        class="rounded-xl
+                               border
+                               border-slate-300
+                               dark:border-slate-700
+                               px-5 py-2.5">
 
                         Batal
 
                     </button>
 
+
                     <button type="submit"
-                        class="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-white font-semibold">
+                        class="rounded-xl
+                               bg-emerald-600
+                               hover:bg-emerald-700
+                               px-5 py-2.5
+                               text-white
+                               font-semibold">
 
                         <i class="bi bi-file-earmark-excel me-2"></i>
 
@@ -874,23 +1784,63 @@
         </div>
 
     </div>
-    <!-- ======================= MODAL HISTORY ======================= -->
-    <div id="modalHistory" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+
+
+    {{-- =========================================================
+        MODAL HISTORY
+    ========================================================== --}}
+    <div id="modalHistory"
+        class="fixed
+               inset-0
+               z-50
+               hidden
+               items-center
+               justify-center
+               bg-black/60
+               backdrop-blur-sm
+               p-4">
 
         <div
-            class="w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+            class="w-full
+                   max-w-5xl
+                   max-h-[90vh]
+                   overflow-hidden
+                   rounded-3xl
+                   bg-white
+                   dark:bg-slate-900
+                   border
+                   border-slate-200
+                   dark:border-slate-700
+                   shadow-2xl
+                   flex
+                   flex-col">
 
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+            <div
+                class="flex
+                       items-center
+                       justify-between
+                       border-b
+                       border-slate-200
+                       dark:border-slate-700
+                       px-6 py-5">
 
                 <div>
 
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+                    <h3
+                        class="text-xl
+                               font-bold
+                               text-slate-800
+                               dark:text-white">
 
                         Riwayat Verifikasi SHS
 
                     </h3>
 
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400">
 
                         Riwayat proses verifikasi usulan SHS.
 
@@ -898,8 +1848,13 @@
 
                 </div>
 
+
                 <button type="button" onclick="closeHistory()"
-                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                    class="w-10
+                           h-10
+                           rounded-xl
+                           hover:bg-slate-100
+                           dark:hover:bg-slate-800">
 
                     <i class="bi bi-x-lg"></i>
 
@@ -907,10 +1862,12 @@
 
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6">
+
+            <div class="flex-1
+                       overflow-y-auto
+                       p-6">
 
                 <div id="historyContent" class="space-y-4">
-
                 </div>
 
             </div>
@@ -918,68 +1875,462 @@
         </div>
 
     </div>
+
 @endsection
+
+
+
+{{-- =============================================================
+    JAVASCRIPT
+============================================================== --}}
 @push('scripts')
     <script>
+        /* =========================================================
+           MODAL
+        ========================================================== */
+
         function showModal(id) {
 
             const modal = document.getElementById(id);
 
-            if (!modal) return;
+            if (!modal) {
+                return;
+            }
 
             modal.classList.remove('hidden');
-
             modal.classList.add('flex');
 
             document.body.classList.add('overflow-hidden');
-
         }
+
 
         function hideModal(id) {
 
             const modal = document.getElementById(id);
 
-            if (!modal) return;
+            if (!modal) {
+                return;
+            }
 
             modal.classList.add('hidden');
-
             modal.classList.remove('flex');
 
             document.body.classList.remove('overflow-hidden');
-
         }
+
+
+
+        /* =========================================================
+           FORMAT RUPIAH
+        ========================================================== */
+
+        function formatRupiah(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ''
+            ) {
+                return 'Rp 0';
+            }
+
+            let number;
+
+            if (typeof value === 'number') {
+
+                number = value;
+
+            } else {
+
+                let text =
+                    String(value)
+                    .replace(/Rp/gi, '')
+                    .trim();
+
+                if (
+                    /^\d{1,3}(\.\d{3})+(,\d+)?$/.test(text)
+                ) {
+
+                    text =
+                        text
+                        .replace(/\./g, '')
+                        .replace(',', '.');
+
+                } else {
+
+                    text =
+                        text.replace(/,/g, '');
+
+                }
+
+                number = Number(text);
+            }
+
+            if (Number.isNaN(number)) {
+                return 'Rp 0';
+            }
+
+            return 'Rp ' +
+                Math.round(number)
+                .toLocaleString('id-ID');
+        }
+
+
+
+        /* =========================================================
+           ESCAPE HTML
+        ========================================================== */
+
+        function escapeHtml(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return '';
+            }
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+
+
+        /* =========================================================
+           DETAIL SHS
+        ========================================================== */
 
         function detailSHS(item) {
 
-            document.getElementById('d_tahun').value = item.shs_tahun ?? '';
+            /* =====================================================
+               DATA UTAMA
+            ====================================================== */
 
-            document.getElementById('d_unit').value = item.shs_unit_nama ?? '';
+            document.getElementById('d_tahun').value =
+                item.shs_tahun ?? '';
 
-            document.getElementById('d_kelompok').value = item.shs_kelompok_barang ?? '';
 
-            document.getElementById('d_kode').value = item.shs_kode_kelompok ?? '';
+            document.getElementById('d_unit').value =
+                item.shs_unit_nama ?? '';
 
-            document.getElementById('d_barang').value = item.shs_barang ?? '';
 
-            document.getElementById('d_satuan').value = item.shs_satuan ?? '';
+            document.getElementById('d_kelompok').value =
+                item.shs_kelompok_barang ?? '';
 
-            document.getElementById('d_tipe').value = item.shs_kelompok ?? '';
 
-            document.getElementById('d_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
+            document.getElementById('d_kode').value =
+                item.shs_kode_kelompok ?? '';
 
-            document.getElementById('d_tkdn').value = item.shs_tkdn ?? '';
 
-            document.getElementById('d_spesifikasi').value = item.shs_spesifikasi ?? '';
+            document.getElementById('d_barang').value =
+                item.shs_barang ?? '';
 
-            document.getElementById('d_link').value = item.shs_link_survei ?? '';
 
-            document.getElementById('d_operator').value = item.shs_operator_nama ?? '';
+            document.getElementById('d_satuan').value =
+                item.shs_satuan ?? '';
 
-            document.getElementById('d_nip').value = item.shs_operator_nip ?? '';
+
+            document.getElementById('d_tipe').value =
+                item.shs_kelompok ?? '';
+
+
+            document.getElementById('d_harga').value =
+                formatRupiah(item.shs_harga);
+
+
+            document.getElementById('d_tkdn').value =
+                item.shs_tkdn !== null &&
+                item.shs_tkdn !== undefined &&
+                item.shs_tkdn !== '' ?
+                item.shs_tkdn + ' %' :
+                '-';
+
+
+            document.getElementById('d_spesifikasi').value =
+                item.shs_spesifikasi ?? '';
+
+
+            document.getElementById('d_link').value =
+                item.shs_link_survei ?? '';
+
+
+            document.getElementById('d_operator').value =
+                item.shs_operator_nama ?? '';
+
+
+            document.getElementById('d_nip').value =
+                item.shs_operator_nip ?? '';
+
+
+
+            /* =====================================================
+               REFERENSI HARGA
+            ====================================================== */
+
+            const container =
+                document.getElementById('d_referensi');
+
+            let html = '';
+
+
+            /*
+             * Prioritas:
+             *
+             * 1. referensi_harga
+             * 2. referensiHarga
+             * 3. array kosong
+             */
+
+            const referensi =
+                item.referensi_harga ??
+                item.referensiHarga ?? [];
+
+
+            if (
+                Array.isArray(referensi) &&
+                referensi.length > 0
+            ) {
+
+                /*
+                 * overflow-x-auto
+                 *
+                 * min-w-[760px]
+                 *
+                 * Dengan ini:
+                 *
+                 * REFERENSI | HARGA | LINK
+                 *
+                 * tetap SATU BARIS.
+                 */
+
+                html = `
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+
+                    <div class="min-w-[760px]">
+
+                        <!-- HEADER -->
+                        <div
+                            class="grid grid-cols-12
+                                   gap-4
+                                   items-center
+                                   bg-slate-100
+                                   dark:bg-slate-800
+                                   px-5 py-3
+                                   text-xs
+                                   font-semibold
+                                   uppercase
+                                   tracking-wide
+                                   text-slate-500
+                                   dark:text-slate-400">
+
+                            <div class="col-span-4">
+                                Referensi
+                            </div>
+
+                            <div class="col-span-3">
+                                Harga
+                            </div>
+
+                            <div class="col-span-5">
+                                Link
+                            </div>
+
+                        </div>
+            `;
+
+
+                referensi.forEach(function(ref, index) {
+
+                    const harga =
+                        ref.shs_referensi_harga ??
+                        ref.harga ??
+                        0;
+
+
+                    const link =
+                        ref.shs_referensi_link ??
+                        ref.link ??
+                        '';
+
+
+                    html += `
+                    <div
+                        class="grid grid-cols-12
+                               gap-4
+                               items-center
+                               px-5 py-4
+                               border-t
+                               border-slate-200
+                               dark:border-slate-700
+                               bg-white
+                               dark:bg-slate-900">
+
+                        <!-- REFERENSI -->
+                        <div class="col-span-4 min-w-0">
+
+                            <div
+                                class="text-sm
+                                       font-semibold
+                                       text-slate-800
+                                       dark:text-white">
+
+                                Referensi ${index + 1}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- HARGA -->
+                        <div class="col-span-3">
+
+                            <div
+                                class="text-base
+                                       font-bold
+                                       whitespace-nowrap
+                                       text-slate-800
+                                       dark:text-white">
+
+                                ${formatRupiah(harga)}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- LINK -->
+                        <div class="col-span-5 min-w-0">
+
+                            ${
+                                link
+                                    ? `
+
+                                            <div
+                                                class="flex
+                                                       items-center
+                                                       gap-3
+                                                       min-w-0">
+
+                                                <a
+                                                    href="${escapeHtml(link)}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex
+                                                           items-center
+                                                           justify-center
+                                                           gap-2
+                                                           shrink-0
+                                                           rounded-xl
+                                                           bg-blue-600
+                                                           hover:bg-blue-700
+                                                           px-4 py-2
+                                                           text-sm
+                                                           font-semibold
+                                                           text-white
+                                                           transition">
+
+                                                    <i
+                                                        class="bi bi-box-arrow-up-right">
+                                                    </i>
+
+                                                    Buka Link
+
+                                                </a>
+
+
+                                                <div
+                                                    class="min-w-0
+                                                           flex-1
+                                                           text-xs
+                                                           text-slate-500
+                                                           dark:text-slate-400
+                                                           truncate"
+                                                    title="${escapeHtml(link)}">
+
+                                                    ${escapeHtml(link)}
+
+                                                </div>
+
+                                            </div>
+
+                                        `
+                                    :
+                                    `
+
+                                            <span
+                                                class="text-sm
+                                                       text-slate-400
+                                                       dark:text-slate-500">
+
+                                                Tidak ada link
+
+                                            </span>
+
+                                        `
+                            }
+
+                        </div>
+
+                    </div>
+                `;
+                });
+
+
+                html += `
+                    </div>
+                </div>
+            `;
+
+            } else {
+
+                html = `
+                <div
+                    class="rounded-2xl
+                           border
+                           border-dashed
+                           border-slate-300
+                           dark:border-slate-700
+                           p-8
+                           text-center">
+
+                    <div
+                        class="flex
+                               justify-center
+                               mb-3">
+
+                        <i
+                            class="bi bi-link-45deg
+                                   text-3xl
+                                   text-slate-400">
+                        </i>
+
+                    </div>
+
+                    <div
+                        class="text-sm
+                               text-slate-500
+                               dark:text-slate-400">
+
+                        Belum ada referensi harga.
+
+                    </div>
+
+                </div>
+            `;
+            }
+
+
+            container.innerHTML = html;
+
 
             showModal('modalDetail');
-
         }
+
+
 
         function closeDetail() {
 
@@ -987,25 +2338,48 @@
 
         }
 
+
+
+        /* =========================================================
+           VERIFIKASI
+        ========================================================== */
+
         function verifikasiSHS(item) {
 
-            document.getElementById('v_barang').value = item.shs_barang ?? '';
+            document.getElementById('v_barang').value =
+                item.shs_barang ?? '';
 
-            document.getElementById('v_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
 
-            document.getElementById('formVerifikasi').action = '/administrator/laporan/shs/verifikasi/' + item.shs_uid;
+            document.getElementById('v_harga').value =
+                formatRupiah(item.shs_harga);
+
+
+            document.getElementById('formVerifikasi').action =
+                '{{ url('/administrator/laporan/shs/verifikasi') }}/' +
+                item.shs_uid;
+
 
             showModal('modalVerifikasi');
-
         }
+
 
         function closeVerifikasi() {
 
-            document.getElementById('formVerifikasi').reset();
+            const form =
+                document.getElementById('formVerifikasi');
+
+            if (form) {
+                form.reset();
+            }
 
             hideModal('modalVerifikasi');
-
         }
+
+
+
+        /* =========================================================
+           EXPORT
+        ========================================================== */
 
         function openExportModal() {
 
@@ -1013,146 +2387,98 @@
 
         }
 
+
         function closeExportModal() {
 
             hideModal('modalExport');
 
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
 
-            $('#datatable').DataTable({
 
-                responsive: true,
+        /* =========================================================
+           HISTORY
+        ========================================================== */
 
-                autoWidth: false,
-
-                pageLength: 25,
-
-                order: [
-                    [1, 'desc']
-                ],
-
-                language: {
-
-                    search: "Cari :",
-
-                    searchPlaceholder: "Cari data...",
-
-                    lengthMenu: "Tampilkan _MENU_ data",
-
-                    zeroRecords: "Data tidak ditemukan",
-
-                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-
-                    infoEmpty: "Tidak ada data",
-
-                    infoFiltered: "(difilter dari _MAX_ data)",
-
-                    paginate: {
-
-                        first: "Awal",
-
-                        last: "Akhir",
-
-                        next: "›",
-
-                        previous: "‹"
-
-                    }
-
-                }
-
-            });
-
-            [
-
-                'modalDetail',
-
-                'modalVerifikasi',
-
-                'modalExport'
-
-            ].forEach(function(id) {
-
-                const modal = document.getElementById(id);
-
-                if (!modal) return;
-
-                modal.addEventListener('click', function(e) {
-
-                    if (e.target === modal) {
-
-                        hideModal(id);
-
-                    }
-
-                });
-
-            });
-
-        });
-
-        document.addEventListener('keydown', function(e) {
-
-            if (e.key === 'Escape') {
-
-                closeDetail();
-
-                closeVerifikasi();
-
-                closeExportModal();
-
-            }
-
-        });
-    </script>
-
-    <script>
         function historySHS(data) {
 
             let html = '';
 
-            if (data.history && data.history.length) {
 
-                data.history.forEach(function(item, index) {
+            if (
+                data.history &&
+                data.history.length
+            ) {
+
+                data.history.forEach(function(item) {
 
                     html += `
-                <div class="rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+                    <div
+                        class="rounded-2xl
+                               border
+                               border-slate-200
+                               dark:border-slate-700
+                               p-5">
 
-                    <div class="flex items-center justify-between mb-3">
+                        <div
+                            class="flex
+                                   flex-col
+                                   md:flex-row
+                                   md:items-center
+                                   md:justify-between
+                                   gap-2
+                                   mb-3">
 
-                        <div class="font-semibold">
+                            <div
+                                class="font-semibold
+                                       text-slate-800
+                                       dark:text-white">
 
-                            ${item.user}
+                                ${escapeHtml(item.user ?? '-')}
+
+                            </div>
+
+                            <span
+                                class="text-xs
+                                       text-slate-500
+                                       dark:text-slate-400">
+
+                                ${escapeHtml(item.tanggal ?? '-')}
+
+                            </span>
 
                         </div>
 
-                        <span class="text-xs text-slate-500">
 
-                            ${item.tanggal}
+                        <div class="mb-2">
 
-                        </span>
+                            <span
+                                class="inline-flex
+                                       rounded-full
+                                       bg-blue-100
+                                       text-blue-700
+                                       dark:bg-blue-900/20
+                                       dark:text-blue-300
+                                       px-3 py-1
+                                       text-xs">
+
+                                ${escapeHtml(item.status ?? '-')}
+
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="text-sm
+                                   text-slate-600
+                                   dark:text-slate-300">
+
+                            ${escapeHtml(item.catatan ?? '-')}
+
+                        </div>
 
                     </div>
-
-                    <div class="mb-2">
-
-                        <span class="inline-flex rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 px-3 py-1 text-xs">
-
-                            ${item.status}
-
-                        </span>
-
-                    </div>
-
-                    <div class="text-sm text-slate-600 dark:text-slate-300">
-
-                        ${item.catatan ?? '-'}
-
-                    </div>
-
-                </div>
                 `;
 
                 });
@@ -1160,297 +2486,176 @@
             } else {
 
                 html = `
-            <div class="text-center py-16 text-slate-500">
+                <div
+                    class="text-center
+                           py-16
+                           text-slate-500
+                           dark:text-slate-400">
 
-                Belum ada riwayat verifikasi.
+                    Belum ada riwayat verifikasi.
 
-            </div>
+                </div>
             `;
 
             }
 
-            document.getElementById('historyContent').innerHTML = html;
+
+            document.getElementById('historyContent').innerHTML =
+                html;
+
 
             showModal('modalHistory');
-
         }
+
 
         function closeHistory() {
 
             hideModal('modalHistory');
 
         }
-    </script>
 
-    <script>
-        function showModal(id) {
 
-            const modal = document.getElementById(id);
 
-            if (!modal) return;
+        /* =========================================================
+           DOM READY
+        ========================================================== */
 
-            modal.classList.remove('hidden');
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
 
-            modal.classList.add('flex');
+                const checkAll =
+                    document.getElementById('checkAll');
 
-            document.body.classList.add('overflow-hidden');
+                const uncheckAll =
+                    document.getElementById('uncheckAll');
 
-        }
 
-        function hideModal(id) {
+                /* =====================================================
+                   CHECK ALL
+                ====================================================== */
 
-            const modal = document.getElementById(id);
+                if (checkAll) {
 
-            if (!modal) return;
+                    checkAll.addEventListener(
+                        'click',
+                        function() {
 
-            modal.classList.add('hidden');
+                            document
+                                .querySelectorAll('.field')
+                                .forEach(function(el) {
 
-            modal.classList.remove('flex');
+                                    el.checked = true;
 
-            document.body.classList.remove('overflow-hidden');
+                                });
 
-        }
-
-        function detailSHS(item) {
-
-            document.getElementById('d_tahun').value = item.shs_tahun ?? '';
-
-            document.getElementById('d_unit').value = item.shs_unit_nama ?? '';
-
-            document.getElementById('d_kelompok').value = item.shs_kelompok_barang ?? '';
-
-            document.getElementById('d_kode').value = item.shs_kode_kelompok ?? '';
-
-            document.getElementById('d_barang').value = item.shs_barang ?? '';
-
-            document.getElementById('d_satuan').value = item.shs_satuan ?? '';
-
-            document.getElementById('d_tipe').value = item.shs_kelompok ?? '';
-
-            document.getElementById('d_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
-
-            document.getElementById('d_tkdn').value = item.shs_tkdn ?? '';
-
-            document.getElementById('d_spesifikasi').value = item.shs_spesifikasi ?? '';
-
-            document.getElementById('d_link').value = item.shs_link_survei ?? '';
-
-            document.getElementById('d_operator').value = item.shs_operator_nama ?? '';
-
-            document.getElementById('d_nip').value = item.shs_operator_nip ?? '';
-
-            showModal('modalDetail');
-
-        }
-
-        function closeDetail() {
-
-            hideModal('modalDetail');
-
-        }
-
-        function verifikasiSHS(item) {
-
-            document.getElementById('v_barang').value = item.shs_barang ?? '';
-
-            document.getElementById('v_harga').value = 'Rp ' + Number(item.shs_harga ?? 0).toLocaleString('id-ID');
-
-            document.getElementById('formVerifikasi').action = '/administrator/laporan/shs/verifikasi/' + item.shs_uid;
-
-            showModal('modalVerifikasi');
-
-        }
-
-        function closeVerifikasi() {
-
-            document.getElementById('formVerifikasi').reset();
-
-            hideModal('modalVerifikasi');
-
-        }
-        document.getElementById('checkAll').addEventListener('click', function() {
-            document.querySelectorAll('.field').forEach(el => el.checked = true);
-        });
-
-        document.getElementById('uncheckAll').addEventListener('click', function() {
-            document.querySelectorAll('.field').forEach(el => el.checked = false);
-        });
-
-        function openExportModal() {
-
-            showModal('modalExport');
-
-        }
-
-        function closeExportModal() {
-
-            hideModal('modalExport');
-
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-            $('#datatable').DataTable({
-
-                responsive: true,
-
-                autoWidth: false,
-
-                pageLength: 25,
-
-                order: [
-                    [1, 'desc']
-                ],
-
-                language: {
-
-                    search: "Cari :",
-
-                    searchPlaceholder: "Cari data...",
-
-                    lengthMenu: "Tampilkan _MENU_ data",
-
-                    zeroRecords: "Data tidak ditemukan",
-
-                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-
-                    infoEmpty: "Tidak ada data",
-
-                    infoFiltered: "(difilter dari _MAX_ data)",
-
-                    paginate: {
-
-                        first: "Awal",
-
-                        last: "Akhir",
-
-                        next: "›",
-
-                        previous: "‹"
-
-                    }
+                        }
+                    );
 
                 }
 
-            });
 
-            [
+                /* =====================================================
+                   UNCHECK ALL
+                ====================================================== */
 
-                'modalDetail',
+                if (uncheckAll) {
 
-                'modalVerifikasi',
+                    uncheckAll.addEventListener(
+                        'click',
+                        function() {
 
-                'modalExport'
+                            document
+                                .querySelectorAll('.field')
+                                .forEach(function(el) {
 
-            ].forEach(function(id) {
+                                    el.checked = false;
 
-                const modal = document.getElementById(id);
+                                });
 
-                if (!modal) return;
+                        }
+                    );
 
-                modal.addEventListener('click', function(e) {
+                }
 
-                    if (e.target === modal) {
 
-                        hideModal(id);
+                /* =====================================================
+                   BACKGROUND MODAL
+                ====================================================== */
 
+                [
+                    'modalDetail',
+                    'modalVerifikasi',
+                    'modalExport',
+                    'modalHistory'
+                ].forEach(function(id) {
+
+                    const modal =
+                        document.getElementById(id);
+
+                    if (!modal) {
+                        return;
                     }
+
+
+                    modal.addEventListener(
+                        'click',
+                        function(e) {
+
+                            if (e.target === modal) {
+
+                                hideModal(id);
+
+                            }
+
+                        }
+                    );
 
                 });
 
-            });
+            }
+        );
 
-        });
 
-        document.addEventListener('keydown', function(e) {
 
-            if (e.key === 'Escape') {
+        /* =========================================================
+           ESC KEY
+        ========================================================== */
 
-                closeDetail();
+        document.addEventListener(
+            'keydown',
+            function(e) {
 
-                closeVerifikasi();
+                if (e.key === 'Escape') {
 
-                closeExportModal();
+                    closeDetail();
+
+                    closeVerifikasi();
+
+                    closeExportModal();
+
+                    closeHistory();
+
+                }
 
             }
-
-        });
+        );
     </script>
 @endpush
 
+
+
+{{-- =============================================================
+    STYLE
+============================================================== --}}
 @push('styles')
     <style>
-        #datatable_wrapper .dataTables_filter input {
-
-            border-radius: 12px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .55rem .9rem;
-
-        }
-
-        .dark #datatable_wrapper .dataTables_filter input {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        #datatable_wrapper .dataTables_length select {
-
-            border-radius: 12px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .45rem .75rem;
-
-        }
-
-        .dark #datatable_wrapper .dataTables_length select {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        table.dataTable tbody tr:hover {
-
-            background: #f8fafc;
-
-        }
-
-        .dark table.dataTable tbody tr:hover {
-
-            background: #1e293b;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-
-            background: #2563eb !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-            border-radius: 10px !important;
-
-        }
-
         input,
         textarea,
         select {
-
             transition: .2s;
-
         }
+
 
         input:focus,
         textarea:focus,
@@ -1460,143 +2665,23 @@
 
             border-color: #2563eb;
 
-            box-shadow: 0 0 0 3px rgb(37 99 235 /.15);
-
-        }
-    </style>
-
-    <style>
-        #datatable_wrapper .dataTables_filter input {
-
-            border-radius: 12px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .55rem .9rem;
-
+            box-shadow:
+                0 0 0 3px rgb(37 99 235 / .15);
         }
 
-        .dark #datatable_wrapper .dataTables_filter input {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        #datatable_wrapper .dataTables_length select {
-
-            border-radius: 12px;
-
-            border: 1px solid rgb(203 213 225);
-
-            padding: .45rem .75rem;
-
-        }
-
-        .dark #datatable_wrapper .dataTables_length select {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        table.dataTable tbody tr:hover {
-
-            background: #f8fafc;
-
-        }
-
-        .dark table.dataTable tbody tr:hover {
-
-            background: #1e293b;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-
-            background: #2563eb !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-            border-radius: 10px !important;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-
-            background: #1d4ed8 !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-        }
-
-        .dataTables_wrapper .dataTables_info {
-
-            color: #64748b;
-
-            margin-top: 12px;
-
-        }
-
-        .dark .dataTables_wrapper .dataTables_info {
-
-            color: #94a3b8;
-
-        }
-
-        .dataTables_wrapper .dataTables_processing {
-
-            border-radius: 16px;
-
-            border: none;
-
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .15);
-
-        }
-
-        input,
-        textarea,
-        select {
-
-            transition: .2s;
-
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
-
-            outline: none;
-
-            border-color: #2563eb;
-
-            box-shadow: 0 0 0 3px rgb(37 99 235 /.15);
-
-        }
 
         textarea {
-
             resize: vertical;
-
         }
+
 
         ::-webkit-scrollbar {
 
             width: 8px;
-
             height: 8px;
 
         }
+
 
         ::-webkit-scrollbar-thumb {
 
@@ -1606,117 +2691,49 @@
 
         }
 
+
         .dark ::-webkit-scrollbar-thumb {
 
             background: #475569;
 
         }
 
+
         ::-webkit-scrollbar-track {
 
             background: transparent;
 
         }
-    </style>
 
-    <style>
-        #datatable_wrapper .dataTables_filter input {
 
-            border-radius: 12px;
+        /*
+         * Pagination Laravel
+         */
+        nav[role="navigation"] {
 
-            border: 1px solid rgb(203 213 225);
+            display: flex;
 
-            padding: .55rem .9rem;
+            flex-wrap: wrap;
 
-        }
-
-        .dark #datatable_wrapper .dataTables_filter input {
-
-            background: #0f172a;
-
-            border-color: #334155;
-
-            color: #fff;
+            gap: 4px;
 
         }
 
-        #datatable_wrapper .dataTables_length select {
 
-            border-radius: 12px;
+        nav[role="navigation"] a,
+        nav[role="navigation"] span {
 
-            border: 1px solid rgb(203 213 225);
+            min-width: 38px;
 
-            padding: .45rem .75rem;
+            min-height: 38px;
 
-        }
+            display: inline-flex;
 
-        .dark #datatable_wrapper .dataTables_length select {
+            align-items: center;
 
-            background: #0f172a;
+            justify-content: center;
 
-            border-color: #334155;
-
-            color: #fff;
-
-        }
-
-        table.dataTable tbody tr:hover {
-
-            background: #f8fafc;
-
-        }
-
-        .dark table.dataTable tbody tr:hover {
-
-            background: #1e293b;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-
-            background: #2563eb !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-            border-radius: 10px !important;
-
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-
-            background: #1d4ed8 !important;
-
-            color: #fff !important;
-
-            border: none !important;
-
-        }
-
-        input,
-        textarea,
-        select {
-
-            transition: .2s;
-
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
-
-            outline: none;
-
-            border-color: #2563eb;
-
-            box-shadow: 0 0 0 3px rgb(37 99 235 /.15);
-
-        }
-
-        textarea {
-
-            resize: vertical;
+            border-radius: 10px;
 
         }
     </style>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ModelSHS extends Model
 {
@@ -15,4 +16,12 @@ class ModelSHS extends Model
     protected $casts = [
         'shs_verifikasi_at' => 'datetime',
     ];
+
+    /**
+     * Relasi SHS ke referensi harga
+     */
+    public function referensiHarga(): HasMany
+    {
+        return $this->hasMany(ModelSHSReferensiHarga::class, 'shs_id', 'shs_id');
+    }
 }
