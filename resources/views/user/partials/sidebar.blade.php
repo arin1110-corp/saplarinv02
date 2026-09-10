@@ -217,16 +217,13 @@
             </a>
         @endif
 
-        <a href="javascript:void(0)"
-            class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
-            <div class="flex items-center gap-3">
-                <span>📝</span>
-                <span>Permintaan KAK</span>
-            </div>
-
-            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded-full">
-                Soon
-            </span>
+        <a href="{{ route('user.permintaan-kak.index') }}"
+            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
+            {{ request()->routeIs('user.permintaan-kak*')
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+            <span>📄</span>
+            <span>Permintaan KAK</span>
         </a>
 
         <a href="javascript:void(0)"

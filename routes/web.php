@@ -34,6 +34,7 @@ use App\Http\Controllers\AdminPadSubkomponenController;
 use App\Http\Controllers\AdminStandarHargaController;
 use App\Http\Controllers\UserStandarHargaController;
 use App\Http\Controllers\UserSPJBukuTamuController;
+use App\Http\Controllers\UserKAKController;
 
 use App\Http\Controllers\AdministratorV2\DashboardController;
 
@@ -663,4 +664,13 @@ Route::prefix('user')
     Route::get('/standar-harga', [UserStandarHargaController::class, 'index'])->name('standar-harga.index');
 
     Route::post('/standar-harga', [UserStandarHargaController::class, 'store'])->name('standar-harga.store');
+
+    /*
+        |--------------------------------------------------------------------------
+        | PERMINTAAN KAK
+        |--------------------------------------------------------------------------
+        */
+
+    Route::get('/permintaan-kak', [UserKAKController::class, 'index'])->name('permintaan-kak.index');
+    Route::get('/permintaan-kak/create', [UserKAKController::class, 'create'])->name('permintaan-kak.store');
     });
