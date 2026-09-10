@@ -754,21 +754,18 @@
             JAVASCRIPT
         ============================================================ --}}
         <script>
-            let currentPage = 1;
-            let perPage = 10;
+            function formatRupiah(value) {
+                var number = Number(value || 0);
 
-            /* ============================================================
-               GET ALL CARDS
-            ============================================================ */
-            const cards = () => [
-                ...document.querySelectorAll('.shs-card')
-            ];
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(number);
+            }
 
-            /* ============================================================
-               ESCAPE HTML
-            ============================================================ */
             function escapeHtml(value) {
-
                 if (value === null || value === undefined) {
                     return '';
                 }
@@ -779,661 +776,376 @@
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
-
             }
 
-            /* ============================================================
-               FORMAT RUPIAH
-            ============================================================ */
-            function formatRupiah(value) {
-
-                if (
-                    value === null ||
-                    value === undefined ||
-                    value === '' ||
-                    isNaN(Number(value))
-                ) {
-                    return 'Rp 0';
-                }
-
-                return 'Rp ' + Number(value).toLocaleString('id-ID', {
-                    maximumFractionDigits: 0
-                });
-
-            }
-
-            /* ============================================================
-               FILTER
-            ============================================================ */
-            function applyFilter() {
-
-                const tahun =
-                    document.getElementById('filterTahun')
-                    .value
-                    .toLowerCase();
-
-                const unit =
-                    document.getElementById('filterUnit')
-                    .value
-                    .toLowerCase();
-
-                const status =
-                    document.getElementById('filterStatus')
-                    .value
-                    .toLowerCase();
-
-                const keyword =
-                    document.getElementById('searchBarang')
-                    .value
-                    .toLowerCase();
-
-                cards().forEach(card => {
-
-                    const cTahun =
-                        (card.dataset.tahun ?? '').toLowerCase();
-
-                    const cUnit =
-                        (card.dataset.unit ?? '').toLowerCase();
-
-                    const cStatus =
-                        (card.dataset.status ?? '').toLowerCase();
-
-                    const cSearch =
-                        (card.dataset.search ?? '').toLowerCase();
-
-                    let show = true;
-
-                    if (tahun !== '' && cTahun !== tahun) {
-                        show = false;
-                    }
-
-                    if (unit !== '' && cUnit !== unit) {
-                        show = false;
-                    }
-
-                    if (status !== '' && cStatus !== status) {
-                        show = false;
-                    }
-
-                    if (keyword !== '' && !cSearch.includes(keyword)) {
-                        show = false;
-                    }
-
-                    card.dataset.filtered = show ? 'true' : 'false';
-
-                });
-
-                currentPage = 1;
-
-                applyPagination();
-
-            }
-
-            /* ============================================================
-               GET FILTERED CARDS
-            ============================================================ */
-            function getFilteredCards() {
-
-                return cards().filter(card =>
-                    card.dataset.filtered !== 'false'
-                );
-
-            }
-
-            /* ============================================================
-               PAGINATION
-            ============================================================ */
-            function applyPagination() {
-
-                perPage =
-                    parseInt(
-                        document.getElementById('perPage').value
-                    );
-
-                cards().forEach(card => {
-                    card.style.display = 'none';
-                });
-
-                const visible = getFilteredCards();
-
-                const total = visible.length;
-
-                const totalPage =
-                    Math.max(
-                        Math.ceil(total / perPage),
-                        1
-                    );
-
-                if (currentPage > totalPage) {
-                    currentPage = totalPage;
-                }
-
-                const start =
-                    (currentPage - 1) * perPage;
-
-                const end =
-                    start + perPage;
-
-                visible
-                    .slice(start, end)
-                    .forEach(card => {
-                        card.style.display = '';
-                    });
-
-                document.getElementById('showingInfo').innerHTML =
-                    total;
-
-                document.getElementById('paginationInfo').innerHTML =
-                    'Halaman ' +
-                    currentPage +
-                    ' dari ' +
-                    totalPage;
-
-                document.getElementById('emptyFilter').style.display =
-                    total === 0 ?
-                    'block' :
-                    'none';
-
-            }
-
-            /* ============================================================
-               OPEN DETAIL SHS
-            ============================================================ */
             function openDetailSHS(item) {
+                console.log('Detail SHS:', item);
 
-                /* --------------------------------------------------------
-                   DATA UTAMA
-                -------------------------------------------------------- */
+                /*
+                |--------------------------------------------------------------------------
+                | DATA UTAMA
+                |--------------------------------------------------------------------------
+                */
 
-                document.getElementById('detail_barang').innerHTML =
-                    escapeHtml(
-                        item.shs_barang ?? '-'
-                    );
+                var barang = item.barang || item.nama_barang || '-';
+                var kelompok = item.kelompok || item.nama_kelompok || '-';
+                var unit = item.unit || item.satuan || '-';
+                var operator = item.operator || item.operator_nama || '-';
+                var harga = item.harga || item.shs_harga || item.harga_satuan || 0;
+                var tkdn = item.tkdn || item.shs_tkdn || '-';
+                var spesifikasi = item.spesifikasi || item.shs_spesifikasi || '-';
 
-                document.getElementById('detail_kelompok').innerHTML =
-                    escapeHtml(
-                        item.shs_kelompok_barang ?? '-'
-                    );
+                /*
+                |--------------------------------------------------------------------------
+                | REFERENSI HARGA
+                |--------------------------------------------------------------------------
+                |
+                | Laravel bisa mengirim relationship sebagai:
+                | - referensiHarga
+                | - referensi_harga
+                |
+                */
 
-                const unitKode =
-                    item.shs_unit_kode ?? '';
+                var referensi = [];
 
-                const unitNama =
-                    item.shs_unit_nama ?? '';
-
-                let unitText = '-';
-
-                if (unitKode && unitNama) {
-                    unitText =
-                        unitKode +
-                        ' - ' +
-                        unitNama;
-                } else if (unitKode) {
-                    unitText = unitKode;
-                } else if (unitNama) {
-                    unitText = unitNama;
+                if (Array.isArray(item.referensiHarga)) {
+                    referensi = item.referensiHarga;
+                } else if (Array.isArray(item.referensi_harga)) {
+                    referensi = item.referensi_harga;
                 }
 
-                document.getElementById('detail_unit').innerHTML =
-                    escapeHtml(unitText);
+                /*
+                |--------------------------------------------------------------------------
+                | ISI DATA UTAMA
+                |--------------------------------------------------------------------------
+                */
 
-                document.getElementById('detail_operator').innerHTML =
-                    escapeHtml(
-                        item.shs_operator_nama ?? '-'
-                    );
+                var detailBarang = document.getElementById('detail_barang');
+                var detailKelompok = document.getElementById('detail_kelompok');
+                var detailUnit = document.getElementById('detail_unit');
+                var detailOperator = document.getElementById('detail_operator');
+                var detailHarga = document.getElementById('detail_harga');
+                var detailTkdn = document.getElementById('detail_tkdn');
+                var detailSpesifikasi = document.getElementById('detail_spesifikasi');
 
-                document.getElementById('detail_harga').innerHTML =
-                    formatRupiah(
-                        item.shs_harga
-                    );
+                if (detailBarang) {
+                    detailBarang.textContent = barang;
+                }
 
-                document.getElementById('detail_tkdn').innerHTML =
-                    item.shs_tkdn !== null &&
-                    item.shs_tkdn !== undefined &&
-                    item.shs_tkdn !== '' ?
-                    escapeHtml(item.shs_tkdn) + ' %' :
-                    '-';
+                if (detailKelompok) {
+                    detailKelompok.textContent = kelompok;
+                }
 
-                document.getElementById('detail_spesifikasi').innerHTML =
-                    escapeHtml(
-                        item.shs_spesifikasi ?? '-'
-                    );
+                if (detailUnit) {
+                    detailUnit.textContent = unit;
+                }
 
-                /* --------------------------------------------------------
-                   REFERENSI HARGA
-                -------------------------------------------------------- */
+                if (detailOperator) {
+                    detailOperator.textContent = operator;
+                }
 
-                const referensi =
-                    item.referensiHarga ??
-                    item.referensi_harga ?? [];
+                if (detailHarga) {
+                    detailHarga.textContent = formatRupiah(harga);
+                }
 
-                let referensiHtml = '';
+                if (detailTkdn) {
+                    detailTkdn.textContent = tkdn;
+                }
 
-                if (
-                    Array.isArray(referensi) &&
-                    referensi.length > 0
-                ) {
+                if (detailSpesifikasi) {
+                    detailSpesifikasi.textContent = spesifikasi;
+                }
 
-                    referensiHtml = `
-                        <div class="overflow-x-auto rounded-2xl border border-slate-200">
-                            <table class="w-full text-sm">
-                                <thead class="bg-slate-50 border-b border-slate-200">
-                                    <tr>
+                /*
+                |--------------------------------------------------------------------------
+                | REFERENSI HARGA
+                |--------------------------------------------------------------------------
+                */
 
-                                        <th class="px-4 py-3 text-left font-semibold text-slate-700 whitespace-nowrap">
-                                            No
-                                        </th>
+                var detailReferensi = document.getElementById('detail_referensi');
 
-                                        <th class="px-4 py-3 text-left font-semibold text-slate-700">
-                                            Referensi
-                                        </th>
+                if (detailReferensi) {
 
-                                        <th class="px-4 py-3 text-right font-semibold text-slate-700 whitespace-nowrap">
-                                            Harga
-                                        </th>
+                    /*
+                    |--------------------------------------------------------------------------
+                    | TIDAK ADA REFERENSI
+                    |--------------------------------------------------------------------------
+                    */
 
-                                        <th class="px-4 py-3 text-left font-semibold text-slate-700">
-                                            Link
-                                        </th>
+                    if (!referensi || referensi.length === 0) {
 
-                                    </tr>
-                                </thead>
+                        detailReferensi.innerHTML =
+                            '<div class="rounded-xl border border-slate-200 bg-slate-50 p-4">' +
+                            '<div class="flex items-center gap-3">' +
+                            '<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-200 text-slate-500">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />' +
+                            '</svg>' +
+                            '</div>' +
+                            '<div>' +
+                            '<div class="font-semibold text-slate-700">Belum ada referensi harga</div>' +
+                            '<div class="text-sm text-slate-500">Tidak terdapat data referensi harga untuk SHS ini.</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
 
-                                <tbody class="divide-y divide-slate-100">
+                    } else {
 
-                                    ${referensi.map((ref, index) => {
+                        /*
+                        |--------------------------------------------------------------------------
+                        | BANGUN ROW TANPA TEMPLATE LITERAL
+                        |--------------------------------------------------------------------------
+                        */
 
-                                        const hargaReferensi =
-                                            ref.shs_referensi_harga ??
-                                            ref.harga ??
-                                            0;
+                        var rows = '';
 
-                                        const linkReferensi =
-                                            ref.shs_referensi_link ??
-                                            ref.link ??
-                                            '';
+                        referensi.forEach(function(ref, index) {
 
-                                        const nomor =
-                                            index + 1;
+                            var nomor = index + 1;
 
-                                        let linkHtml = '';
+                            var hargaReferensi =
+                                ref.shs_referensi_harga ||
+                                ref.referensi_harga ||
+                                ref.harga ||
+                                0;
 
-                                        if (linkReferensi) {
+                            var link =
+                                ref.shs_referensi_link ||
+                                ref.referensi_link ||
+                                ref.link ||
+                                '';
 
-                                            const safeLink =
-                                                escapeHtml(
-                                                    linkReferensi
-                                                );
+                            /*
+                            |--------------------------------------------------------------------------
+                            | LINK
+                            |--------------------------------------------------------------------------
+                            */
 
-                                            linkHtml = `
-                                                        <a href="${safeLink}"
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline break-all">
+                            var linkHtml = '-';
 
-                                                            <i class="bi bi-box-arrow-up-right"></i>
+                            if (link && String(link).trim() !== '') {
 
-                                                            Buka Link
+                                var safeLink = escapeHtml(link);
 
-                                                        </a>
+                                linkHtml =
+                                    '<a href="' + safeLink + '"' +
+                                    ' target="_blank"' +
+                                    ' rel="noopener noreferrer"' +
+                                    ' class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition">' +
 
-                                                        <div class="text-xs text-slate-400 mt-1 break-all">
-                                                            ${safeLink}
-                                                        </div>
-                                                    `;
+                                    '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />' +
+                                    '</svg>' +
 
-                                        } else {
+                                    'Buka Link' +
+                                    '</a>';
 
-                                            linkHtml = ` <
-                        span class = "text-slate-400" >
-                        -
-                        <
-                        /span>
-                    `;
+                            }
 
-                                        }
+                            /*
+                            |--------------------------------------------------------------------------
+                            | ROW
+                            |--------------------------------------------------------------------------
+                            */
 
-                                        return ` <
-                    tr class = "hover:bg-slate-50" >
+                            rows +=
+                                '<tr class="hover:bg-slate-50">' +
 
-                    <
-                    td class = "px-4 py-4 text-slate-600 align-top" >
-                    $ {
-                        nomor
-                    } <
-                    /td>
+                                '<td class="px-4 py-4 text-slate-600 align-top">' +
+                                nomor +
+                                '</td>' +
 
-                    <
-                    td class = "px-4 py-4 text-slate-700 align-top" >
+                                '<td class="px-4 py-4 text-slate-700 align-top">' +
+                                '<div class="font-semibold">' +
+                                'Referensi Harga ' + nomor +
+                                '</div>' +
+                                '</td>' +
 
-                    <
-                    div class = "font-semibold" >
-                    Referensi Harga $ {
-                        nomor
-                    } <
-                    /div>
+                                '<td class="px-4 py-4 text-right font-semibold text-slate-800 whitespace-nowrap align-top">' +
+                                formatRupiah(hargaReferensi) +
+                                '</td>' +
 
-                    <
-                    /td>
+                                '<td class="px-4 py-4 align-top">' +
+                                linkHtml +
+                                '</td>' +
 
-                    <
-                    td class = "px-4 py-4 text-right font-semibold text-slate-800 whitespace-nowrap align-top" >
+                                '</tr>';
+                        });
 
-                    $ {
-                        formatRupiah(hargaReferensi)
+                        /*
+                        |--------------------------------------------------------------------------
+                        | TABLE REFERENSI
+                        |--------------------------------------------------------------------------
+                        */
+
+                        detailReferensi.innerHTML =
+                            '<div class="overflow-hidden rounded-xl border border-slate-200 bg-white">' +
+
+                            '<div class="border-b border-slate-200 bg-slate-50 px-5 py-4">' +
+                            '<div class="flex items-center justify-between gap-3">' +
+
+                            '<div>' +
+                            '<h4 class="font-bold text-slate-800">' +
+                            'Referensi Harga' +
+                            '</h4>' +
+
+                            '<p class="mt-1 text-sm text-slate-500">' +
+                            referensi.length +
+                            ' referensi harga tersedia' +
+                            '</p>' +
+                            '</div>' +
+
+                            '<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2zm0 0V5m0 14v-3" />' +
+                            '</svg>' +
+                            '</div>' +
+
+                            '</div>' +
+                            '</div>' +
+
+                            '<div class="overflow-x-auto">' +
+
+                            '<table class="min-w-full divide-y divide-slate-200">' +
+
+                            '<thead class="bg-slate-50">' +
+                            '<tr>' +
+
+                            '<th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">' +
+                            'No' +
+                            '</th>' +
+
+                            '<th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">' +
+                            'Referensi' +
+                            '</th>' +
+
+                            '<th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-500">' +
+                            'Harga' +
+                            '</th>' +
+
+                            '<th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">' +
+                            'Link' +
+                            '</th>' +
+
+                            '</tr>' +
+                            '</thead>' +
+
+                            '<tbody class="divide-y divide-slate-100 bg-white">' +
+                            rows +
+                            '</tbody>' +
+
+                            '</table>' +
+
+                            '</div>' +
+
+                            '</div>';
                     }
+                }
 
-                    <
-                    /td>
+                /*
+                |--------------------------------------------------------------------------
+                | LINK UTAMA SHS
+                |--------------------------------------------------------------------------
+                */
 
-                    <
-                    td class = "px-4 py-4 align-top" >
+                var detailLink = document.getElementById('detail_link');
 
-                    $ {
-                        linkHtml
+                if (detailLink) {
+
+                    var mainLink =
+                        item.link ||
+                        item.shs_link ||
+                        item.url ||
+                        '';
+
+                    if (mainLink && String(mainLink).trim() !== '') {
+
+                        detailLink.innerHTML =
+                            '<a href="' + escapeHtml(mainLink) + '"' +
+                            ' target="_blank"' +
+                            ' rel="noopener noreferrer"' +
+                            ' class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-100">' +
+
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />' +
+                            '</svg>' +
+
+                            'Buka Referensi' +
+
+                            '</a>';
+
+                    } else {
+
+                        detailLink.innerHTML =
+                            '<span class="text-slate-400">Tidak ada link</span>';
                     }
-
-                    <
-                    /td>
-
-                    <
-                    /tr>
-                    `;
-
-                                    }).join('')}
-
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-
-                } else {
-
-                    referensiHtml = `
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-
-                            <div class="flex items-center gap-3 text-slate-500">
-
-                                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-
-                                    <i class="bi bi-info-circle text-lg"></i>
-
-                                </div>
-
-                                <div>
-
-                                    <div class="font-semibold text-slate-700">
-                                        Belum ada referensi harga
-                                    </div>
-
-                                    <div class="text-sm text-slate-500 mt-1">
-                                        Data referensi harga belum tersedia untuk usulan ini.
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                    `;
-
                 }
 
-                document.getElementById('detail_referensi').innerHTML =
-                    referensiHtml;
+                /*
+                |--------------------------------------------------------------------------
+                | BUKA MODAL
+                |--------------------------------------------------------------------------
+                */
 
-                /* --------------------------------------------------------
-                   LINK SURVEI LAMA
-                -------------------------------------------------------- */
+                var modal = document.getElementById('detailModal');
 
-                let linkHtml = '';
-
-                if (item.shs_link_survei) {
-
-                    const links =
-                        String(item.shs_link_survei)
-                        .split(/\r?\n/);
-
-                    links.forEach(function(link) {
-
-                        link = link.trim();
-
-                        if (link !== '') {
-
-                            const safeLink =
-                                escapeHtml(link);
-
-                            linkHtml += `
-                                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-
-                                    <a href="${safeLink}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="flex items-start gap-2 text-blue-600 hover:text-blue-800 hover:underline break-all">
-
-                                        <i class="bi bi-box-arrow-up-right mt-0.5 flex-shrink-0"></i>
-
-                                        <span>
-                                            ${safeLink}
-                                        </span>
-
-                                    </a>
-
-                                </div>
-                            `;
-
-                        }
-
-                    });
-
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
                 }
-
-                if (!linkHtml) {
-
-                    linkHtml = `
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                            Tidak ada link survei.
-                        </div>
-                    `;
-
-                }
-
-                document.getElementById('detail_link').innerHTML =
-                    linkHtml;
-
-                /* --------------------------------------------------------
-                   OPEN MODAL
-                -------------------------------------------------------- */
-
-                const modal =
-                    document.getElementById('detailModal');
-
-                modal.classList.remove('hidden');
-
-                modal.classList.add('flex');
-
-                document.body.classList.add('overflow-hidden');
-
             }
 
-            /* ============================================================
-               CLOSE DETAIL
-            ============================================================ */
+
+            /*
+            |--------------------------------------------------------------------------
+            | TUTUP MODAL
+            |--------------------------------------------------------------------------
+            */
+
             function closeDetailSHS() {
 
-                const modal =
-                    document.getElementById('detailModal');
+                var modal = document.getElementById('detailModal');
 
-                modal.classList.remove('flex');
-
-                modal.classList.add('hidden');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
 
                 document.body.classList.remove('overflow-hidden');
-
             }
 
-            /* ============================================================
-               EVENT FILTER TAHUN
-            ============================================================ */
-            document
-                .getElementById('filterTahun')
-                .addEventListener(
-                    'change',
-                    applyFilter
-                );
 
-            /* ============================================================
-               EVENT FILTER UNIT
-            ============================================================ */
-            document
-                .getElementById('filterUnit')
-                .addEventListener(
-                    'change',
-                    applyFilter
-                );
+            /*
+            |--------------------------------------------------------------------------
+            | TUTUP KLIK BACKDROP
+            |--------------------------------------------------------------------------
+            */
 
-            /* ============================================================
-               EVENT FILTER STATUS
-            ============================================================ */
-            document
-                .getElementById('filterStatus')
-                .addEventListener(
-                    'change',
-                    applyFilter
-                );
+            document.addEventListener('click', function(event) {
 
-            /* ============================================================
-               EVENT SEARCH
-            ============================================================ */
-            document
-                .getElementById('searchBarang')
-                .addEventListener(
-                    'keyup',
-                    applyFilter
-                );
+                var modal = document.getElementById('detailModal');
 
-            /* ============================================================
-               EVENT PER PAGE
-            ============================================================ */
-            document
-                .getElementById('perPage')
-                .addEventListener(
-                    'change',
-                    function() {
-
-                        currentPage = 1;
-
-                        applyPagination();
-
-                    }
-                );
-
-            /* ============================================================
-               PREVIOUS PAGE
-            ============================================================ */
-            document
-                .getElementById('prevPage')
-                .onclick = function() {
-
-                    if (currentPage > 1) {
-
-                        currentPage--;
-
-                        applyPagination();
-
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-
-                    }
-
-                };
-
-            /* ============================================================
-               NEXT PAGE
-            ============================================================ */
-            document
-                .getElementById('nextPage')
-                .onclick = function() {
-
-                    perPage =
-                        parseInt(
-                            document.getElementById('perPage').value
-                        );
-
-                    const total =
-                        Math.ceil(
-                            getFilteredCards().length /
-                            perPage
-                        );
-
-                    if (currentPage < total) {
-
-                        currentPage++;
-
-                        applyPagination();
-
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-
-                    }
-
-                };
-
-            /* ============================================================
-               CLICK BACKDROP MODAL
-            ============================================================ */
-            document
-                .getElementById('detailModal')
-                .addEventListener(
-                    'click',
-                    function(event) {
-
-                        if (event.target === this) {
-                            closeDetailSHS();
-                        }
-
-                    }
-                );
-
-            /* ============================================================
-               ESCAPE KEY
-            ============================================================ */
-            document.addEventListener(
-                'keydown',
-                function(event) {
-
-                    if (event.key === 'Escape') {
-                        closeDetailSHS();
-                    }
-
+                if (!modal) {
+                    return;
                 }
-            );
 
-            /* ============================================================
-               INITIALIZE
-            ============================================================ */
-            document.addEventListener(
-                'DOMContentLoaded',
-                function() {
-
-                    cards().forEach(card => {
-
-                        if (
-                            !card.dataset.filtered
-                        ) {
-                            card.dataset.filtered = 'true';
-                        }
-
-                    });
-
-                    applyPagination();
-
+                if (event.target === modal) {
+                    closeDetailSHS();
                 }
-            );
+            });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TUTUP DENGAN ESC
+            |--------------------------------------------------------------------------
+            */
+
+            document.addEventListener('keydown', function(event) {
+
+                if (event.key === 'Escape') {
+                    closeDetailSHS();
+                }
+            });
         </script>
 
     </div>
