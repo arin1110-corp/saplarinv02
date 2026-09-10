@@ -78,37 +78,26 @@
                     @endphp
 
                     @if (!$sudahDitutup)
-
                         <a href="{{ route('user.shs.create') }}"
                             class="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 font-semibold px-6 py-3 rounded-2xl shadow">
 
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
 
-                                <path stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 
                             </svg>
 
                             Tambah Usulan SHS
 
                         </a>
-
                     @else
-
-                        <button type="button"
-                            disabled
+                        <button type="button" disabled
                             class="inline-flex items-center gap-2 bg-slate-300 text-slate-500 cursor-not-allowed font-semibold px-6 py-3 rounded-2xl shadow">
 
                             🔒 Pengajuan SHS Ditutup
 
                         </button>
-
                     @endif
                 </div>
 
@@ -173,8 +162,7 @@
                         Filter Tahun
                     </label>
 
-                    <select id="filterTahun"
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-3">
+                    <select id="filterTahun" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
 
                         <option value="">
                             Semua Tahun
@@ -197,33 +185,28 @@
                         Filter Unit
                     </label>
 
-                    <select id="filterUnit"
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-3">
+                    <select id="filterUnit" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
 
                         <option value="">
                             Semua Unit
                         </option>
 
-                        <option value="DISBUD"
-                            data-nama="Dinas Kebudayaan Provinsi Bali"
+                        <option value="DISBUD" data-nama="Dinas Kebudayaan Provinsi Bali"
                             {{ old('shs_unit_kode') == 'DISBUD' ? 'selected' : '' }}>
                             Dinas Kebudayaan Provinsi Bali
                         </option>
 
-                        <option value="UPTD-TB"
-                            data-nama="UPTD Taman Budaya"
+                        <option value="UPTD-TB" data-nama="UPTD Taman Budaya"
                             {{ old('shs_unit_kode') == 'UPTD-TB' ? 'selected' : '' }}>
                             UPTD Taman Budaya
                         </option>
 
-                        <option value="UPTD-MB"
-                            data-nama="UPTD Museum Bali"
+                        <option value="UPTD-MB" data-nama="UPTD Museum Bali"
                             {{ old('shs_unit_kode') == 'UPTD-MB' ? 'selected' : '' }}>
                             UPTD Museum Bali
                         </option>
 
-                        <option value="UPTD-MPRB"
-                            data-nama="UPTD Monumen Perjuangan Rakyat Bali"
+                        <option value="UPTD-MPRB" data-nama="UPTD Monumen Perjuangan Rakyat Bali"
                             {{ old('shs_unit_kode') == 'UPTD-MPRB' ? 'selected' : '' }}>
                             UPTD Monumen Perjuangan Rakyat Bali
                         </option>
@@ -239,8 +222,7 @@
                         Status
                     </label>
 
-                    <select id="filterStatus"
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-3">
+                    <select id="filterStatus" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
 
                         <option value="">
                             Semua Status
@@ -265,9 +247,7 @@
                         Cari Barang
                     </label>
 
-                    <input type="text"
-                        id="searchBarang"
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    <input type="text" id="searchBarang" class="w-full rounded-2xl border border-slate-200 px-4 py-3"
                         placeholder="Nama barang, spesifikasi, kelompok...">
 
                 </div>
@@ -280,8 +260,7 @@
 
                     Menampilkan
 
-                    <span id="showingInfo"
-                        class="font-semibold text-slate-800">
+                    <span id="showingInfo" class="font-semibold text-slate-800">
                         0
                     </span>
 
@@ -295,8 +274,7 @@
                         Per Halaman
                     </label>
 
-                    <select id="perPage"
-                        class="rounded-xl border border-slate-200 px-3 py-2">
+                    <select id="perPage" class="rounded-xl border border-slate-200 px-3 py-2">
 
                         <option value="5">
                             5
@@ -329,16 +307,15 @@
 
                     $keywordSearch = strtolower(
                         ($item->shs_unit_kode ?? '') .
-                        ' ' .
-                        ($item->shs_unit_nama ?? '') .
-                        ' ' .
-                        ($item->shs_barang ?? '') .
-                        ' ' .
-                        ($item->shs_kelompok_barang ?? '') .
-                        ' ' .
-                        ($item->shs_spesifikasi ?? '')
+                            ' ' .
+                            ($item->shs_unit_nama ?? '') .
+                            ' ' .
+                            ($item->shs_barang ?? '') .
+                            ' ' .
+                            ($item->shs_kelompok_barang ?? '') .
+                            ' ' .
+                            ($item->shs_spesifikasi ?? ''),
                     );
-
                 @endphp
 
                 <div class="shs-card
@@ -348,10 +325,8 @@
                     border-slate-200
                     shadow-sm
                     p-6"
-                    data-tahun="{{ $item->shs_tahun }}"
-                    data-status="{{ $item->shs_status }}"
-                    data-unit="{{ $item->shs_unit_kode }}"
-                    data-search="{{ $keywordSearch }}">
+                    data-tahun="{{ $item->shs_tahun }}" data-status="{{ $item->shs_status }}"
+                    data-unit="{{ $item->shs_unit_kode }}" data-search="{{ $keywordSearch }}">
 
                     {{-- ====================================================
                         HEADER CARD
@@ -377,29 +352,22 @@
                                 </span>
 
                                 @if ($item->shs_status == 'Draft')
-
-                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    <span
+                                        class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Draft
                                     </span>
-
                                 @elseif($item->shs_status == 'Diajukan')
-
                                     <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Diajukan
                                     </span>
-
                                 @elseif($item->shs_status == 'Diverifikasi')
-
                                     <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Diverifikasi
                                     </span>
-
                                 @else
-
                                     <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Tidak Diajukan
                                     </span>
-
                                 @endif
 
                             </div>
@@ -510,8 +478,7 @@
                     ============================================================ --}}
                     <div class="flex flex-wrap gap-3">
 
-                        <button type="button"
-                            onclick='openDetailSHS(@json($item->loadMissing("referensiHarga")))'
+                        <button type="button" onclick='openDetailSHS(@json($item->loadMissing('referensiHarga')))'
                             class="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold">
 
                             Detail
@@ -519,14 +486,12 @@
                         </button>
 
                         @if ($item->shs_operator_id == session('pegawai_id'))
-
                             <a href="{{ route('user.shs.edit', $item->shs_uid) }}"
                                 class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold">
 
                                 Edit
 
                             </a>
-
                         @endif
 
                     </div>
@@ -540,7 +505,6 @@
                     Belum ada usulan SHS.
 
                 </div>
-
             @endforelse
 
         </div>
@@ -548,22 +512,16 @@
         {{-- ============================================================
             EMPTY FILTER
         ============================================================ --}}
-        <div id="emptyFilter"
-            class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
+        <div id="emptyFilter" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
 
             <div class="flex flex-col items-center">
 
                 <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-5">
 
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-10 h-10 text-slate-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-slate-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
 
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9.172 9.172a4 4 0 115.656 5.656M15 15l6 6" />
 
                     </svg>
@@ -589,23 +547,20 @@
 
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-                <button type="button"
-                    id="prevPage"
+                <button type="button" id="prevPage"
                     class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">
 
                     ← Sebelumnya
 
                 </button>
 
-                <div id="paginationInfo"
-                    class="text-center text-sm text-slate-500">
+                <div id="paginationInfo" class="text-center text-sm text-slate-500">
 
                     Halaman 1 dari 1
 
                 </div>
 
-                <button type="button"
-                    id="nextPage"
+                <button type="button" id="nextPage"
                     class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">
 
                     Berikutnya →
@@ -641,8 +596,7 @@
 
                     </div>
 
-                    <button type="button"
-                        onclick="closeDetailSHS()"
+                    <button type="button" onclick="closeDetailSHS()"
                         class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 text-xl">
 
                         ✕
@@ -668,8 +622,7 @@
                                 Barang
                             </label>
 
-                            <div id="detail_barang"
-                                class="font-bold text-xl text-slate-800 mt-2">
+                            <div id="detail_barang" class="font-bold text-xl text-slate-800 mt-2">
                             </div>
 
                         </div>
@@ -681,8 +634,7 @@
                                 Kelompok Barang
                             </label>
 
-                            <div id="detail_kelompok"
-                                class="font-semibold text-slate-700 mt-2">
+                            <div id="detail_kelompok" class="font-semibold text-slate-700 mt-2">
                             </div>
 
                         </div>
@@ -694,8 +646,7 @@
                                 Unit
                             </label>
 
-                            <div id="detail_unit"
-                                class="font-semibold text-slate-700 mt-2">
+                            <div id="detail_unit" class="font-semibold text-slate-700 mt-2">
                             </div>
 
                         </div>
@@ -707,8 +658,7 @@
                                 Operator
                             </label>
 
-                            <div id="detail_operator"
-                                class="font-semibold text-slate-700 mt-2">
+                            <div id="detail_operator" class="font-semibold text-slate-700 mt-2">
                             </div>
 
                         </div>
@@ -720,8 +670,7 @@
                                 Harga
                             </label>
 
-                            <div id="detail_harga"
-                                class="text-3xl font-bold text-blue-700 mt-2">
+                            <div id="detail_harga" class="text-3xl font-bold text-blue-700 mt-2">
                             </div>
 
                         </div>
@@ -733,8 +682,7 @@
                                 TKDN
                             </label>
 
-                            <div id="detail_tkdn"
-                                class="text-2xl font-bold text-slate-800 mt-2">
+                            <div id="detail_tkdn" class="text-2xl font-bold text-slate-800 mt-2">
                             </div>
 
                         </div>
@@ -762,8 +710,7 @@
 
                         </div>
 
-                        <div id="detail_referensi"
-                            class="mt-3 w-full">
+                        <div id="detail_referensi" class="mt-3 w-full">
                         </div>
 
                     </div>
@@ -792,8 +739,7 @@
                             Link Survei
                         </label>
 
-                        <div id="detail_link"
-                            class="mt-3 space-y-2">
+                        <div id="detail_link" class="mt-3 space-y-2">
                         </div>
 
                     </div>
@@ -808,7 +754,6 @@
             JAVASCRIPT
         ============================================================ --}}
         <script>
-
             let currentPage = 1;
             let perPage = 10;
 
@@ -864,23 +809,23 @@
 
                 const tahun =
                     document.getElementById('filterTahun')
-                        .value
-                        .toLowerCase();
+                    .value
+                    .toLowerCase();
 
                 const unit =
                     document.getElementById('filterUnit')
-                        .value
-                        .toLowerCase();
+                    .value
+                    .toLowerCase();
 
                 const status =
                     document.getElementById('filterStatus')
-                        .value
-                        .toLowerCase();
+                    .value
+                    .toLowerCase();
 
                 const keyword =
                     document.getElementById('searchBarang')
-                        .value
-                        .toLowerCase();
+                    .value
+                    .toLowerCase();
 
                 cards().forEach(card => {
 
@@ -985,9 +930,9 @@
                     totalPage;
 
                 document.getElementById('emptyFilter').style.display =
-                    total === 0
-                        ? 'block'
-                        : 'none';
+                    total === 0 ?
+                    'block' :
+                    'none';
 
             }
 
@@ -1045,9 +990,9 @@
                 document.getElementById('detail_tkdn').innerHTML =
                     item.shs_tkdn !== null &&
                     item.shs_tkdn !== undefined &&
-                    item.shs_tkdn !== ''
-                        ? escapeHtml(item.shs_tkdn) + ' %'
-                        : '-';
+                    item.shs_tkdn !== '' ?
+                    escapeHtml(item.shs_tkdn) + ' %' :
+                    '-';
 
                 document.getElementById('detail_spesifikasi').innerHTML =
                     escapeHtml(
@@ -1060,8 +1005,7 @@
 
                 const referensi =
                     item.referensiHarga ??
-                    item.referensi_harga ??
-                    [];
+                    item.referensi_harga ?? [];
 
                 let referensiHtml = '';
 
@@ -1122,61 +1066,79 @@
                                                 );
 
                                             linkHtml = `
-                                                <a href="${safeLink}"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline break-all">
+                                                        <a href="${safeLink}"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline break-all">
 
-                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                            <i class="bi bi-box-arrow-up-right"></i>
 
-                                                    Buka Link
+                                                            Buka Link
 
-                                                </a>
+                                                        </a>
 
-                                                <div class="text-xs text-slate-400 mt-1 break-all">
-                                                    ${safeLink}
-                                                </div>
-                                            `;
+                                                        <div class="text-xs text-slate-400 mt-1 break-all">
+                                                            ${safeLink}
+                                                        </div>
+                                                    `;
 
                                         } else {
 
-                                            linkHtml = `
-                                                <span class="text-slate-400">
-                                                    -
-                                                </span>
-                                            `;
+                                            linkHtml = ` <
+                        span class = "text-slate-400" >
+                        -
+                        <
+                        /span>
+                    `;
 
                                         }
 
-                                        return `
-                                            <tr class="hover:bg-slate-50">
+                                        return ` <
+                    tr class = "hover:bg-slate-50" >
 
-                                                <td class="px-4 py-4 text-slate-600 align-top">
-                                                    ${nomor}
-                                                </td>
+                    <
+                    td class = "px-4 py-4 text-slate-600 align-top" >
+                    $ {
+                        nomor
+                    } <
+                    /td>
 
-                                                <td class="px-4 py-4 text-slate-700 align-top">
+                    <
+                    td class = "px-4 py-4 text-slate-700 align-top" >
 
-                                                    <div class="font-semibold">
-                                                        Referensi Harga ${nomor}
-                                                    </div>
+                    <
+                    div class = "font-semibold" >
+                    Referensi Harga $ {
+                        nomor
+                    } <
+                    /div>
 
-                                                </td>
+                    <
+                    /td>
 
-                                                <td class="px-4 py-4 text-right font-semibold text-slate-800 whitespace-nowrap align-top">
+                    <
+                    td class = "px-4 py-4 text-right font-semibold text-slate-800 whitespace-nowrap align-top" >
 
-                                                    ${formatRupiah(hargaReferensi)}
+                    $ {
+                        formatRupiah(hargaReferensi)
+                    }
 
-                                                </td>
+                    <
+                    /td>
 
-                                                <td class="px-4 py-4 align-top">
+                    <
+                    td class = "px-4 py-4 align-top" >
 
-                                                    ${linkHtml}
+                    $ {
+                        linkHtml
+                    }
 
-                                                </td>
+                    <
+                    /td>
 
-                                            </tr>
-                                        `;
+                    <
+                    /tr>
+                    `;
 
                                     }).join('')}
 
@@ -1230,7 +1192,7 @@
 
                     const links =
                         String(item.shs_link_survei)
-                            .split(/\r?\n/);
+                        .split(/\r?\n/);
 
                     links.forEach(function(link) {
 
@@ -1472,7 +1434,6 @@
 
                 }
             );
-
         </script>
 
     </div>
