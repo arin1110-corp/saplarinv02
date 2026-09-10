@@ -1942,25 +1942,26 @@
 
             } else {
 
-                let text =
-                    String(value)
+                let text = String(value)
                     .replace(/Rp/gi, '')
                     .trim();
 
+                /*
+                 * Format Indonesia:
+                 * 1.000.000
+                 * 1.000.000,50
+                 */
                 if (
                     /^\d{1,3}(\.\d{3})+(,\d+)?$/.test(text)
                 ) {
 
-                    text =
-                        text
+                    text = text
                         .replace(/\./g, '')
                         .replace(',', '.');
 
                 } else {
 
-                    text =
-                        text.replace(/,/g, '');
-
+                    text = text.replace(/,/g, '');
                 }
 
                 number = Number(text);
@@ -1971,8 +1972,7 @@
             }
 
             return 'Rp ' +
-                Math.round(number)
-                .toLocaleString('id-ID');
+                Math.round(number).toLocaleString('id-ID');
         }
 
 
@@ -2006,64 +2006,122 @@
 
         function detailSHS(item) {
 
+            if (!item) {
+                return;
+            }
+
+
             /* =====================================================
                DATA UTAMA
             ====================================================== */
 
-            document.getElementById('d_tahun').value =
-                item.shs_tahun ?? '';
+            const tahun =
+                document.getElementById('d_tahun');
+
+            const unit =
+                document.getElementById('d_unit');
+
+            const kelompok =
+                document.getElementById('d_kelompok');
+
+            const kode =
+                document.getElementById('d_kode');
+
+            const barang =
+                document.getElementById('d_barang');
+
+            const satuan =
+                document.getElementById('d_satuan');
+
+            const tipe =
+                document.getElementById('d_tipe');
+
+            const harga =
+                document.getElementById('d_harga');
+
+            const tkdn =
+                document.getElementById('d_tkdn');
+
+            const spesifikasi =
+                document.getElementById('d_spesifikasi');
+
+            const linkLama =
+                document.getElementById('d_link');
+
+            const operator =
+                document.getElementById('d_operator');
+
+            const nip =
+                document.getElementById('d_nip');
 
 
-            document.getElementById('d_unit').value =
-                item.shs_unit_nama ?? '';
+            if (tahun) {
+                tahun.value = item.shs_tahun ?? '';
+            }
 
+            if (unit) {
+                unit.value = item.shs_unit_nama ?? '';
+            }
 
-            document.getElementById('d_kelompok').value =
-                item.shs_kelompok_barang ?? '';
+            if (kelompok) {
+                kelompok.value =
+                    item.shs_kelompok_barang ?? '';
+            }
 
+            if (kode) {
+                kode.value =
+                    item.shs_kode_kelompok ?? '';
+            }
 
-            document.getElementById('d_kode').value =
-                item.shs_kode_kelompok ?? '';
+            if (barang) {
+                barang.value =
+                    item.shs_barang ?? '';
+            }
 
+            if (satuan) {
+                satuan.value =
+                    item.shs_satuan ?? '';
+            }
 
-            document.getElementById('d_barang').value =
-                item.shs_barang ?? '';
+            if (tipe) {
+                tipe.value =
+                    item.shs_kelompok ?? '';
+            }
 
+            if (harga) {
+                harga.value =
+                    formatRupiah(item.shs_harga);
+            }
 
-            document.getElementById('d_satuan').value =
-                item.shs_satuan ?? '';
+            if (tkdn) {
 
+                tkdn.value =
+                    item.shs_tkdn !== null &&
+                    item.shs_tkdn !== undefined &&
+                    item.shs_tkdn !== ''
+                        ? item.shs_tkdn + ' %'
+                        : '-';
+            }
 
-            document.getElementById('d_tipe').value =
-                item.shs_kelompok ?? '';
+            if (spesifikasi) {
+                spesifikasi.value =
+                    item.shs_spesifikasi ?? '';
+            }
 
+            if (linkLama) {
+                linkLama.value =
+                    item.shs_link_survei ?? '';
+            }
 
-            document.getElementById('d_harga').value =
-                formatRupiah(item.shs_harga);
+            if (operator) {
+                operator.value =
+                    item.shs_operator_nama ?? '';
+            }
 
-
-            document.getElementById('d_tkdn').value =
-                item.shs_tkdn !== null &&
-                item.shs_tkdn !== undefined &&
-                item.shs_tkdn !== '' ?
-                item.shs_tkdn + ' %' :
-                '-';
-
-
-            document.getElementById('d_spesifikasi').value =
-                item.shs_spesifikasi ?? '';
-
-
-            document.getElementById('d_link').value =
-                item.shs_link_survei ?? '';
-
-
-            document.getElementById('d_operator').value =
-                item.shs_operator_nama ?? '';
-
-
-            document.getElementById('d_nip').value =
-                item.shs_operator_nip ?? '';
+            if (nip) {
+                nip.value =
+                    item.shs_operator_nip ?? '';
+            }
 
 
 
@@ -2074,141 +2132,208 @@
             const container =
                 document.getElementById('d_referensi');
 
-            let html = '';
+            if (!container) {
+                return;
+            }
 
 
             /*
-             * Prioritas:
+             * Relasi Laravel:
              *
-             * 1. referensi_harga
-             * 2. referensiHarga
-             * 3. array kosong
+             * referensiHarga
+             *
+             * Jika JSON Laravel menggunakan nama relasi:
+             * referensiHarga
+             *
+             * maka data akan berada di:
+             *
+             * item.referensiHarga
+             *
+             * Fallback referensi_harga tetap disediakan.
              */
 
             const referensi =
+                item.referensiHarga ??
                 item.referensi_harga ??
-                item.referensiHarga ?? [];
+                [];
 
+
+            let html = '';
+
+
+            /* =====================================================
+               ADA REFERENSI
+            ====================================================== */
 
             if (
                 Array.isArray(referensi) &&
                 referensi.length > 0
             ) {
 
-                /*
-                 * overflow-x-auto
-                 *
-                 * min-w-[760px]
-                 *
-                 * Dengan ini:
-                 *
-                 * REFERENSI | HARGA | LINK
-                 *
-                 * tetap SATU BARIS.
-                 */
-
                 html = `
-                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="overflow-x-auto
+                               rounded-2xl
+                               border
+                               border-slate-200
+                               dark:border-slate-700">
 
-                    <div class="min-w-[760px]">
+                        <div class="min-w-[850px]">
 
-                        <!-- HEADER -->
-                        <div
-                            class="grid grid-cols-12
-                                   gap-4
-                                   items-center
-                                   bg-slate-100
-                                   dark:bg-slate-800
-                                   px-5 py-3
-                                   text-xs
-                                   font-semibold
-                                   uppercase
-                                   tracking-wide
-                                   text-slate-500
-                                   dark:text-slate-400">
+                            <!-- HEADER -->
 
-                            <div class="col-span-4">
-                                Referensi
+                            <div
+                                class="grid
+                                       grid-cols-12
+                                       gap-4
+                                       items-center
+                                       bg-slate-100
+                                       dark:bg-slate-800
+                                       px-5
+                                       py-3
+                                       text-xs
+                                       font-semibold
+                                       uppercase
+                                       tracking-wide
+                                       text-slate-500
+                                       dark:text-slate-400">
+
+                                <div class="col-span-1">
+                                    No
+                                </div>
+
+                                <div class="col-span-4">
+                                    Referensi
+                                </div>
+
+                                <div class="col-span-3">
+                                    Harga
+                                </div>
+
+                                <div class="col-span-4">
+                                    Link
+                                </div>
+
                             </div>
+                `;
 
-                            <div class="col-span-3">
-                                Harga
-                            </div>
 
-                            <div class="col-span-5">
-                                Link
-                            </div>
-
-                        </div>
-            `;
-
+                /* =================================================
+                   LOOP REFERENSI
+                ================================================== */
 
                 referensi.forEach(function(ref, index) {
 
-                    const harga =
+                    /*
+                     * Nama field dari model:
+                     *
+                     * shs_referensi_harga
+                     * shs_referensi_link
+                     *
+                     * Fallback disediakan jika JSON menggunakan
+                     * nama sederhana.
+                     */
+
+                    const hargaReferensi =
                         ref.shs_referensi_harga ??
                         ref.harga ??
                         0;
 
 
-                    const link =
+                    const linkReferensi =
                         ref.shs_referensi_link ??
                         ref.link ??
                         '';
 
 
+                    const safeLink =
+                        escapeHtml(linkReferensi);
+
+
                     html += `
-                    <div
-                        class="grid grid-cols-12
-                               gap-4
-                               items-center
-                               px-5 py-4
-                               border-t
-                               border-slate-200
-                               dark:border-slate-700
-                               bg-white
-                               dark:bg-slate-900">
+                        <div
+                            class="grid
+                                   grid-cols-12
+                                   gap-4
+                                   items-center
+                                   px-5
+                                   py-4
+                                   border-t
+                                   border-slate-200
+                                   dark:border-slate-700
+                                   bg-white
+                                   dark:bg-slate-900">
 
-                        <!-- REFERENSI -->
-                        <div class="col-span-4 min-w-0">
+                            <!-- NO -->
 
-                            <div
-                                class="text-sm
-                                       font-semibold
-                                       text-slate-800
-                                       dark:text-white">
+                            <div class="col-span-1">
 
-                                Referensi ${index + 1}
+                                <span
+                                    class="inline-flex
+                                           items-center
+                                           justify-center
+                                           w-8
+                                           h-8
+                                           rounded-lg
+                                           bg-slate-100
+                                           dark:bg-slate-800
+                                           text-sm
+                                           font-semibold
+                                           text-slate-700
+                                           dark:text-slate-200">
 
-                            </div>
+                                    ${index + 1}
 
-                        </div>
-
-
-                        <!-- HARGA -->
-                        <div class="col-span-3">
-
-                            <div
-                                class="text-base
-                                       font-bold
-                                       whitespace-nowrap
-                                       text-slate-800
-                                       dark:text-white">
-
-                                ${formatRupiah(harga)}
+                                </span>
 
                             </div>
 
-                        </div>
+
+                            <!-- REFERENSI -->
+
+                            <div
+                                class="col-span-4
+                                       min-w-0">
+
+                                <div
+                                    class="font-semibold
+                                           text-slate-800
+                                           dark:text-white">
+
+                                    Referensi Harga ${index + 1}
+
+                                </div>
+
+                            </div>
 
 
-                        <!-- LINK -->
-                        <div class="col-span-5 min-w-0">
+                            <!-- HARGA -->
 
-                            ${
-                                link
-                                    ? `
+                            <div
+                                class="col-span-3">
 
+                                <div
+                                    class="font-bold
+                                           whitespace-nowrap
+                                           text-slate-800
+                                           dark:text-white">
+
+                                    ${formatRupiah(hargaReferensi)}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- LINK -->
+
+                            <div
+                                class="col-span-4
+                                       min-w-0">
+
+                                ${
+                                    linkReferensi
+                                        ? `
                                             <div
                                                 class="flex
                                                        items-center
@@ -2216,25 +2341,27 @@
                                                        min-w-0">
 
                                                 <a
-                                                    href="${escapeHtml(link)}"
+                                                    href="${safeLink}"
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     class="inline-flex
+                                                           shrink-0
                                                            items-center
                                                            justify-center
                                                            gap-2
-                                                           shrink-0
                                                            rounded-xl
                                                            bg-blue-600
                                                            hover:bg-blue-700
-                                                           px-4 py-2
+                                                           px-4
+                                                           py-2
                                                            text-sm
                                                            font-semibold
                                                            text-white
                                                            transition">
 
                                                     <i
-                                                        class="bi bi-box-arrow-up-right">
+                                                        class="bi
+                                                               bi-box-arrow-up-right">
                                                     </i>
 
                                                     Buka Link
@@ -2245,22 +2372,19 @@
                                                 <div
                                                     class="min-w-0
                                                            flex-1
+                                                           truncate
                                                            text-xs
                                                            text-slate-500
-                                                           dark:text-slate-400
-                                                           truncate"
-                                                    title="${escapeHtml(link)}">
+                                                           dark:text-slate-400"
+                                                    title="${safeLink}">
 
-                                                    ${escapeHtml(link)}
+                                                    ${safeLink}
 
                                                 </div>
 
                                             </div>
-
                                         `
-                                    :
-                                    `
-
+                                        : `
                                             <span
                                                 class="text-sm
                                                        text-slate-400
@@ -2269,68 +2393,83 @@
                                                 Tidak ada link
 
                                             </span>
-
                                         `
-                            }
+                                }
+
+                            </div>
+
+                        </div>
+                    `;
+                });
+
+
+                html += `
+                        </div>
+
+                    </div>
+                `;
+
+
+            } else {
+
+
+                /* =================================================
+                   TIDAK ADA REFERENSI
+                ================================================== */
+
+                html = `
+                    <div
+                        class="rounded-2xl
+                               border
+                               border-dashed
+                               border-slate-300
+                               dark:border-slate-700
+                               p-8
+                               text-center">
+
+                        <div
+                            class="flex
+                                   justify-center
+                                   mb-3">
+
+                            <i
+                                class="bi
+                                       bi-link-45deg
+                                       text-3xl
+                                       text-slate-400">
+                            </i>
+
+                        </div>
+
+                        <div
+                            class="text-sm
+                                   text-slate-500
+                                   dark:text-slate-400">
+
+                            Belum ada referensi harga.
 
                         </div>
 
                     </div>
                 `;
-                });
-
-
-                html += `
-                    </div>
-                </div>
-            `;
-
-            } else {
-
-                html = `
-                <div
-                    class="rounded-2xl
-                           border
-                           border-dashed
-                           border-slate-300
-                           dark:border-slate-700
-                           p-8
-                           text-center">
-
-                    <div
-                        class="flex
-                               justify-center
-                               mb-3">
-
-                        <i
-                            class="bi bi-link-45deg
-                                   text-3xl
-                                   text-slate-400">
-                        </i>
-
-                    </div>
-
-                    <div
-                        class="text-sm
-                               text-slate-500
-                               dark:text-slate-400">
-
-                        Belum ada referensi harga.
-
-                    </div>
-
-                </div>
-            `;
             }
 
 
             container.innerHTML = html;
 
 
+            /* =====================================================
+               TAMPILKAN MODAL
+            ====================================================== */
+
             showModal('modalDetail');
         }
 
 
+
+        /* =========================================================
+           CLOSE DETAIL
+        ========================================================== */
 
         function closeDetail() {
 
@@ -2346,31 +2485,62 @@
 
         function verifikasiSHS(item) {
 
-            document.getElementById('v_barang').value =
-                item.shs_barang ?? '';
+            if (!item) {
+                return;
+            }
 
 
-            document.getElementById('v_harga').value =
-                formatRupiah(item.shs_harga);
+            const barang =
+                document.getElementById('v_barang');
+
+            const harga =
+                document.getElementById('v_harga');
+
+            const form =
+                document.getElementById('formVerifikasi');
 
 
-            document.getElementById('formVerifikasi').action =
-                '{{ url('/administrator/laporan/shs/verifikasi') }}/' +
-                item.shs_uid;
+            if (barang) {
+
+                barang.value =
+                    item.shs_barang ?? '';
+            }
+
+
+            if (harga) {
+
+                harga.value =
+                    formatRupiah(item.shs_harga);
+            }
+
+
+            if (form) {
+
+                form.action =
+                    '{{ url('/administrator/laporan/shs/verifikasi') }}/' +
+                    item.shs_uid;
+            }
 
 
             showModal('modalVerifikasi');
         }
 
 
+
+        /* =========================================================
+           CLOSE VERIFIKASI
+        ========================================================== */
+
         function closeVerifikasi() {
 
             const form =
                 document.getElementById('formVerifikasi');
 
+
             if (form) {
                 form.reset();
             }
+
 
             hideModal('modalVerifikasi');
         }
@@ -2406,6 +2576,7 @@
 
 
             if (
+                data &&
                 data.history &&
                 data.history.length
             ) {
@@ -2413,100 +2584,121 @@
                 data.history.forEach(function(item) {
 
                     html += `
-                    <div
-                        class="rounded-2xl
-                               border
-                               border-slate-200
-                               dark:border-slate-700
-                               p-5">
-
                         <div
-                            class="flex
-                                   flex-col
-                                   md:flex-row
-                                   md:items-center
-                                   md:justify-between
-                                   gap-2
-                                   mb-3">
+                            class="rounded-2xl
+                                   border
+                                   border-slate-200
+                                   dark:border-slate-700
+                                   p-5">
 
                             <div
-                                class="font-semibold
-                                       text-slate-800
-                                       dark:text-white">
+                                class="flex
+                                       flex-col
+                                       md:flex-row
+                                       md:items-center
+                                       md:justify-between
+                                       gap-2
+                                       mb-3">
 
-                                ${escapeHtml(item.user ?? '-')}
+                                <div
+                                    class="font-semibold
+                                           text-slate-800
+                                           dark:text-white">
+
+                                    ${escapeHtml(
+                                        item.user ?? '-'
+                                    )}
+
+                                </div>
+
+
+                                <span
+                                    class="text-xs
+                                           text-slate-500
+                                           dark:text-slate-400">
+
+                                    ${escapeHtml(
+                                        item.tanggal ?? '-'
+                                    )}
+
+                                </span>
 
                             </div>
 
-                            <span
-                                class="text-xs
-                                       text-slate-500
-                                       dark:text-slate-400">
 
-                                ${escapeHtml(item.tanggal ?? '-')}
+                            <div class="mb-2">
 
-                            </span>
+                                <span
+                                    class="inline-flex
+                                           rounded-full
+                                           bg-blue-100
+                                           text-blue-700
+                                           dark:bg-blue-900/20
+                                           dark:text-blue-300
+                                           px-3
+                                           py-1
+                                           text-xs">
 
-                        </div>
+                                    ${escapeHtml(
+                                        item.status ?? '-'
+                                    )}
 
+                                </span>
 
-                        <div class="mb-2">
-
-                            <span
-                                class="inline-flex
-                                       rounded-full
-                                       bg-blue-100
-                                       text-blue-700
-                                       dark:bg-blue-900/20
-                                       dark:text-blue-300
-                                       px-3 py-1
-                                       text-xs">
-
-                                ${escapeHtml(item.status ?? '-')}
-
-                            </span>
-
-                        </div>
+                            </div>
 
 
-                        <div
-                            class="text-sm
-                                   text-slate-600
-                                   dark:text-slate-300">
+                            <div
+                                class="text-sm
+                                       text-slate-600
+                                       dark:text-slate-300">
 
-                            ${escapeHtml(item.catatan ?? '-')}
+                                ${escapeHtml(
+                                    item.catatan ?? '-'
+                                )}
+
+                            </div>
 
                         </div>
-
-                    </div>
-                `;
-
+                    `;
                 });
+
 
             } else {
 
                 html = `
-                <div
-                    class="text-center
-                           py-16
-                           text-slate-500
-                           dark:text-slate-400">
+                    <div
+                        class="text-center
+                               py-16
+                               text-slate-500
+                               dark:text-slate-400">
 
-                    Belum ada riwayat verifikasi.
+                        Belum ada riwayat verifikasi.
 
-                </div>
-            `;
-
+                    </div>
+                `;
             }
 
 
-            document.getElementById('historyContent').innerHTML =
-                html;
+            const historyContent =
+                document.getElementById('historyContent');
+
+
+            if (historyContent) {
+
+                historyContent.innerHTML =
+                    html;
+            }
 
 
             showModal('modalHistory');
         }
 
+
+
+        /* =========================================================
+           CLOSE HISTORY
+        ========================================================== */
 
         function closeHistory() {
 
@@ -2524,16 +2716,13 @@
             'DOMContentLoaded',
             function() {
 
+                /* =================================================
+                   CHECK ALL
+                ================================================== */
+
                 const checkAll =
                     document.getElementById('checkAll');
 
-                const uncheckAll =
-                    document.getElementById('uncheckAll');
-
-
-                /* =====================================================
-                   CHECK ALL
-                ====================================================== */
 
                 if (checkAll) {
 
@@ -2548,16 +2737,19 @@
                                     el.checked = true;
 
                                 });
-
                         }
                     );
-
                 }
 
 
-                /* =====================================================
+
+                /* =================================================
                    UNCHECK ALL
-                ====================================================== */
+                ================================================== */
+
+                const uncheckAll =
+                    document.getElementById('uncheckAll');
+
 
                 if (uncheckAll) {
 
@@ -2572,16 +2764,15 @@
                                     el.checked = false;
 
                                 });
-
                         }
                     );
-
                 }
 
 
-                /* =====================================================
+
+                /* =================================================
                    BACKGROUND MODAL
-                ====================================================== */
+                ================================================== */
 
                 [
                     'modalDetail',
@@ -2592,6 +2783,7 @@
 
                     const modal =
                         document.getElementById(id);
+
 
                     if (!modal) {
                         return;
@@ -2607,10 +2799,8 @@
                                 hideModal(id);
 
                             }
-
                         }
                     );
-
                 });
 
             }
@@ -2635,7 +2825,6 @@
                     closeExportModal();
 
                     closeHistory();
-
                 }
 
             }
