@@ -346,7 +346,7 @@ class UserKAKController extends Controller
         |
         */
         try {
-            $kakFile = $arinDrive->upload($file, 'kak', $filename, $kakUid);
+            $kakFile = $arinDrive->upload($file, 'kak_2026_perubahan', $filename, $kakUid);
         } catch (Throwable $e) {
             return back()
                 ->withInput()
