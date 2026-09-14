@@ -363,7 +363,7 @@
                                 <td class="px-5 py-4 text-center">
 
                                     @if (!empty($kak->kak_file))
-                                        <a href="{{ asset('storage/' . $kak->kak_file) }}" target="_blank"
+                                        <a href="{{ $kak->kak_file }}" target="_blank"
                                             rel="noopener noreferrer"
                                             class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition font-semibold text-xs">
 
@@ -777,10 +777,24 @@
                             Tahapan
                         </label>
 
-                        <input type="text" name="kak_tahapan" value="{{ old('kak_tahapan') }}" required
-                            placeholder="Contoh: Penyusunan KAK"
-                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500">
+                        <select name="kak_tahapan" required
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 bg-white focus:border-blue-500 focus:ring-blue-500">
 
+                            <option value="">
+                                -- Pilih Tahapan --
+                            </option>
+
+                            <option value="Induk"
+                                {{ old('kak_tahapan') == 'Induk' ? 'selected' : '' }}>
+                                Induk
+                            </option>
+
+                            <option value="Perubahan"
+                                {{ old('kak_tahapan') == 'Perubahan' ? 'selected' : '' }}>
+                                Perubahan
+                            </option>
+
+                        </select>
                     </div>
 
 

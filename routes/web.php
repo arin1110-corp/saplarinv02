@@ -672,5 +672,5 @@ Route::prefix('user')
         */
 
     Route::get('/permintaan-kak', [UserKAKController::class, 'index'])->name('permintaan-kak.index');
-    Route::get('/permintaan-kak/create', [UserKAKController::class, 'create'])->name('permintaan-kak.store');
+    Route::post('/permintaan-kak/store', [UserKAKController::class, 'store'])->name('permintaan-kak.store');
     });
