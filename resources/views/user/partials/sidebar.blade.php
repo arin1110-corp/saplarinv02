@@ -13,6 +13,7 @@
     $canInputSPJ = in_array($activeRole, ['Operator', 'Operator SPJ']);
     $canPAD = in_array($activeRole, ['Operator PAD']);
     $canStandarHarga = in_array($activeRole, ['Operator']);
+    $canPermintaanKAK = $isOperator;
     $canSHS = $isOperator;
 @endphp
 
@@ -217,6 +218,7 @@
             </a>
         @endif
 
+        @if ($canPermintaanKAK)
         <a href="{{ route('user.permintaan-kak.index') }}"
             class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition
             {{ request()->routeIs('user.permintaan-kak*')
@@ -225,6 +227,7 @@
             <span>📄</span>
             <span>Permintaan KAK</span>
         </a>
+        @endif
 
         <a href="javascript:void(0)"
             class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-100 text-slate-400 cursor-not-allowed">
