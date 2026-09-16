@@ -471,10 +471,10 @@ Route::middleware(['admin'])
     Route::prefix('standar-harga')
         ->name('admin.standar-harga.')
         ->group(function () {
-        Route::get('/permintaan', [AdminStandarHargaController::class, 'permintaan'])->name('permintaan.index');
+            Route::get('/permintaan', [AdminStandarHargaController::class, 'permintaan'])->name('permintaan.index');
 
-        Route::get('/export', [AdminStandarHargaController::class, 'export'])->name('permintaan.export');
-        Route::get('/permintaan/export', [AdminStandarHargaController::class, 'exportPermintaan'])->name('permintaan.export');
+            Route::get('/export', [AdminStandarHargaController::class, 'export'])->name('permintaan.export');
+            Route::get('/permintaan/export', [AdminStandarHargaController::class, 'exportPermintaan'])->name('permintaan.export');
         });
     });
 
@@ -654,6 +654,9 @@ Route::prefix('user')
     Route::get('/pad/input/{uid}', [UserPadController::class, 'input'])->name('pad.input');
 
     Route::post('/pad/input', [UserPadController::class, 'store'])->name('pad.store');
+    Route::get('/pad/{uid}/edit', [UserPADController::class, 'edit'])->name('pad.edit');
+
+    Route::put('/pad/{uid}', [UserPADController::class, 'update'])->name('pad.update');
 
     /*
         |--------------------------------------------------------------------------

@@ -149,6 +149,22 @@ class UserPadController extends Controller
     }
 
     /**
+     * Form edit realisasi PAD
+     */
+    public function edit($uid)
+    {
+        $realisasi = ModelPadRealisasi::with(['target.jenis', 'target.komponen.subkomponen', 'subkomponen'])
+            ->where('pad_realisasi_uid', $uid)
+            ->firstOrFail();
+
+        $target = $realisasi->target;
+
+        $subkomponen = $target->komponen->subkomponen()->where('pad_subkomponen_status', true)->orderBy('pad_subkomponen_nama')->get();
+
+        return view('user.pad.edit', compact('realisasi', 'target', 'subkomponen'));
+    }
+
+    /**
      * Simpan realisasi PAD
      */
     public function store(Request $request, ArinDriveService $arinDrive)
@@ -321,5 +337,120 @@ class UserPadController extends Controller
         */
 
         return redirect()->route('user.pad.index')->with('success', 'Penerimaan PAD berhasil disimpan.');
+    }
+    /**
+     * Update realisasi PAD
+     */
+    public function update(Request $request, $uid, ArinDriveService $arinDrive)
+    {
+        /*
+    |--------------------------------------------------------------------------
+    | REALISASI
+    |--------------------------------------------------------------------------
+    */
+
+        $realisasi = ModelPadRealisasi::with('target')->where('pad_realisasi_uid', $uid)->firstOrFail();
+
+        /*
+    |--------------------------------------------------------------------------
+    | NORMALISASI NOMINAL
+    |--------------------------------------------------------------------------
+    */
+
+        $nominal = $request->pad_realisasi_nominal;
+
+        if (is_string($nominal)) {
+            $nominal = str_replace('.', '', $nominal);
+            $nominal = str_replace(',', '', $nominal);
+        }
+
+        $request->merge([
+            'pad_realisasi_nominal' => $nominal,
+        ]);
+
+        /*
+    |--------------------------------------------------------------------------
+    | VALIDASI
+    |--------------------------------------------------------------------------
+    */
+
+        $request->validate([
+            'pad_realisasi_subkomponen' => 'required|exists:saplarin_pad_subkomponen,pad_subkomponen_id',
+
+            'pad_realisasi_tanggal' => 'required|date',
+
+            'pad_realisasi_nominal' => 'required|numeric|min:0.01',
+
+            'pad_realisasi_keterangan' => 'nullable|string',
+
+            'pad_realisasi_dokumen' => 'nullable|file|mimes:pdf|max:5120',
+        ]);
+
+        /*
+    |--------------------------------------------------------------------------
+    | TARGET
+    |--------------------------------------------------------------------------
+    */
+
+        $target = ModelPadTarget::with(['jenis', 'komponen'])
+            ->where('pad_target_id', $realisasi->pad_realisasi_target)
+            ->where('pad_target_status', true)
+            ->firstOrFail();
+
+        /*
+    |--------------------------------------------------------------------------
+    | SUBKOMPONEN
+    |--------------------------------------------------------------------------
+    */
+
+        $subkomponen = ModelPadSubkomponen::where('pad_subkomponen_id', $request->pad_realisasi_subkomponen)->where('pad_subkomponen_komponen', $target->pad_target_komponen)->where('pad_subkomponen_status', true)->firstOrFail();
+
+        /*
+    |--------------------------------------------------------------------------
+    | DOKUMEN
+    |--------------------------------------------------------------------------
+    */
+
+        $dokumen = $realisasi->pad_realisasi_dokumen;
+
+        if ($request->hasFile('pad_realisasi_dokumen')) {
+            $file = $request->file('pad_realisasi_dokumen');
+
+            $extension = $file->getClientOriginalExtension();
+
+            $namaFile = $realisasi->pad_realisasi_uid . '_PAD_' . Str::slug($subkomponen->pad_subkomponen_nama) . '.' . $extension;
+
+            $dokumen = $arinDrive->upload($file, 'pad_realisasi', $namaFile, $realisasi->pad_realisasi_uid);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
+        $realisasi->update([
+            'pad_realisasi_subkomponen' => $subkomponen->pad_subkomponen_id,
+
+            'pad_realisasi_tanggal' => $request->pad_realisasi_tanggal,
+
+            'pad_realisasi_nominal' => $request->pad_realisasi_nominal,
+
+            'pad_realisasi_keterangan' => $request->pad_realisasi_keterangan,
+
+            'pad_realisasi_dokumen' => $dokumen,
+        ]);
+
+        /*
+    |--------------------------------------------------------------------------
+    | REDIRECT
+    |--------------------------------------------------------------------------
+    */
+
+        return redirect()
+            ->route('user.pad.index', [
+                'tahun' => $target->pad_target_tahun,
+            ])
+            ->with('success', 'Penerimaan PAD berhasil diperbarui.');
     }
 }

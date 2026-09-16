@@ -546,6 +546,10 @@
                                 Dokumen
                             </th>
 
+                            <th class="py-3 px-3 text-right">
+                                Aksi
+                            </th>
+
                         </tr>
 
                     </thead>
@@ -681,14 +685,14 @@
                                     @if ($item->pad_realisasi_dokumen)
                                         <a href="{{ $item->pad_realisasi_dokumen }}" target="_blank"
                                             class="inline-flex
-                                           items-center
-                                           gap-2
-                                           px-3 py-2
-                                           rounded-xl
-                                           bg-red-50
-                                           text-red-600
-                                           font-semibold
-                                           hover:bg-red-100">
+                   items-center
+                   gap-2
+                   px-3 py-2
+                   rounded-xl
+                   bg-red-50
+                   text-red-600
+                   font-semibold
+                   hover:bg-red-100">
 
                                             <i class="bi bi-file-earmark-pdf"></i>
 
@@ -700,6 +704,31 @@
                                             -
                                         </span>
                                     @endif
+
+                                </td>
+
+
+                                {{-- AKSI --}}
+
+                                <td class="py-4 px-3 text-right">
+
+                                    <a href="{{ route('user.pad.edit', $item->pad_realisasi_uid) }}"
+                                        class="inline-flex
+                                        items-center
+                                        gap-2
+                                        px-3 py-2
+                                        rounded-xl
+                                        bg-amber-50
+                                        text-amber-600
+                                        font-semibold
+                                        hover:bg-amber-100
+                                        transition">
+
+                                        <i class="bi bi-pencil-square"></i>
+
+                                        Edit
+
+                                    </a>
 
                                 </td>
 
