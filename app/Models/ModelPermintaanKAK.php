@@ -12,7 +12,7 @@ class ModelPermintaanKAK extends Model
     protected $table = 'saplarin_permintaan_kak';
     protected $primaryKey = 'kak_id';
 
-    protected $fillable = ['kak_uid', 'kak_sub_kegiatan_id', 'kak_tahun', 'kak_keterangan', 'kak_tahapan', 'kak_file', 'kak_status', 'kak_created_by', 'kak_created_by_nama'];
+    protected $fillable = ['kak_uid', 'kak_sub_kegiatan_id', 'kak_tahun', 'kak_keterangan', 'kak_unit', 'kak_catatan_admin', 'kak_tahapan', 'kak_file', 'kak_status', 'kak_created_by', 'kak_created_by_nama'];
 
     protected $casts = [
         'kak_tahun' => 'integer',

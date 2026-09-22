@@ -87,6 +87,20 @@ return [
                 : [],
         ],
 
+        'samperin' => [
+            'driver' => 'mysql',
+            'host' => env('SAMPERIN_DB_HOST'),
+            'port' => env('SAMPERIN_DB_PORT', 3306),
+            'database' => env('SAMPERIN_DB_DATABASE'),
+            'username' => env('SAMPERIN_DB_USERNAME'),
+            'password' => env('SAMPERIN_DB_PASSWORD'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

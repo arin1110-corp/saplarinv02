@@ -15,66 +15,40 @@ use Throwable;
 class UserKAKController extends Controller
 {
     /**
-     * ============================================================
-     * INDEX
-     * ============================================================
-     *
-     * Halaman utama upload KAK user.
+     * Daftar unit yang tersedia.
      */
-    public function index()
+    private function unitList(): array
     {
-        /*
-        |--------------------------------------------------------------------------
-        | DATA PROGRAM
-        |--------------------------------------------------------------------------
-        */
-        $programs = ModelProgram::where('program_status', 1)->orderBy('program_kode')->orderBy('program_nama')->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATA KAK MILIK USER
-        |--------------------------------------------------------------------------
-        |
-        | Relasi:
-        | Program
-        |   └── Kegiatan
-        |        └── Sub Kegiatan
-        |             └── KAK
-        |
-        | Di database KAK hanya menyimpan sub kegiatan.
-        |
-        */
-        $kaks = ModelPermintaanKAK::query()
-            ->join('saplarin_sub_kegiatan', 'saplarin_permintaan_kak.kak_sub_kegiatan_id', '=', 'saplarin_sub_kegiatan.sub_kegiatan_id')
-            ->join('saplarin_kegiatan', 'saplarin_sub_kegiatan.sub_kegiatan_kegiatan', '=', 'saplarin_kegiatan.kegiatan_id')
-            ->join('saplarin_program', 'saplarin_kegiatan.kegiatan_program', '=', 'saplarin_program.program_id')
-            ->where('saplarin_permintaan_kak.kak_created_by', session('pegawai_id'))
-            ->where('saplarin_permintaan_kak.kak_status', 1)
-            ->select(
-                'saplarin_permintaan_kak.*',
-
-                'saplarin_sub_kegiatan.sub_kegiatan_kode',
-                'saplarin_sub_kegiatan.sub_kegiatan_nama',
-
-                'saplarin_kegiatan.kegiatan_kode',
-                'saplarin_kegiatan.kegiatan_nama',
-
-                'saplarin_program.program_kode',
-                'saplarin_program.program_nama',
-            )
-            ->orderByDesc('saplarin_permintaan_kak.created_at')
-            ->get();
-
-        return view('user.kak.index', compact('programs', 'kaks'));
+        return ['Sekretariat', 'Bidang Kesenian', 'Bidang Tradisi dan Warisan Budaya', 'Bidang Sejarah dan Dokumentasi Kebudayaan', 'Bidang Cagar Budaya dan Permuseuman', 'UPTD Taman Budaya', 'UPTD Monumen Perjuangan Rakyat Bali', 'UPTD Museum Bali'];
     }
 
     /**
-     * ============================================================
+     * INDEX
+     */
+    public function index()
+    {
+        $programs = ModelProgram::where('program_status', 1)
+            ->with([
+                'kegiatan' => function ($query) {
+                    $query->where('kegiatan_status', 1)->orderBy('kegiatan_kode')->orderBy('kegiatan_nama');
+                },
+                'kegiatan.subKegiatan' => function ($query) {
+                    $query->where('sub_kegiatan_status', 1)->orderBy('sub_kegiatan_kode')->orderBy('sub_kegiatan_nama');
+                },
+            ])
+            ->orderBy('program_kode')
+            ->orderBy('program_nama')
+            ->get();
+
+        $kaks = ModelPermintaanKAK::query()->with('subKegiatan')->where('kak_created_by', session('pegawai_id'))->orderByDesc('created_at')->get();
+
+        $unitList = $this->unitList();
+
+        return view('user.kak.index', compact('programs', 'kaks', 'unitList'));
+    }
+
+    /**
      * CREATE
-     * ============================================================
-     *
-     * Disediakan jika route menggunakan:
-     * Route::get('/user/kak/create', ...);
      */
     public function create()
     {
@@ -82,15 +56,7 @@ class UserKAKController extends Controller
     }
 
     /**
-     * ============================================================
      * GET KEGIATAN
-     * ============================================================
-     *
-     * AJAX:
-     * Program -> Kegiatan
-     *
-     * Request:
-     * program_id
      */
     public function kegiatan(Request $request)
     {
@@ -98,11 +64,6 @@ class UserKAKController extends Controller
             'program_id' => ['required', 'integer'],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pastikan program aktif
-        |--------------------------------------------------------------------------
-        */
         $program = ModelProgram::where('program_id', $request->program_id)->where('program_status', 1)->first();
 
         if (!$program) {
@@ -116,11 +77,6 @@ class UserKAKController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ambil kegiatan milik program
-        |--------------------------------------------------------------------------
-        */
         $kegiatans = ModelKegiatan::where('kegiatan_program', $program->program_id)
             ->where('kegiatan_status', 1)
             ->orderBy('kegiatan_kode')
@@ -129,21 +85,12 @@ class UserKAKController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data kegiatan berhasil diambil.',
             'data' => $kegiatans,
         ]);
     }
 
     /**
-     * ============================================================
      * GET SUB KEGIATAN
-     * ============================================================
-     *
-     * AJAX:
-     * Kegiatan -> Sub Kegiatan
-     *
-     * Request:
-     * kegiatan_id
      */
     public function subKegiatan(Request $request)
     {
@@ -151,11 +98,6 @@ class UserKAKController extends Controller
             'kegiatan_id' => ['required', 'integer'],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pastikan kegiatan aktif
-        |--------------------------------------------------------------------------
-        */
         $kegiatan = ModelKegiatan::where('kegiatan_id', $request->kegiatan_id)->where('kegiatan_status', 1)->first();
 
         if (!$kegiatan) {
@@ -169,11 +111,6 @@ class UserKAKController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ambil sub kegiatan
-        |--------------------------------------------------------------------------
-        */
         $subKegiatans = ModelSubKegiatan::where('sub_kegiatan_kegiatan', $kegiatan->kegiatan_id)
             ->where('sub_kegiatan_status', 1)
             ->orderBy('sub_kegiatan_kode')
@@ -182,196 +119,51 @@ class UserKAKController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data sub kegiatan berhasil diambil.',
             'data' => $subKegiatans,
         ]);
     }
 
     /**
-     * ============================================================
      * STORE
-     * ============================================================
-     *
-     * Upload KAK oleh user.
      */
     public function store(Request $request, ArinDriveService $arinDrive)
     {
-        /*
-    |--------------------------------------------------------------------------
-    | VALIDASI REQUEST
-    |--------------------------------------------------------------------------
-    */
         $request->validate([
-            /*
-        |----------------------------------------------------------------------
-        | SUB KEGIATAN
-        |----------------------------------------------------------------------
-        */
             'kak_sub_kegiatan_id' => ['required', 'integer'],
-
-            /*
-        |----------------------------------------------------------------------
-        | TAHUN
-        |----------------------------------------------------------------------
-        */
             'kak_tahun' => ['required', 'integer', 'digits:4', 'min:2000', 'max:2100'],
-
-            /*
-        |----------------------------------------------------------------------
-        | TAHAPAN KAK
-        |----------------------------------------------------------------------
-        |
-        | Contoh:
-        | - Induk
-        | - Perubahan
-        | - Pergeseran
-        |
-        */
             'kak_tahapan' => ['required', 'string', 'max:100'],
-
-            /*
-        |----------------------------------------------------------------------
-        | FILE KAK
-        |----------------------------------------------------------------------
-        |
-        | PDF maksimal 200 MB.
-        |
-        */
+            'kak_unit' => ['required', 'string', 'max:255', 'in:' . implode(',', $this->unitList())],
             'kak_file' => ['required', 'file', 'mimes:pdf', 'max:204800'],
         ]);
 
-        /*
-    |--------------------------------------------------------------------------
-    | AMBIL SUB KEGIATAN
-    |--------------------------------------------------------------------------
-    |
-    | Program dan Kegiatan tidak disimpan di tabel KAK.
-    |
-    | Program dan Kegiatan hanya digunakan di form untuk membantu user
-    | memilih Sub Kegiatan.
-    |
-    | Setelah user memilih Sub Kegiatan, yang dikirim ke server hanya:
-    |
-    | kak_sub_kegiatan_id
-    |
-    */
         $subKegiatan = ModelSubKegiatan::where('sub_kegiatan_id', $request->kak_sub_kegiatan_id)->where('sub_kegiatan_status', 1)->first();
 
-        /*
-    |--------------------------------------------------------------------------
-    | CEK SUB KEGIATAN
-    |--------------------------------------------------------------------------
-    */
         if (!$subKegiatan) {
             return back()->withInput()->with('error', 'Sub Kegiatan tidak ditemukan atau sudah tidak aktif.');
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | NORMALISASI TAHAPAN
-    |--------------------------------------------------------------------------
-    */
         $tahapan = trim($request->kak_tahapan);
 
-        /*
-    |--------------------------------------------------------------------------
-    | CEK DUPLIKAT
-    |--------------------------------------------------------------------------
-    |
-    | Satu Sub Kegiatan + Tahun + Tahapan
-    | hanya boleh mempunyai satu KAK aktif.
-    |
-    */
         $sudahAda = ModelPermintaanKAK::where('kak_sub_kegiatan_id', $subKegiatan->sub_kegiatan_id)->where('kak_tahun', $request->kak_tahun)->where('kak_tahapan', $tahapan)->where('kak_status', 1)->exists();
 
-        /*
-    |--------------------------------------------------------------------------
-    | JIKA SUDAH ADA
-    |--------------------------------------------------------------------------
-    */
         if ($sudahAda) {
             return back()->withInput()->with('error', 'KAK untuk Sub Kegiatan, tahun, dan tahapan tersebut sudah tersedia.');
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | GENERATE UID KAK
-    |--------------------------------------------------------------------------
-    */
         $kakUid = (string) Str::uuid();
 
-        /*
-    |--------------------------------------------------------------------------
-    | AMBIL FILE
-    |--------------------------------------------------------------------------
-    */
         $file = $request->file('kak_file');
 
-        /*
-    |--------------------------------------------------------------------------
-    | EXTENSION FILE
-    |--------------------------------------------------------------------------
-    */
         $extension = strtolower($file->getClientOriginalExtension());
 
-        /*
-    |--------------------------------------------------------------------------
-    | BERSIHKAN TAHAPAN UNTUK NAMA FILE
-    |--------------------------------------------------------------------------
-    |
-    | Contoh:
-    |
-    | "Perubahan APBD" menjadi:
-    |
-    | Perubahan_APBD
-    |
-    */
         $tahapanFile = preg_replace('/[^A-Za-z0-9_-]/', '_', $tahapan);
 
-        /*
-    |--------------------------------------------------------------------------
-    | BERSIHKAN KODE SUB KEGIATAN
-    |--------------------------------------------------------------------------
-    |
-    | Contoh:
-    |
-    | 5.02.01.01.0001
-    |
-    | karakter titik tetap dipertahankan.
-    |
-    */
         $subKodeFile = preg_replace('/[^A-Za-z0-9_.-]/', '_', $subKegiatan->sub_kegiatan_kode ?: $subKegiatan->sub_kegiatan_id);
 
-        /*
-    |--------------------------------------------------------------------------
-    | NAMA FILE ARINDRIVE
-    |--------------------------------------------------------------------------
-    |
-    | Contoh:
-    |
-    | KAK_2026_5.02.01.01.0001_PERUBAHAN_UUID.pdf
-    |
-    */
         $filename = 'KAK_' . $request->kak_tahun . '_' . $subKodeFile . '_' . $tahapanFile . '_' . $kakUid . '.' . $extension;
 
-        /*
-    |--------------------------------------------------------------------------
-    | FOLDER ARINDRIVE
-    |--------------------------------------------------------------------------
-    |
-    | SESUAIKAN DENGAN STRUKTUR ARINDRIVE ANDA.
-    |
-    | Untuk sementara saya pertahankan folder yang Anda gunakan
-    | sebelumnya agar tidak mengubah struktur penyimpanan yang sudah ada.
-    |
-    */
         $folder = 'kak_2026_perubahan';
 
-        /*
-    |--------------------------------------------------------------------------
-    | UPLOAD KE ARINDRIVE
-    |--------------------------------------------------------------------------
-    */
         try {
             $kakFile = $arinDrive->upload($file, $folder, $filename, $kakUid);
         } catch (Throwable $e) {
@@ -380,145 +172,174 @@ class UserKAKController extends Controller
                 ->with('error', 'Upload KAK ke ArinDrive gagal: ' . $e->getMessage());
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | USER LOGIN
-    |--------------------------------------------------------------------------
-    */
-        $createdBy = session('pegawai_id');
-
-        $createdByNama = session('pegawai_nama');
-
-        /*
-    |--------------------------------------------------------------------------
-    | SIMPAN DATABASE
-    |--------------------------------------------------------------------------
-    |
-    | PERHATIKAN:
-    |
-    | Tidak ada:
-    |
-    | - program_id
-    | - kegiatan_id
-    |
-    | Karena hubungan sudah diturunkan melalui:
-    |
-    | KAK
-    |   ↓
-    | Sub Kegiatan
-    |   ↓
-    | Kegiatan
-    |   ↓
-    | Program
-    |
-    */
         try {
             DB::beginTransaction();
 
-            $kak = ModelPermintaanKAK::create([
-                /*
-            |------------------------------------------------------------------
-            | UID
-            |------------------------------------------------------------------
-            */
+            ModelPermintaanKAK::create([
                 'kak_uid' => $kakUid,
 
-                /*
-            |------------------------------------------------------------------
-            | SUB KEGIATAN
-            |------------------------------------------------------------------
-            */
                 'kak_sub_kegiatan_id' => $subKegiatan->sub_kegiatan_id,
 
-                /*
-            |------------------------------------------------------------------
-            | TAHUN
-            |------------------------------------------------------------------
-            */
                 'kak_tahun' => $request->kak_tahun,
 
-                /*
-            |------------------------------------------------------------------
-            | KETERANGAN
-            |------------------------------------------------------------------
-            */
                 'kak_keterangan' => 'KAK',
 
-                /*
-            |------------------------------------------------------------------
-            | TAHAPAN
-            |------------------------------------------------------------------
-            */
                 'kak_tahapan' => $tahapan,
 
-                /*
-            |------------------------------------------------------------------
-            | FILE ARINDRIVE
-            |------------------------------------------------------------------
-            */
+                'kak_unit' => $request->kak_unit,
+
                 'kak_file' => $kakFile,
 
-                /*
-            |------------------------------------------------------------------
-            | STATUS
-            |------------------------------------------------------------------
-            */
                 'kak_status' => 1,
 
-                /*
-            |------------------------------------------------------------------
-            | CREATED BY
-            |------------------------------------------------------------------
-            */
-                'kak_created_by' => $createdBy,
+                'kak_created_by' => session('pegawai_id'),
 
-                'kak_created_by_nama' => $createdByNama,
+                'kak_created_by_nama' => session('pegawai_nama'),
 
-                /*
-            |------------------------------------------------------------------
-            | TIMESTAMP
-            |------------------------------------------------------------------
-            */
                 'created_at' => now(),
-
                 'updated_at' => now(),
             ]);
 
-            /*
-        |--------------------------------------------------------------------------
-        | COMMIT
-        |--------------------------------------------------------------------------
-        */
             DB::commit();
         } catch (Throwable $e) {
-            /*
-        |--------------------------------------------------------------------------
-        | ROLLBACK
-        |--------------------------------------------------------------------------
-        */
             DB::rollBack();
 
-            /*
-        |--------------------------------------------------------------------------
-        | CATATAN
-        |--------------------------------------------------------------------------
-        |
-        | File sudah terupload ke ArinDrive.
-        |
-        | Karena method delete ArinDrive belum dipastikan tersedia,
-        | file tidak dihapus otomatis di sini.
-        |
-        */
             return back()
                 ->withInput()
-                ->with('error', 'File berhasil diupload tetapi gagal menyimpan data KAK: ' . $e->getMessage());
+                ->with('error', 'Gagal menyimpan data KAK: ' . $e->getMessage());
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | SUCCESS
-    |--------------------------------------------------------------------------
-    */
         return redirect()->route('user.permintaan-kak.index')->with('success', 'KAK berhasil diupload.');
+    }
+
+    /**
+     * UPDATE
+     */
+    public function update(Request $request, $uid, ArinDriveService $arinDrive)
+    {
+        $request->validate([
+            'kak_sub_kegiatan_id' => ['required', 'integer'],
+
+            'kak_tahun' => ['required', 'integer', 'digits:4', 'min:2000', 'max:2100'],
+
+            'kak_tahapan' => ['required', 'string', 'max:100'],
+
+            'kak_unit' => ['required', 'string', 'max:255', 'in:' . implode(',', $this->unitList())],
+
+            'kak_file' => ['nullable', 'file', 'mimes:pdf', 'max:204800'],
+        ]);
+
+        $kak = ModelPermintaanKAK::where('kak_uid', $uid)->where('kak_created_by', session('pegawai_id'))->firstOrFail();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KAK NONAKTIF
+        |--------------------------------------------------------------------------
+        */
+        if ((int) $kak->kak_status !== 1) {
+            return back()->with('error', 'KAK yang sudah dinonaktifkan tidak dapat diedit.');
+        }
+
+        $subKegiatan = ModelSubKegiatan::where('sub_kegiatan_id', $request->kak_sub_kegiatan_id)->where('sub_kegiatan_status', 1)->first();
+
+        if (!$subKegiatan) {
+            return back()->withInput()->with('error', 'Sub Kegiatan tidak ditemukan atau sudah tidak aktif.');
+        }
+
+        $tahapan = trim($request->kak_tahapan);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK DUPLIKAT
+        |--------------------------------------------------------------------------
+        */
+        $duplikat = ModelPermintaanKAK::where('kak_sub_kegiatan_id', $subKegiatan->sub_kegiatan_id)->where('kak_tahun', $request->kak_tahun)->where('kak_tahapan', $tahapan)->where('kak_status', 1)->where('kak_uid', '!=', $uid)->exists();
+
+        if ($duplikat) {
+            return back()->withInput()->with('error', 'KAK untuk Sub Kegiatan, tahun, dan tahapan tersebut sudah tersedia.');
+        }
+
+        $data = [
+            'kak_sub_kegiatan_id' => $subKegiatan->sub_kegiatan_id,
+
+            'kak_tahun' => $request->kak_tahun,
+
+            'kak_tahapan' => $tahapan,
+
+            'kak_unit' => $request->kak_unit,
+
+            'updated_at' => now(),
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | JIKA FILE DIGANTI
+        |--------------------------------------------------------------------------
+        */
+        if ($request->hasFile('kak_file')) {
+            $file = $request->file('kak_file');
+
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            $tahapanFile = preg_replace('/[^A-Za-z0-9_-]/', '_', $tahapan);
+
+            $subKodeFile = preg_replace('/[^A-Za-z0-9_.-]/', '_', $subKegiatan->sub_kegiatan_kode ?: $subKegiatan->sub_kegiatan_id);
+
+            $filename = 'KAK_' . $request->kak_tahun . '_' . $subKodeFile . '_' . $tahapanFile . '_' . $kak->kak_uid . '.' . $extension;
+
+            try {
+                $kakFile = $arinDrive->upload($file, 'kak_2026_perubahan', $filename, $kak->kak_uid);
+
+                $data['kak_file'] = $kakFile;
+            } catch (Throwable $e) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Upload file KAK baru gagal: ' . $e->getMessage());
+            }
+        }
+
+        try {
+            $kak->update($data);
+        } catch (Throwable $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui KAK: ' . $e->getMessage());
+        }
+
+        return redirect()->route('user.permintaan-kak.index')->with('success', 'Data KAK berhasil diperbarui.');
+    }
+    /**
+     * ============================================================
+     * EDIT
+     * ============================================================
+     *
+     * Mengambil data KAK milik user untuk form edit.
+     */
+    public function edit($uid)
+    {
+        $kak = ModelPermintaanKAK::query()->where('kak_uid', $uid)->where('kak_created_by', session('pegawai_id'))->where('kak_status', 1)->first();
+
+        if (!$kak) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Data KAK tidak ditemukan atau bukan milik Anda.',
+                ],
+                404,
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'kak_uid' => $kak->kak_uid,
+                'kak_sub_kegiatan_id' => $kak->kak_sub_kegiatan_id,
+                'kak_tahun' => $kak->kak_tahun,
+                'kak_tahapan' => $kak->kak_tahapan,
+                'kak_file' => $kak->kak_file,
+                'kak_unit' => $kak->kak_unit,
+                'kak_catatan_admin' => $kak->kak_catatan_admin,
+            ],
+        ]);
     }
 }

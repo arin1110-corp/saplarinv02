@@ -104,7 +104,9 @@ Route::middleware(['admin'])
 
         Route::get('/permintaan/permintaan-spj', [AdminSPJRequestController::class, 'index'])->name('admin.permintaan.spj.index');
 
-    Route::get('/permintaan/permintaan-kak', [AdminKAKController::class, 'index'])->name('admin.permintaan.kak');
+    Route::get('/permintaan/permintaan-kak', [AdminKAKController::class, 'index'])->name('admin.permintaan-kak.index');
+
+    Route::post('/permintaan-kak/{id}/catatan', [AdminKAKController::class, 'catatan'])->name('admin.permintaan-kak.catatan');
 
         /*
         |--------------------------------------------------------------------------
@@ -677,4 +679,6 @@ Route::prefix('user')
 
     Route::get('/permintaan-kak', [UserKAKController::class, 'index'])->name('permintaan-kak.index');
     Route::post('/permintaan-kak/store', [UserKAKController::class, 'store'])->name('permintaan-kak.store');
+    Route::put('/permintaan-kak/{uid}', [UserKAKController::class, 'update'])->name('permintaan-kak.update');
+    Route::get('/permintaan-kak/{uid}/edit', [UserKAKController::class, 'edit'])->name('permintaan-kak.edit');
     });

@@ -514,7 +514,7 @@
                             </a>
                         @endif
                         @if ($canPermintaanKAK)
-                            <a href="{{ route('admin.permintaan.kak') }}"
+                            <a href="{{ route('admin.permintaan-kak.index') }}"
                                 class="{{ request()->routeIs('admin.permintaan.kak.*')
                                     ? 'bg-blue-50 dark:bg-slate-800 text-blue-600'
                                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}
