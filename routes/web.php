@@ -19,6 +19,7 @@ use App\Http\Controllers\AdminSPJController;
 use App\Http\Controllers\UserSPJController;
 use App\Http\Controllers\AdminSPJRequestController;
 use App\Http\Controllers\AdminLaporanSPJController;
+use App\Http\Controllers\AdminKAKController;
 use App\Http\Controllers\AdminSubKegiatanIndikatorController;
 use App\Http\Controllers\UserSubKegiatanLaporanController;
 use App\Http\Controllers\AdminLaporanSubKegiatanController;
@@ -103,7 +104,7 @@ Route::middleware(['admin'])
 
         Route::get('/permintaan/permintaan-spj', [AdminSPJRequestController::class, 'index'])->name('admin.permintaan.spj.index');
 
-        Route::get('/permintaan/permintaan-kak', [AdminController::class, 'permintaanKAK'])->name('admin.permintaan.kak');
+    Route::get('/permintaan/permintaan-kak', [AdminKAKController::class, 'index'])->name('admin.permintaan.kak');
 
         /*
         |--------------------------------------------------------------------------
