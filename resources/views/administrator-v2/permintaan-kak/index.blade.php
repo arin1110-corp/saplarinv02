@@ -778,27 +778,9 @@
             const form = document.getElementById('catatanForm');
             const textarea = document.getElementById('kak_catatan_admin');
 
-            /*
-            |--------------------------------------------------------------------------
-            | URL FORM
-            |--------------------------------------------------------------------------
-            */
-
             form.action = "{{ url('/admin/permintaan-kak') }}/" + item.kak_id + "/catatan";
 
-            /*
-            |--------------------------------------------------------------------------
-            | ISI CATATAN LAMA
-            |--------------------------------------------------------------------------
-            */
-
             textarea.value = item.kak_catatan_admin ?? '';
-
-            /*
-            |--------------------------------------------------------------------------
-            | TAMPILKAN MODAL
-            |--------------------------------------------------------------------------
-            */
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
