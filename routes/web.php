@@ -483,6 +483,7 @@ Route::middleware(['admin'])
 
 Route::prefix('user')
     ->name('user.')
+    ->middleware(['pegawai.session'])
     ->group(function () {
         /*
         |--------------------------------------------------------------------------

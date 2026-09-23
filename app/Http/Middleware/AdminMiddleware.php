@@ -8,15 +8,25 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    public function handle(
-        Request $request,
-        Closure $next
-    ): Response {
+    public function handle(Request $request, Closure $next): Response
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Cek Session Login
+        |--------------------------------------------------------------------------
+        */
 
-        if (!session('logged_in')) {
-            return redirect('/')
-                ->with('error', 'Silakan login terlebih dahulu');
+        if (!session('logged_in') || !session('pegawai_id')) {
+            session()->flush();
+
+            return redirect('/')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek Role Admin
+        |--------------------------------------------------------------------------
+        */
 
         $role = session('active_role');
 
