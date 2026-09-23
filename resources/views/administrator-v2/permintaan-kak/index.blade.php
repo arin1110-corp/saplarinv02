@@ -705,15 +705,13 @@
             </div>
 
 
-            <form method="POST" id="catatanForm">
-
+            <form method="POST" id="catatanForm" action="">
                 @csrf
 
                 <div class="p-6">
 
-                    <label
-                        class="block text-sm font-semibold
-                        text-slate-700 dark:text-slate-200 mb-2">
+                    <label class="block text-sm font-semibold
+            text-slate-700 dark:text-slate-200 mb-2">
 
                         Catatan Admin
 
@@ -721,27 +719,26 @@
 
                     <textarea name="kak_catatan_admin" id="kak_catatan_admin" rows="5" placeholder="Tulis catatan admin..."
                         class="w-full rounded-2xl
-                        border border-slate-300 dark:border-slate-700
-                        bg-white dark:bg-slate-950
-                        text-slate-800 dark:text-white
-                        px-4 py-3
-                        focus:outline-none
-                        focus:ring-2 focus:ring-blue-500"></textarea>
+            border border-slate-300 dark:border-slate-700
+            bg-white dark:bg-slate-950
+            text-slate-800 dark:text-white
+            px-4 py-3
+            focus:outline-none
+            focus:ring-2 focus:ring-blue-500"></textarea>
 
                 </div>
 
-
                 <div
                     class="flex justify-end gap-3
-                    px-6 py-5
-                    border-t border-slate-200 dark:border-slate-800">
+        px-6 py-5
+        border-t border-slate-200 dark:border-slate-800">
 
                     <button type="button" onclick="closeCatatanModal()"
                         class="rounded-xl
-                        border border-slate-300 dark:border-slate-700
-                        px-4 py-2.5
-                        text-sm font-semibold
-                        text-slate-600 dark:text-slate-300">
+            border border-slate-300 dark:border-slate-700
+            px-4 py-2.5
+            text-sm font-semibold
+            text-slate-600 dark:text-slate-300">
 
                         Batal
 
@@ -749,11 +746,11 @@
 
                     <button type="submit"
                         class="inline-flex items-center gap-2
-                        rounded-xl
-                        bg-blue-600 hover:bg-blue-700
-                        text-white
-                        px-5 py-2.5
-                        text-sm font-semibold">
+            rounded-xl
+            bg-blue-600 hover:bg-blue-700
+            text-white
+            px-5 py-2.5
+            text-sm font-semibold">
 
                         <i class="bi bi-save"></i>
 
@@ -778,26 +775,33 @@
         function openCatatanModal(item) {
 
             const modal = document.getElementById('catatanModal');
-
             const form = document.getElementById('catatanForm');
-
             const textarea = document.getElementById('kak_catatan_admin');
 
             /*
-             * Sesuaikan route ini dengan route AdminKAKController.
-             *
-             * Contoh:
-             * admin.permintaan-kak.catatan
-             */
+            |--------------------------------------------------------------------------
+            | URL FORM
+            |--------------------------------------------------------------------------
+            */
 
-            form.action = `/admin/permintaan-kak/${item.kak_id}/catatan`;
+            form.action = "{{ url('/admin/permintaan-kak') }}/" + item.kak_id + "/catatan";
+
+            /*
+            |--------------------------------------------------------------------------
+            | ISI CATATAN LAMA
+            |--------------------------------------------------------------------------
+            */
 
             textarea.value = item.kak_catatan_admin ?? '';
 
+            /*
+            |--------------------------------------------------------------------------
+            | TAMPILKAN MODAL
+            |--------------------------------------------------------------------------
+            */
+
             modal.classList.remove('hidden');
-
             modal.classList.add('flex');
-
         }
 
 
