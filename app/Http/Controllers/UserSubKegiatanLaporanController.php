@@ -188,12 +188,7 @@ class UserSubKegiatanLaporanController extends Controller
     }
     public function edit($uid)
     {
-        $laporan = SubKegiatanLaporan::with([
-            'detail',
-            'permasalahan',
-            'solusi',
-            'tindakLanjut'
-        ])
+        $laporan = SubKegiatanLaporan::with(['detail', 'permasalahan', 'solusi', 'tindakLanjut'])
             ->where('laporan_uid', $uid)
             ->firstOrFail();
 
@@ -201,41 +196,70 @@ class UserSubKegiatanLaporanController extends Controller
             abort(403);
         }
 
-        return view(
-            'user.laporan-sub-kegiatan.edit',
-            compact('laporan')
-        );
+        return view('user.laporan-sub-kegiatan.edit', compact('laporan'));
     }
     public function update(Request $request, $uid)
     {
-        $laporan = SubKegiatanLaporan::with([
-            'detail',
-            'permasalahan',
-            'solusi',
-            'tindakLanjut'
-        ])
+        $request->validate([
+            'laporan_bulan' => 'required|integer|min:1|max:12',
+
+            'realisasi' => 'required|array|min:1',
+            'realisasi.*' => 'required|numeric|min:0',
+
+            'permasalahan' => 'nullable|array',
+            'solusi' => 'nullable|array',
+            'tindak_lanjut' => 'nullable|array',
+        ]);
+
+        $laporan = SubKegiatanLaporan::with(['detail', 'permasalahan', 'solusi', 'tindakLanjut'])
             ->where('laporan_uid', $uid)
             ->firstOrFail();
 
+        // Pastikan hanya pembuat laporan yang boleh edit
         if ($laporan->laporan_created_by != session('pegawai_id')) {
             abort(403);
         }
 
+        // Cek apakah bulan baru sudah dipakai laporan lain
+        $sudahAda = SubKegiatanLaporan::where('laporan_id', '!=', $laporan->laporan_id)->where('laporan_unit_kode', $laporan->laporan_unit_kode)->where('laporan_sub_kegiatan_id', $laporan->laporan_sub_kegiatan_id)->where('laporan_bulan', $request->laporan_bulan)->where('laporan_tahun', $laporan->laporan_tahun)->exists();
+
+        if ($sudahAda) {
+            return back()->withInput()->with('error', 'Laporan untuk unit, sub kegiatan, bulan, dan tahun tersebut sudah ada.');
+        }
+
         DB::transaction(function () use ($request, $laporan) {
+            /*
+        |--------------------------------------------------------------------------
+        | Update bulan saja
+        |--------------------------------------------------------------------------
+        */
+
+            $laporan->update([
+                'laporan_bulan' => $request->laporan_bulan,
+            ]);
+
+            /*
+        |--------------------------------------------------------------------------
+        | Update realisasi indikator
+        |--------------------------------------------------------------------------
+        */
 
             foreach ($request->realisasi as $detailId => $nilai) {
-
-                SubKegiatanLaporanDetail::where(
-                    'detail_id',
-                    $detailId
-                )->update([
+                SubKegiatanLaporanDetail::where('detail_id', $detailId)->update([
                     'detail_realisasi' => $nilai,
                 ]);
             }
 
+            /*
+        |--------------------------------------------------------------------------
+        | Update permasalahan
+        |--------------------------------------------------------------------------
+        */
+
             $laporan->permasalahan()->delete();
+
             foreach ($request->permasalahan ?? [] as $item) {
-                if ($item) {
+                if (trim($item) !== '') {
                     SubKegiatanPermasalahan::create([
                         'permasalahan_laporan_id' => $laporan->laporan_id,
                         'permasalahan_uraian' => $item,
@@ -243,9 +267,16 @@ class UserSubKegiatanLaporanController extends Controller
                 }
             }
 
+            /*
+        |--------------------------------------------------------------------------
+        | Update solusi
+        |--------------------------------------------------------------------------
+        */
+
             $laporan->solusi()->delete();
+
             foreach ($request->solusi ?? [] as $item) {
-                if ($item) {
+                if (trim($item) !== '') {
                     SubKegiatanSolusi::create([
                         'solusi_laporan_id' => $laporan->laporan_id,
                         'solusi_uraian' => $item,
@@ -253,9 +284,16 @@ class UserSubKegiatanLaporanController extends Controller
                 }
             }
 
+            /*
+        |--------------------------------------------------------------------------
+        | Update tindak lanjut
+        |--------------------------------------------------------------------------
+        */
+
             $laporan->tindakLanjut()->delete();
+
             foreach ($request->tindak_lanjut ?? [] as $item) {
-                if ($item) {
+                if (trim($item) !== '') {
                     SubKegiatanTindakLanjut::create([
                         'tindak_lanjut_laporan_id' => $laporan->laporan_id,
                         'tindak_lanjut_uraian' => $item,
@@ -264,11 +302,6 @@ class UserSubKegiatanLaporanController extends Controller
             }
         });
 
-        return redirect()
-            ->route('user.laporan-sub-kegiatan.index')
-            ->with(
-                'success',
-                'Laporan berhasil diperbarui.'
-            );
+        return redirect()->route('user.laporan-sub-kegiatan.index')->with('success', 'Laporan berhasil diperbarui.');
     }
 }
