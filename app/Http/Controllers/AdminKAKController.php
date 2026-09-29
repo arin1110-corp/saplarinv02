@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ModelPermintaanKAK;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Services\KAKEmailService;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class AdminKAKController extends Controller
@@ -15,11 +13,15 @@ class AdminKAKController extends Controller
      * ============================================================
      * INDEX
      * ============================================================
-     *
-     * Menampilkan seluruh Permintaan KAK.
      */
     public function index(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | QUERY UTAMA
+        |--------------------------------------------------------------------------
+        */
+
         $query = ModelPermintaanKAK::query()
 
             ->join('saplarin_sub_kegiatan', 'saplarin_permintaan_kak.kak_sub_kegiatan_id', '=', 'saplarin_sub_kegiatan.sub_kegiatan_id')
@@ -34,9 +36,11 @@ class AdminKAKController extends Controller
                 'saplarin_sub_kegiatan.sub_kegiatan_kode',
                 'saplarin_sub_kegiatan.sub_kegiatan_nama',
 
+            'saplarin_kegiatan.kegiatan_id',
                 'saplarin_kegiatan.kegiatan_kode',
                 'saplarin_kegiatan.kegiatan_nama',
 
+            'saplarin_program.program_id',
                 'saplarin_program.program_kode',
                 'saplarin_program.program_nama',
             );
@@ -55,7 +59,11 @@ class AdminKAKController extends Controller
 
                     ->orWhere('saplarin_permintaan_kak.kak_created_by_nama', 'like', "%{$search}%")
 
+                    ->orWhere('saplarin_permintaan_kak.kak_created_by', 'like', "%{$search}%")
+
                     ->orWhere('saplarin_permintaan_kak.kak_tahapan', 'like', "%{$search}%")
+
+                    ->orWhere('saplarin_permintaan_kak.kak_tahun', 'like', "%{$search}%")
 
                     ->orWhere('saplarin_sub_kegiatan.sub_kegiatan_nama', 'like', "%{$search}%")
 
@@ -63,11 +71,122 @@ class AdminKAKController extends Controller
 
                     ->orWhere('saplarin_kegiatan.kegiatan_nama', 'like', "%{$search}%")
 
+                    ->orWhere('saplarin_kegiatan.kegiatan_kode', 'like', "%{$search}%")
+
                     ->orWhere('saplarin_program.program_nama', 'like', "%{$search}%")
 
-                    ->orWhere('saplarin_permintaan_kak.kak_tahun', 'like', "%{$search}%");
+                    ->orWhere('saplarin_program.program_kode', 'like', "%{$search}%");
             });
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER TAHUN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('tahun')) {
+            $query->where('saplarin_permintaan_kak.kak_tahun', $request->tahun);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER UNIT
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('unit')) {
+            $query->where('saplarin_permintaan_kak.kak_unit', $request->unit);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER TAHAPAN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('tahapan')) {
+            $query->where('saplarin_permintaan_kak.kak_tahapan', $request->tahapan);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('status')) {
+            $query->where('saplarin_permintaan_kak.kak_status', (int) $request->status);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER PROGRAM
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('program')) {
+            $query->where('saplarin_program.program_id', $request->program);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER KEGIATAN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('kegiatan')) {
+            $query->where('saplarin_kegiatan.kegiatan_id', $request->kegiatan);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER SUB KEGIATAN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('sub_kegiatan')) {
+            $query->where('saplarin_sub_kegiatan.sub_kegiatan_id', $request->sub_kegiatan);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA FILTER
+        |--------------------------------------------------------------------------
+        */
+
+        $tahunOptions = ModelPermintaanKAK::query()
+
+            ->select('kak_tahun')
+            ->whereNotNull('kak_tahun')
+            ->where('kak_tahun', '!=', '')
+            ->distinct()
+            ->orderByDesc('kak_tahun')
+            ->pluck('kak_tahun');
+
+        $unitOptions = ModelPermintaanKAK::query()
+
+            ->select('kak_unit')
+            ->whereNotNull('kak_unit')
+            ->where('kak_unit', '!=', '')
+            ->distinct()
+            ->orderBy('kak_unit')
+            ->pluck('kak_unit');
+
+        $tahapanOptions = ModelPermintaanKAK::query()
+
+            ->select('kak_tahapan')
+            ->whereNotNull('kak_tahapan')
+            ->where('kak_tahapan', '!=', '')
+            ->distinct()
+            ->orderBy('kak_tahapan')
+            ->pluck('kak_tahapan');
+
+        $programOptions = \DB::table('saplarin_program')->select('program_id', 'program_kode', 'program_nama')->orderBy('program_kode')->get();
+
+        $kegiatanOptions = \DB::table('saplarin_kegiatan')->select('kegiatan_id', 'kegiatan_kode', 'kegiatan_nama')->orderBy('kegiatan_kode')->get();
+
+        $subKegiatanOptions = \DB::table('saplarin_sub_kegiatan')->select('sub_kegiatan_id', 'sub_kegiatan_kode', 'sub_kegiatan_nama')->orderBy('sub_kegiatan_kode')->get();
 
         /*
         |--------------------------------------------------------------------------
@@ -89,37 +208,23 @@ class AdminKAKController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return view('administrator-v2.permintaan-kak.index', compact('kaks'));
+        return view('administrator-v2.permintaan-kak.index', compact('kaks', 'tahunOptions', 'unitOptions', 'tahapanOptions', 'programOptions', 'kegiatanOptions', 'subKegiatanOptions'));
     }
 
     /**
      * ============================================================
      * TOGGLE STATUS
      * ============================================================
-     *
-     * Mengaktifkan / menonaktifkan KAK.
      */
     public function toggleStatus($id)
     {
         $kak = ModelPermintaanKAK::findOrFail($id);
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOGGLE
-        |--------------------------------------------------------------------------
-        */
 
         $kak->kak_status = (int) $kak->kak_status === 1 ? 0 : 1;
 
         $kak->updated_at = now();
 
         $kak->save();
-
-        /*
-        |--------------------------------------------------------------------------
-        | PESAN
-        |--------------------------------------------------------------------------
-        */
 
         $message = (int) $kak->kak_status === 1 ? 'Permintaan KAK berhasil diaktifkan.' : 'Permintaan KAK berhasil dinonaktifkan.';
 
@@ -130,11 +235,6 @@ class AdminKAKController extends Controller
      * ============================================================
      * CATATAN ADMIN
      * ============================================================
-     *
-     * Menyimpan catatan admin dan mengirimkan email
-     * kepada user yang mengajukan KAK.
-     *
-     * kak_created_by = user_id SAMPERIN
      */
     public function catatan(Request $request, $id, KAKEmailService $emailService)
     {
@@ -145,30 +245,22 @@ class AdminKAKController extends Controller
         $kak = ModelPermintaanKAK::findOrFail($id);
 
         /*
-    |--------------------------------------------------------------------------
-    | SIMPAN CATATAN
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | SIMPAN CATATAN
+        |--------------------------------------------------------------------------
+        */
 
         $kak->kak_catatan_admin = $request->kak_catatan_admin;
+
         $kak->updated_at = now();
+
         $kak->save();
 
         /*
-    |--------------------------------------------------------------------------
-    | KIRIM EMAIL KE USER SAMPERIN
-    |--------------------------------------------------------------------------
-    |
-    | KAK tidak menyimpan email.
-    | Email dicari berdasarkan:
-    |
-    | kak_created_by
-    |       ↓
-    | samperin_user.user_id
-    |       ↓
-    | samperin_user.user_email
-    |
-    */
+        |--------------------------------------------------------------------------
+        | KIRIM EMAIL
+        |--------------------------------------------------------------------------
+        */
 
         try {
             $emailService->kirimKePengaju($kak);
