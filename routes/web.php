@@ -287,7 +287,9 @@ Route::middleware(['admin'])
         Route::post('/shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.shs.aktif');
 
         Route::post('/shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.shs.nonaktif');
-        Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan-shs.index');
+
+
+    Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan-shs.index');
 
         Route::get('/laporan-shs/export', [AdminLaporanSHSController::class, 'export'])->name('admin.laporan-shs.export');
 

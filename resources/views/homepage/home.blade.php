@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    @if (app()->environment('development'))
+    <title>SAPLARIN - Development</title>
+    @endif
+    @if (app()->environment('production'))
     <title>SAPLARIN</title>
+    @endif
 
     <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link rel="icon" href="{{ asset('image/logo-saplarin.png') }}" type="image/png">
@@ -40,7 +46,7 @@
 
                 <div>
                     <img src="{{ asset('image/logo-saplarin-samping.png') }}" alt="Logo" class="w-200 mb-4">
-                    
+
 
                     <div class="w-24 h-1 bg-yellow-400 rounded-full mb-5"></div>
 

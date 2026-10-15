@@ -12,34 +12,58 @@ class AdminLaporanSHSController extends Controller
     /**
      * Menampilkan halaman laporan SHS
      */
+
     public function index(Request $request)
     {
-        $search = trim($request->search);
+        $search = trim((string) $request->input('search', ''));
+        $tahun = $request->input('tahun');
+        $unit = $request->input('unit');
+        $status = $request->input('status');
 
-        $shs = ModelSHS::query()
-
-            ->when($search, function ($q) use ($search) {
+        $query = ModelSHS::query()
+            ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($query) use ($search) {
-                    $query
-                        ->where('shs_unit_nama', 'like', "%{$search}%")
-                        ->orWhere('shs_barang', 'like', "%{$search}%")
-                        ->orWhere('shs_satuan', 'like', "%{$search}%")
-                        ->orWhere('shs_kelompok_barang', 'like', "%{$search}%")
-                        ->orWhere('shs_operator_nama', 'like', "%{$search}%")
-                        ->orWhere('shs_operator_nip', 'like', "%{$search}%")
-                        ->orWhere('shs_status', 'like', "%{$search}%")
-                        ->orWhere('shs_harga', 'like', "%{$search}%");
-                });
-            })
+                $query->where('shs_unit_nama', 'like', "%{$search}%")
+                    ->orWhere('shs_barang', 'like', "%{$search}%")
+                    ->orWhere('shs_satuan', 'like', "%{$search}%")
+                    ->orWhere('shs_kelompok_barang', 'like', "%{$search}%")
+                    ->orWhere('shs_operator_nama', 'like', "%{$search}%")
+                    ->orWhere('shs_operator_nip', 'like', "%{$search}%")
+                    ->orWhere('shs_status', 'like', "%{$search}%")
+                    ->orWhere('shs_harga', 'like', "%{$search}%");
+            });
+        })
+            ->when($tahun, fn($q) => $q->where('shs_tahun', $tahun))
+            ->when($unit, fn($q) => $q->where('shs_unit_nama', $unit))
+            ->when($status, fn($q) => $q->where('shs_status', $status));
 
+        $shs = (clone $query)
+            ->with('referensiHarga')
             ->latest()
-
             ->paginate(10)
-
             ->withQueryString();
 
-        return view('administrator-v2.laporan-shs.index', compact('shs'));
+        $tahunOptions = ModelSHS::query()
+            ->whereNotNull('shs_tahun')
+            ->where('shs_tahun', '!=', '')
+            ->distinct()
+            ->orderByDesc('shs_tahun')
+            ->pluck('shs_tahun');
+
+        $unitOptions = ModelSHS::query()
+            ->whereNotNull('shs_unit_nama')
+            ->where('shs_unit_nama', '!=', '')
+            ->distinct()
+            ->orderBy('shs_unit_nama')
+            ->pluck('shs_unit_nama');
+
+        return view('administrator-v2.laporan-shs.index', compact(
+            'shs',
+            'tahunOptions',
+            'unitOptions'
+        ));
     }
+
 
     /**
      * Menampilkan detail SHS
