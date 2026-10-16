@@ -5,7 +5,6 @@
 @section('page-description', 'Verifikasi usulan Standar Harga Satuan')
 
 @section('content')
-
     {{-- ALERT --}}
     @if (session('success'))
         <div
@@ -94,6 +93,7 @@
                 <option value="">Semua Status</option>
                 <option value="Diajukan" @selected(request('status') === 'Diajukan')>Diajukan</option>
                 <option value="Diverifikasi" @selected(request('status') === 'Diverifikasi')>Diverifikasi</option>
+                <option value="Diajukan ke BPKAD" @selected(request('status') === 'Diajukan ke BPKAD')>Diajukan ke BPKAD</option>
                 <option value="Tidak Diajukan" @selected(request('status') === 'Tidak Diajukan')>Tidak Diajukan</option>
             </select>
 
@@ -131,7 +131,6 @@
                         <th class="px-4 py-4 text-left whitespace-nowrap">Survey</th>
                         <th class="px-4 py-4 text-left whitespace-nowrap">Operator</th>
                         <th class="px-4 py-4 text-left whitespace-nowrap">Status SHS</th>
-                        <th class="px-4 py-4 text-left whitespace-nowrap">Status BPKAD</th>
                     </tr>
                 </thead>
 
@@ -140,23 +139,21 @@
                         @php
                             $referensiCount = $item->referensiHarga ? $item->referensiHarga->count() : 0;
 
-                            // Membaca kolom jika sudah ditambahkan di database.
-                            $statusBpkad = $item->shs_status_bpkad ?? null;
+                            $status = $item->shs_status ?? '';
                         @endphp
 
                         <tr
                             class="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-
+                            {{-- AKSI --}}
                             <td class="px-4 py-4 min-w-[190px]">
                                 <div class="flex flex-col items-start gap-2">
-
                                     <button type="button" onclick='detailSHS(@json($item->loadMissing('referensiHarga')))'
                                         class="inline-flex items-center gap-2 rounded-lg bg-slate-700 hover:bg-slate-800 px-3 py-2 text-xs font-medium text-white">
                                         <i class="bi bi-eye"></i>
                                         Detail
                                     </button>
 
-                                    @if ($item->shs_status === 'Diajukan')
+                                    @if ($status === 'Diajukan')
                                         <button type="button" onclick='verifikasiSHS(@json($item))'
                                             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-medium text-white">
                                             <i class="bi bi-check-circle"></i>
@@ -172,9 +169,9 @@
                                                 Tidak Diajukan
                                             </button>
                                         </form>
-                                    @elseif ($item->shs_status === 'Tidak Diajukan')
+                                    @elseif ($status === 'Tidak Diajukan')
                                         <form method="POST"
-                                            action="{{ route('admin.laporan.shs.aktif', $item->shs_uid) }}">
+                                            action="{{ route('admin.laporan-shs.aktif', $item->shs_uid) }}">
                                             @csrf
                                             <button type="submit"
                                                 class="inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-700 px-3 py-2 text-xs text-white"
@@ -185,36 +182,45 @@
                                         </form>
                                     @endif
 
-                                    {{-- Fungsi BPKAD memerlukan route dan kolom database yang disiapkan. --}}
-                                    @if ($item->shs_status === 'Diverifikasi' && $statusBpkad !== 'Diajukan ke BPKAD')
+                                    @if ($status === 'Diverifikasi')
                                         <button type="button"
-                                            onclick="konfirmasiBPKAD('{{ $item->shs_uid }}', '{{ addslashes($item->shs_barang) }}')"
+                                            onclick='konfirmasiBPKAD(@json($item->shs_uid), @json($item->shs_barang))'
                                             class="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-2 text-xs font-semibold text-white">
                                             <i class="bi bi-send-check"></i>
-                                            Diajukan ke BPKAD
+                                            Ajukan ke BPKAD
                                         </button>
                                     @endif
                                 </div>
                             </td>
 
+                            {{-- NOMOR --}}
                             <td class="px-4 py-4 whitespace-nowrap">
                                 {{ method_exists($shs, 'firstItem') && $shs->firstItem() ? $shs->firstItem() + $loop->index : $loop->iteration }}
                             </td>
 
+                            {{-- TAHUN --}}
                             <td class="px-4 py-4 whitespace-nowrap font-medium text-slate-700 dark:text-slate-200">
                                 {{ $item->shs_tahun }}
                             </td>
 
+                            {{-- UNIT --}}
                             <td class="px-4 py-4 min-w-[170px]">
-                                <div class="font-medium text-slate-800 dark:text-white">{{ $item->shs_unit_nama }}</div>
+                                <div class="font-medium text-slate-800 dark:text-white">
+                                    {{ $item->shs_unit_nama }}
+                                </div>
                                 @if ($item->shs_unit_kode)
-                                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $item->shs_unit_kode }}
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        {{ $item->shs_unit_kode }}
                                     </div>
                                 @endif
                             </td>
 
+                            {{-- BARANG --}}
                             <td class="px-4 py-4 min-w-[220px]">
-                                <div class="font-semibold text-slate-800 dark:text-white">{{ $item->shs_barang }}</div>
+                                <div class="font-semibold text-slate-800 dark:text-white">
+                                    {{ $item->shs_barang }}
+                                </div>
+
                                 @if ($item->shs_merek || $item->shs_tipe)
                                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                         {{ $item->shs_merek }}
@@ -226,14 +232,22 @@
                                 @endif
                             </td>
 
-                            <td class="px-4 py-4 whitespace-nowrap">{{ $item->shs_kode_kelompok }}</td>
+                            {{-- KODE KELOMPOK --}}
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                {{ $item->shs_kode_kelompok }}
+                            </td>
 
-                            <td class="px-4 py-4 min-w-[180px]">{{ $item->shs_kelompok_barang }}</td>
+                            {{-- KELOMPOK --}}
+                            <td class="px-4 py-4 min-w-[180px]">
+                                {{ $item->shs_kelompok_barang }}
+                            </td>
 
+                            {{-- HARGA --}}
                             <td class="px-4 py-4 font-semibold whitespace-nowrap">
                                 Rp {{ number_format((float) $item->shs_harga, 0, ',', '.') }}
                             </td>
 
+                            {{-- SURVEY --}}
                             <td class="px-4 py-4 whitespace-nowrap">
                                 @if ($referensiCount > 0)
                                     <button type="button" onclick='detailSHS(@json($item->loadMissing('referensiHarga')))'
@@ -246,48 +260,58 @@
                                 @endif
                             </td>
 
+                            {{-- OPERATOR --}}
                             <td class="px-4 py-4 min-w-[170px]">
-                                <div class="font-semibold text-slate-800 dark:text-white">{{ $item->shs_operator_nama }}
+                                <div class="font-semibold text-slate-800 dark:text-white">
+                                    {{ $item->shs_operator_nama }}
                                 </div>
                                 @if ($item->shs_operator_nip)
                                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                        {{ $item->shs_operator_nip }}</div>
+                                        {{ $item->shs_operator_nip }}
+                                    </div>
                                 @endif
                             </td>
 
+                            {{-- STATUS SHS --}}
                             <td class="px-4 py-4 whitespace-nowrap">
-                                @if ($item->shs_status === 'Diajukan')
+                                @if ($status === 'Diajukan')
                                     <span
-                                        class="inline-flex rounded-full bg-green-100 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">Diajukan</span>
-                                @elseif ($item->shs_status === 'Diverifikasi')
+                                        class="inline-flex rounded-full bg-green-100 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
+                                        Diajukan
+                                    </span>
+                                @elseif ($status === 'Diverifikasi')
                                     <span
-                                        class="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/20 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">Diverifikasi</span>
-                                @else
-                                    <span
-                                        class="inline-flex rounded-full bg-red-100 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">Tidak
-                                        Diajukan</span>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                @if ($statusBpkad === 'Diajukan ke BPKAD')
+                                        class="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/20 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
+                                        Diverifikasi
+                                    </span>
+                                @elseif ($status === 'Diajukan ke BPKAD')
                                     <span
                                         class="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/20 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
                                         <i class="bi bi-check-circle-fill"></i>
                                         Diajukan ke BPKAD
                                     </span>
+                                @elseif ($status === 'Tidak Diajukan')
+                                    <span
+                                        class="inline-flex rounded-full bg-red-100 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
+                                        Tidak Diajukan
+                                    </span>
                                 @else
-                                    <span class="text-xs text-slate-400">Belum diajukan</span>
+                                    <span
+                                        class="inline-flex rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                        {{ $status ?: 'Belum ada status' }}
+                                    </span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="12" class="px-6 py-16 text-center">
+                            <td colspan="11" class="px-6 py-16 text-center">
                                 <i class="bi bi-inbox text-5xl text-slate-300 dark:text-slate-700 mb-4 block"></i>
-                                <div class="font-semibold text-slate-700 dark:text-slate-300">Data SHS tidak ditemukan
+                                <div class="font-semibold text-slate-700 dark:text-slate-300">
+                                    Data SHS tidak ditemukan
                                 </div>
-                                <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">Coba ubah filter pencarian.
+                                <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    Coba ubah filter pencarian.
                                 </div>
                             </td>
                         </tr>
@@ -375,7 +399,9 @@
 
             <div class="border-t border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-end">
                 <button type="button" onclick="closeDetail()"
-                    class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">Tutup</button>
+                    class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                    Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -416,9 +442,12 @@
                             placeholder="Masukkan catatan verifikasi jika diperlukan..."></textarea>
                     </div>
                 </div>
+
                 <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
                     <button type="button" onclick="closeVerifikasi()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">Batal</button>
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        Batal
+                    </button>
                     <button type="submit"
                         class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 font-semibold text-white">
                         <i class="bi bi-check-circle me-2"></i>Verifikasi
@@ -443,15 +472,18 @@
             </div>
 
             <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">
-                Kamu akan menandai usulan berikut sebagai sudah diajukan ke BPKAD:
+                Status usulan berikut akan diubah menjadi <strong>Diajukan ke BPKAD</strong>:
             </p>
+
             <div id="bpkadBarang" class="rounded-xl bg-slate-100 dark:bg-slate-800 p-4 mb-6 font-semibold"></div>
 
             <form id="formBPKAD" method="POST">
                 @csrf
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closeBPKAD()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">Batal</button>
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        Batal
+                    </button>
                     <button type="submit"
                         class="rounded-xl bg-amber-500 hover:bg-amber-600 px-5 py-2.5 text-white font-semibold">
                         <i class="bi bi-send-check me-2"></i>Ya, Ajukan
@@ -488,11 +520,13 @@
                             class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
                             <option value="">Semua Tahun</option>
                             @foreach ($tahunOptions ?? collect() as $tahun)
-                                <option value="{{ $tahun }}" @selected(request('tahun') == $tahun)>{{ $tahun }}
+                                <option value="{{ $tahun }}" @selected(request('tahun') == $tahun)>
+                                    {{ $tahun }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
+
                     <div>
                         <label class="block mb-2 text-sm font-semibold">Status SHS</label>
                         <select name="status"
@@ -500,6 +534,7 @@
                             <option value="">Semua Status</option>
                             <option value="Diajukan" @selected(request('status') === 'Diajukan')>Diajukan</option>
                             <option value="Diverifikasi" @selected(request('status') === 'Diverifikasi')>Diverifikasi</option>
+                            <option value="Diajukan ke BPKAD" @selected(request('status') === 'Diajukan ke BPKAD')>Diajukan ke BPKAD</option>
                             <option value="Tidak Diajukan" @selected(request('status') === 'Tidak Diajukan')>Tidak Diajukan</option>
                         </select>
                     </div>
@@ -507,7 +542,9 @@
 
                 <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
                     <button type="button" onclick="closeExportModal()"
-                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">Batal</button>
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5">
+                        Batal
+                    </button>
                     <button type="submit"
                         class="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-white font-semibold">
                         <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
@@ -516,7 +553,6 @@
             </form>
         </div>
     </div>
-
 @endsection
 
 @push('scripts')
@@ -524,6 +560,7 @@
         function showModal(id) {
             const modal = document.getElementById(id);
             if (!modal) return;
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.classList.add('overflow-hidden');
@@ -532,6 +569,7 @@
         function hideModal(id) {
             const modal = document.getElementById(id);
             if (!modal) return;
+
             modal.classList.add('hidden');
             modal.classList.remove('flex');
 
@@ -541,27 +579,34 @@
         }
 
         function formatRupiah(value) {
-            if (value === null || value === undefined || value === '') return 'Rp 0';
+            if (value === null || value === undefined || value === '') {
+                return 'Rp 0';
+            }
 
             let number;
+
             if (typeof value === 'number') {
                 number = value;
             } else {
                 let text = String(value).replace(/Rp/gi, '').trim();
+
                 if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(text)) {
                     text = text.replace(/\./g, '').replace(',', '.');
                 } else {
                     text = text.replace(/,/g, '');
                 }
+
                 number = Number(text);
             }
 
             if (Number.isNaN(number)) return 'Rp 0';
+
             return 'Rp ' + Math.round(number).toLocaleString('id-ID');
         }
 
         function escapeHtml(value) {
             if (value === null || value === undefined) return '';
+
             return String(value)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -572,8 +617,11 @@
 
         function normalizeLink(value) {
             if (!value) return '';
+
             const link = String(value).trim();
+
             if (!/^https?:\/\//i.test(link)) return '';
+
             return link;
         }
 
@@ -590,7 +638,8 @@
                 d_tipe: item.shs_tipe ?? '-',
                 d_satuan: item.shs_satuan ?? '-',
                 d_tkdn: item.shs_tkdn !== null && item.shs_tkdn !== undefined && item.shs_tkdn !== '' ?
-                    item.shs_tkdn + ' %' : '-',
+                    item.shs_tkdn + ' %' :
+                    '-',
                 d_harga: formatRupiah(item.shs_harga),
                 d_dasar_usulan: item.shs_dasar_usulan ?? '-',
                 d_spesifikasi: item.shs_spesifikasi ?? '-',
@@ -607,13 +656,16 @@
 
             const container = document.getElementById('d_referensi');
             const surveyCount = document.getElementById('d_survey_count');
+
             if (!container) return;
 
             const referensi = Array.isArray(item.referensi_harga) ?
                 item.referensi_harga.slice(0, 3) :
                 (Array.isArray(item.referensiHarga) ? item.referensiHarga.slice(0, 3) : []);
 
-            if (surveyCount) surveyCount.textContent = referensi.length + ' Survey';
+            if (surveyCount) {
+                surveyCount.textContent = referensi.length + ' Survey';
+            }
 
             let html = '';
 
@@ -623,10 +675,10 @@
 
                 if (!ref) {
                     html += `
-                    <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
-                        <div class="font-bold text-slate-500">Survey ${nomor}</div>
-                        <div class="text-sm text-slate-400 mt-2">Belum ada referensi harga.</div>
-                    </div>`;
+                        <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
+                            <div class="font-bold text-slate-500">Survey ${nomor}</div>
+                            <div class="text-sm text-slate-400 mt-2">Belum ada referensi harga.</div>
+                        </div>`;
                     continue;
                 }
 
@@ -635,18 +687,18 @@
                 const safeLink = escapeHtml(link);
 
                 html += `
-                <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div class="px-5 py-4 bg-slate-100 dark:bg-slate-800 font-bold">Survey ${nomor}</div>
-                    <div class="p-5 space-y-3">
-                        <div class="text-xs uppercase text-slate-500">Harga</div>
-                        <div class="text-xl font-bold text-slate-800 dark:text-white">${formatRupiah(harga)}</div>
-                        <div class="text-xs uppercase text-slate-500">Link Survey</div>
-                        ${safeLink
-                            ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline break-all">Buka Link Survey</a>`
-                            : `<div class="text-sm text-slate-400">Tidak ada link survey</div>`
-                        }
-                    </div>
-                </div>`;
+                    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div class="px-5 py-4 bg-slate-100 dark:bg-slate-800 font-bold">Survey ${nomor}</div>
+                        <div class="p-5 space-y-3">
+                            <div class="text-xs uppercase text-slate-500">Harga</div>
+                            <div class="text-xl font-bold text-slate-800 dark:text-white">${formatRupiah(harga)}</div>
+                            <div class="text-xs uppercase text-slate-500">Link Survey</div>
+                            ${safeLink
+                                ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline break-all">Buka Link Survey</a>`
+                                : `<div class="text-sm text-slate-400">Tidak ada link survey</div>`
+                            }
+                        </div>
+                    </div>`;
             }
 
             container.innerHTML = html;
@@ -667,13 +719,11 @@
             if (barang) barang.value = item.shs_barang ?? '';
             if (harga) harga.value = formatRupiah(item.shs_harga);
 
-
             if (form) {
                 form.action = @json(url('/admin/laporan-shs')) +
                     '/' + encodeURIComponent(item.shs_uid) +
                     '/verifikasi';
             }
-
 
             showModal('modalVerifikasi');
         }
@@ -681,6 +731,7 @@
         function closeVerifikasi() {
             const form = document.getElementById('formVerifikasi');
             if (form) form.reset();
+
             hideModal('modalVerifikasi');
         }
 
@@ -689,11 +740,13 @@
             const label = document.getElementById('bpkadBarang');
 
             if (form) {
-                // Sesuaikan jika URI route BPKAD berbeda.
-                form.action = @json(url('/administrator/laporan/shs/bpkad')) + '/' + encodeURIComponent(uid);
+                form.action = @json(url('/admin/laporan-shs')) +
+                    '/' + encodeURIComponent(uid) +
+                    '/bpkad';
             }
 
             if (label) label.textContent = barang || '-';
+
             showModal('modalBPKAD');
         }
 
@@ -720,7 +773,9 @@
                 if (!modal) return;
 
                 modal.addEventListener('click', function(event) {
-                    if (event.target === modal) hideModal(id);
+                    if (event.target === modal) {
+                        hideModal(id);
+                    }
                 });
             });
         });
@@ -735,7 +790,10 @@
                 'modalExport'
             ].forEach(id => {
                 const modal = document.getElementById(id);
-                if (modal && !modal.classList.contains('hidden')) hideModal(id);
+
+                if (modal && !modal.classList.contains('hidden')) {
+                    hideModal(id);
+                }
             });
         });
     </script>

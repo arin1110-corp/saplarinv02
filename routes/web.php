@@ -275,7 +275,8 @@ Route::middleware(['admin'])
         Route::get('/master/kegiatan', [AdminLaporanSubKegiatanController::class, 'getKegiatan']);
 
         Route::get('/master/sub-kegiatan', [AdminLaporanSubKegiatanController::class, 'getSubKegiatan']);
-        Route::get('/admin/laporan-sub-kegiatan/detail/{uid}', [AdminLaporanSubKegiatanController::class, 'detail'])->name('admin.laporan-sub-kegiatan.detail');
+
+    Route::get('/admin/laporan-sub-kegiatan/detail/{uid}', [AdminLaporanSubKegiatanController::class, 'detail'])->name('admin.laporan-sub-kegiatan.detail');
 
         /*
             |--------------------------------------------------------------------------
@@ -288,7 +289,6 @@ Route::middleware(['admin'])
 
         Route::post('/shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.shs.nonaktif');
 
-
     Route::get('/laporan-shs', [AdminLaporanSHSController::class, 'index'])->name('admin.laporan-shs.index');
 
         Route::get('/laporan-shs/export', [AdminLaporanSHSController::class, 'export'])->name('admin.laporan-shs.export');
@@ -300,13 +300,16 @@ Route::middleware(['admin'])
         Route::post('/laporan-shs/{uid}/aktif', [AdminLaporanSHSController::class, 'aktif'])->name('admin.laporan-shs.aktif');
 
         Route::post('/laporan-shs/{uid}/nonaktif', [AdminLaporanSHSController::class, 'nonaktif'])->name('admin.laporan-shs.nonaktif');
-        /*
+
+    Route::post('/laporan-shs/{uid}/bpkad', [AdminLaporanSHSController::class, 'ajukanBPKAD'])->name('admin.laporan-shs.bpkad');
+
+    /*
         |--------------------------------------------------------------------------
         | Master Kelompok Barang SHS
         '|
         */
 
-        Route::get('/shs-kelompok', [AdminSHSKelompokController::class, 'index'])->name('admin.shs-kelompok.index');
+    Route::get('/shs-kelompok', [AdminSHSKelompokController::class, 'index'])->name('admin.shs-kelompok.index');
 
         Route::post('/shs-kelompok/store', [AdminSHSKelompokController::class, 'store'])->name('admin.shs-kelompok.store');
 

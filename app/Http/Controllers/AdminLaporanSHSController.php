@@ -190,4 +190,25 @@ class AdminLaporanSHSController extends Controller
 
         return Excel::download(new SHSExport($field, $status, $tahun), $namaFile);
     }
+
+    public function ajukanBPKAD(string $uid)
+    {
+        $shs = \App\Models\ModelSHS::where('shs_uid', $uid)
+            ->firstOrFail();
+
+        if ($shs->shs_status !== 'Diverifikasi') {
+            return back()->with(
+                'error',
+                'Usulan SHS harus berstatus Diverifikasi sebelum diajukan ke BPKAD.'
+            );
+        }
+
+        $shs->shs_status = 'Diajukan ke BPKAD';
+        $shs->save();
+
+        return back()->with(
+            'success',
+            'Usulan SHS berhasil diajukan ke BPKAD.'
+        );
+    }
 }
