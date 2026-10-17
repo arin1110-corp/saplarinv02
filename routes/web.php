@@ -626,8 +626,8 @@ Route::prefix('user')
         Route::get('/shs/{uid}/edit', [UserSHSController::class, 'edit'])->name('shs.edit');
 
         Route::put('/shs/{uid}', [UserSHSController::class, 'update'])->name('shs.update');
-
-        Route::post('/shs/{uid}/delete', [UserSHSController::class, 'delete'])->name('shs.delete');
+    Route::delete('/shs/{uid}', [\App\Http\Controllers\UserSHSController::class, 'hapus'])->name('shs.delete');
+    Route::post('/shs/{uid}/sipd', [\App\Http\Controllers\UserSHSController::class, 'konfirmasiSIPD'])->name('shs.sipd');
 
         /*
 |--------------------------------------------------------------------------

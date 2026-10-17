@@ -15,6 +15,7 @@
         $totalDraft = $shs->where('shs_status', 'Draft')->count();
         $totalAktif = $shs->where('shs_status', 'Diajukan')->count();
         $totalNonaktif = $shs->where('shs_status', 'Tidak Diajukan')->count();
+        $pegawaiIdAktif = session('pegawai_id');
     @endphp
 
     <div class="space-y-6">
@@ -65,7 +66,7 @@
 
                     <p class="text-blue-100 text-sm mt-3 max-w-3xl">
                         Operator dapat mengusulkan Standar Harga Satuan (SHS)
-                        Tahun 2028 berdasarkan kebutuhan masing-masing unit kerja.
+                        berdasarkan kebutuhan masing-masing unit kerja.
                         Seluruh operator dapat melihat usulan SHS,
                         namun perubahan data hanya dapat dilakukan oleh
                         operator yang membuat usulan selama status masih Draft.
@@ -157,6 +158,18 @@
         ============================================================ --}}
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
 
+            <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-800">Daftar Usulan SHS</h3>
+                    <p class="text-sm text-slate-500">Lihat seluruh usulan atau khusus usulan yang kamu buat.</p>
+                </div>
+                <button type="button" id="toggleUsulanSaya" aria-pressed="false"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">
+                    <i class="bi bi-person-check"></i>
+                    <span id="toggleUsulanSayaText">Lihat Usulan Saya</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                 {{-- Filter Tahun --}}
@@ -232,6 +245,22 @@
 
                         <option value="Diajukan">
                             Diajukan
+                        </option>
+
+                        <option value="Diverifikasi">
+                            Diverifikasi
+                        </option>
+
+                        <option value="Diajukan ke BPKAD">
+                            Diajukan ke BPKAD
+                        </option>
+
+                        <option value="Sudah Ada di SIPD">
+                            Sudah Ada di SIPD
+                        </option>
+
+                        <option value="Draft">
+                            Draft
                         </option>
 
                         <option value="Tidak Diajukan">
@@ -332,7 +361,8 @@
                     shadow-sm
                     p-6"
                     data-tahun="{{ $item->shs_tahun }}" data-status="{{ $item->shs_status }}"
-                    data-unit="{{ $item->shs_unit_kode }}" data-search="{{ $keywordSearch }}">
+                    data-unit="{{ $item->shs_unit_kode }}" data-search="{{ $keywordSearch }}"
+                    data-owner="{{ (string) $item->shs_operator_id === (string) $pegawaiIdAktif ? '1' : '0' }}">
 
                     {{-- ====================================================
                         HEADER CARD
@@ -371,6 +401,14 @@
                                 @elseif($item->shs_status == 'Diverifikasi')
                                     <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Diverifikasi
+                                    </span>
+                                @elseif($item->shs_status == 'Diajukan ke BPKAD')
+                                    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                        Diajukan ke BPKAD
+                                    </span>
+                                @elseif($item->shs_status == 'Sudah Ada di SIPD')
+                                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                        Sudah Ada di SIPD
                                     </span>
                                 @else
                                     <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
@@ -501,13 +539,34 @@
                         </button>
 
 
-                        @if ($item->shs_operator_id == session('pegawai_id'))
-                            <a href="{{ route('user.shs.edit', $item->shs_uid) }}"
-                                class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold">
+                        @if ((string) $item->shs_operator_id === (string) session('pegawai_id'))
+                            @if ($item->shs_status === 'Draft')
+                                <a href="{{ route('user.shs.edit', $item->shs_uid) }}"
+                                    class="inline-flex items-center gap-2 rounded-2xl bg-amber-500 px-5 py-3 font-semibold text-white hover:bg-amber-600">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
 
-                                Edit
+                                <form method="POST" action="{{ route('user.shs.delete', $item->shs_uid) }}"
+                                    onsubmit="return confirm('Yakin ingin menghapus usulan SHS ini? Data yang dihapus tidak dapat dikembalikan.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                </form>
+                            @endif
 
-                            </a>
+                            @if ($item->shs_status === 'Diajukan ke BPKAD')
+                                <form method="POST" action="{{ route('user.shs.sipd', $item->shs_uid) }}"
+                                    onsubmit="return confirm('Pastikan usulan SHS ini benar-benar sudah dimasukkan ke SIPD. Lanjutkan konfirmasi?')">
+                                    @csrf
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white hover:bg-emerald-700">
+                                        <i class="bi bi-check-circle-fill"></i> Sudah Ada di SIPD
+                                    </button>
+                                </form>
+                            @endif
                         @endif
 
                     </div>
@@ -1415,6 +1474,13 @@
                 var emptyFilter =
                     document.getElementById('emptyFilter');
 
+                var toggleUsulanSaya =
+                    document.getElementById('toggleUsulanSaya');
+
+                var toggleUsulanSayaText =
+                    document.getElementById('toggleUsulanSayaText');
+
+                var hanyaUsulanSaya = false;
 
                 var currentPage = 1;
 
@@ -1466,6 +1532,9 @@
                             String(card.dataset.search || '')
                             .toLowerCase();
 
+                        var cardOwner = String(card.dataset.owner || '0');
+
+                        var matchOwner = !hanyaUsulanSaya || cardOwner === '1';
 
                         var matchTahun = !tahun ||
                             cardTahun === tahun;
@@ -1487,7 +1556,8 @@
                             matchTahun &&
                             matchUnit &&
                             matchStatus &&
-                            matchSearch
+                            matchSearch &&
+                            matchOwner
                         );
 
                     });
@@ -1619,6 +1689,26 @@
 
                 }
 
+
+                if (toggleUsulanSaya) {
+                    toggleUsulanSaya.addEventListener('click', function() {
+                        hanyaUsulanSaya = !hanyaUsulanSaya;
+                        currentPage = 1;
+                        toggleUsulanSaya.setAttribute('aria-pressed', hanyaUsulanSaya ? 'true' : 'false');
+
+                        if (hanyaUsulanSaya) {
+                            toggleUsulanSaya.classList.remove('bg-white', 'text-blue-700', 'border-blue-200');
+                            toggleUsulanSaya.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                            toggleUsulanSayaText.textContent = 'Tampilkan Semua Usulan';
+                        } else {
+                            toggleUsulanSaya.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                            toggleUsulanSaya.classList.add('bg-white', 'text-blue-700', 'border-blue-200');
+                            toggleUsulanSayaText.textContent = 'Lihat Usulan Saya';
+                        }
+
+                        renderPagination();
+                    });
+                }
 
                 if (filterTahun) {
 

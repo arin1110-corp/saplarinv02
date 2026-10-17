@@ -324,4 +324,33 @@ class UserSHSController extends Controller
 
         return str_replace('.', '', $harga);
     }
+    public function hapus(string $uid)
+    {
+        $pegawaiId = session('pegawai_id');
+
+        if (!$pegawaiId) {
+            return redirect()
+                ->route('user.shs.index')
+                ->with('error', 'Sesi operator tidak ditemukan. Silakan login kembali.');
+        }
+
+        $shs = ModelSHS::where('shs_uid', $uid)
+            ->where('shs_operator_id', $pegawaiId)
+            ->firstOrFail();
+
+        if ($shs->shs_status !== 'Draft') {
+            return redirect()
+                ->route('user.shs.index')
+                ->with('error', 'Hanya usulan berstatus Draft yang dapat dihapus.');
+        }
+
+        DB::transaction(function () use ($shs) {
+            $shs->referensiHarga()->delete();
+            $shs->delete();
+        });
+
+        return redirect()
+            ->route('user.shs.index')
+            ->with('success', 'Usulan SHS berhasil dihapus.');
+    }
 }
