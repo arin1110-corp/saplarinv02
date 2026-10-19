@@ -17,11 +17,7 @@ class UserSHSController extends Controller
      */
     public function index()
     {
-        $shs = ModelSHS::with('referensiHarga')
-            ->orderBy('shs_tahun', 'desc')
-            ->orderBy('shs_unit_nama')
-            ->orderBy('shs_barang')
-            ->get();
+        $shs = ModelSHS::with('referensiHarga')->orderBy('shs_tahun', 'desc')->orderBy('shs_unit_nama')->orderBy('shs_barang')->get();
 
         return view('user.shs.index', compact('shs'));
     }
@@ -31,13 +27,9 @@ class UserSHSController extends Controller
      */
     public function create()
     {
-        $kelompoks = ModelSHSKelompok::where('kelompok_status', 1)
-            ->orderBy('kelompok_nama')
-            ->get();
+        $kelompoks = ModelSHSKelompok::where('kelompok_status', 1)->orderBy('kelompok_nama')->get();
 
-        $satuans = ModelSHSSatuan::where('satuan_status', 1)
-            ->orderBy('satuan_nama')
-            ->get();
+        $satuans = ModelSHSSatuan::where('satuan_status', 1)->orderBy('satuan_nama')->get();
 
         return view('user.shs.create', compact('kelompoks', 'satuans'));
     }
@@ -48,15 +40,13 @@ class UserSHSController extends Controller
     public function store(Request $request)
     {
         $request->merge([
-            'shs_harga' => $this->normalizeHarga(
-                $request->input('shs_harga')
-            ),
+            'shs_harga' => $this->normalizeHarga($request->input('shs_harga')),
 
-            'shs_harga_referensi' => collect(
-                $request->input('shs_harga_referensi', [])
-            )->map(function ($harga) {
-                return $this->normalizeHarga($harga);
-            })->toArray(),
+            'shs_harga_referensi' => collect($request->input('shs_harga_referensi', []))
+                ->map(function ($harga) {
+                    return $this->normalizeHarga($harga);
+                })
+                ->toArray(),
         ]);
 
         $request->validate([
@@ -98,10 +88,7 @@ class UserSHSController extends Controller
                 'shs_dasar_usulan' => $request->shs_dasar_usulan,
                 'shs_keterangan' => $request->shs_keterangan,
                 'shs_tkdn' => $request->shs_tkdn,
-                'shs_link_survei' => implode(
-                    "\n",
-                    $request->input('shs_link_survei', [])
-                ),
+                'shs_link_survei' => implode("\n", $request->input('shs_link_survei', [])),
                 'shs_kelompok' => $request->shs_kelompok,
                 'shs_status' => 'Diajukan',
                 'shs_operator_id' => session('pegawai_id'),
@@ -109,15 +96,9 @@ class UserSHSController extends Controller
                 'shs_operator_nip' => session('pegawai_nip'),
             ]);
 
-            $hargaReferensi = $request->input(
-                'shs_harga_referensi',
-                []
-            );
+            $hargaReferensi = $request->input('shs_harga_referensi', []);
 
-            $linkSurvei = $request->input(
-                'shs_link_survei',
-                []
-            );
+            $linkSurvei = $request->input('shs_link_survei', []);
 
             foreach ($linkSurvei as $index => $link) {
                 $link = trim($link);
@@ -141,9 +122,7 @@ class UserSHSController extends Controller
             }
         });
 
-        return redirect()
-            ->route('user.shs.index')
-            ->with('success', 'Usulan SHS berhasil disimpan.');
+        return redirect()->route('user.shs.index')->with('success', 'Usulan SHS berhasil disimpan.');
     }
 
     /**
@@ -151,43 +130,31 @@ class UserSHSController extends Controller
      */
     public function edit($uid)
     {
-        $shs = ModelSHS::with('referensiHarga')
-            ->where('shs_uid', $uid)
-            ->firstOrFail();
+        $shs = ModelSHS::with('referensiHarga')->where('shs_uid', $uid)->firstOrFail();
 
-        $kelompoks = ModelSHSKelompok::where('kelompok_status', 1)
-            ->orderBy('kelompok_nama')
-            ->get();
+        $kelompoks = ModelSHSKelompok::where('kelompok_status', 1)->orderBy('kelompok_nama')->get();
 
-        $satuans = ModelSHSSatuan::where('satuan_status', 1)
-            ->orderBy('satuan_nama')
-            ->get();
+        $satuans = ModelSHSSatuan::where('satuan_status', 1)->orderBy('satuan_nama')->get();
 
-        return view('user.shs.edit', compact(
-            'shs',
-            'kelompoks',
-            'satuans'
-        ));
+        return view('user.shs.edit', compact('shs', 'kelompoks', 'satuans'));
     }
 
     /**
      * Update SHS
      */
+
     public function update(Request $request, $uid)
     {
-        $shs = ModelSHS::where('shs_uid', $uid)
-            ->firstOrFail();
+        $shs = ModelSHS::where('shs_uid', $uid)->firstOrFail();
 
         $request->merge([
-            'shs_harga' => $this->normalizeHarga(
-                $request->input('shs_harga')
-            ),
+            'shs_harga' => $this->normalizeHarga($request->input('shs_harga')),
 
-            'shs_harga_referensi' => collect(
-                $request->input('shs_harga_referensi', [])
-            )->map(function ($harga) {
-                return $this->normalizeHarga($harga);
-            })->toArray(),
+            'shs_harga_referensi' => collect($request->input('shs_harga_referensi', []))
+                ->map(function ($harga) {
+                    return $this->normalizeHarga($harga);
+                })
+                ->toArray(),
         ]);
 
         $request->validate([
@@ -228,25 +195,23 @@ class UserSHSController extends Controller
                 'shs_dasar_usulan' => $request->shs_dasar_usulan,
                 'shs_keterangan' => $request->shs_keterangan,
                 'shs_tkdn' => $request->shs_tkdn,
-                'shs_link_survei' => implode(
-                    "\n",
-                    $request->input('shs_link_survei', [])
-                ),
+
+                'shs_link_survei' => implode("\n", $request->input('shs_link_survei', [])),
+
                 'shs_kelompok' => $request->shs_kelompok,
+
+                // Status otomatis diajukan kembali setelah diedit.
+                'shs_status' => 'Diajukan',
             ]);
 
+            // Hapus referensi harga lama.
             $shs->referensiHarga()->delete();
 
-            $hargaReferensi = $request->input(
-                'shs_harga_referensi',
-                []
-            );
+            $hargaReferensi = $request->input('shs_harga_referensi', []);
 
-            $linkSurvei = $request->input(
-                'shs_link_survei',
-                []
-            );
+            $linkSurvei = $request->input('shs_link_survei', []);
 
+            // Simpan kembali referensi harga dengan UID wajib.
             foreach ($linkSurvei as $index => $link) {
                 $link = trim($link);
 
@@ -261,7 +226,7 @@ class UserSHSController extends Controller
                 }
 
                 ModelSHSReferensiHarga::create([
-                    'shs_referensi_uid' => Str::uuid(),
+                    'shs_referensi_uid' => (string) Str::uuid(),
                     'shs_id' => $shs->shs_id,
                     'shs_referensi_harga' => $harga,
                     'shs_referensi_link' => $link,
@@ -269,9 +234,7 @@ class UserSHSController extends Controller
             }
         });
 
-        return redirect()
-            ->route('user.shs.index')
-            ->with('success', 'Usulan berhasil diperbarui.');
+        return redirect()->route('user.shs.index')->with('success', 'Usulan SHS berhasil diperbarui dan diajukan kembali kepada admin.');
     }
 
     /**
@@ -286,27 +249,19 @@ class UserSHSController extends Controller
         $pegawaiId = session('pegawai_id');
 
         if (!$pegawaiId) {
-            return redirect()
-                ->route('user.shs.index')
-                ->with('error', 'Sesi operator tidak ditemukan. Silakan login kembali.');
+            return redirect()->route('user.shs.index')->with('error', 'Sesi operator tidak ditemukan. Silakan login kembali.');
         }
 
-        $shs = ModelSHS::where('shs_uid', $uid)
-            ->where('shs_operator_id', $pegawaiId)
-            ->firstOrFail();
+        $shs = ModelSHS::where('shs_uid', $uid)->where('shs_operator_id', $pegawaiId)->firstOrFail();
 
         if ($shs->shs_status !== 'Diajukan ke BPKAD') {
-            return redirect()
-                ->route('user.shs.index')
-                ->with('error', 'Konfirmasi SIPD hanya dapat dilakukan setelah usulan diajukan ke BPKAD.');
+            return redirect()->route('user.shs.index')->with('error', 'Konfirmasi SIPD hanya dapat dilakukan setelah usulan diajukan ke BPKAD.');
         }
 
         $shs->shs_status = 'Sudah Ada di SIPD';
         $shs->save();
 
-        return redirect()
-            ->route('user.shs.index')
-            ->with('success', 'Status SHS berhasil diperbarui menjadi Sudah Ada di SIPD.');
+        return redirect()->route('user.shs.index')->with('success', 'Status SHS berhasil diperbarui menjadi Sudah Ada di SIPD.');
     }
 
     /**
@@ -329,19 +284,13 @@ class UserSHSController extends Controller
         $pegawaiId = session('pegawai_id');
 
         if (!$pegawaiId) {
-            return redirect()
-                ->route('user.shs.index')
-                ->with('error', 'Sesi operator tidak ditemukan. Silakan login kembali.');
+            return redirect()->route('user.shs.index')->with('error', 'Sesi operator tidak ditemukan. Silakan login kembali.');
         }
 
-        $shs = ModelSHS::where('shs_uid', $uid)
-            ->where('shs_operator_id', $pegawaiId)
-            ->firstOrFail();
+        $shs = ModelSHS::where('shs_uid', $uid)->where('shs_operator_id', $pegawaiId)->firstOrFail();
 
         if ($shs->shs_status !== 'Draft') {
-            return redirect()
-                ->route('user.shs.index')
-                ->with('error', 'Hanya usulan berstatus Draft yang dapat dihapus.');
+            return redirect()->route('user.shs.index')->with('error', 'Hanya usulan berstatus Draft yang dapat dihapus.');
         }
 
         DB::transaction(function () use ($shs) {
@@ -349,8 +298,6 @@ class UserSHSController extends Controller
             $shs->delete();
         });
 
-        return redirect()
-            ->route('user.shs.index')
-            ->with('success', 'Usulan SHS berhasil dihapus.');
+        return redirect()->route('user.shs.index')->with('success', 'Usulan SHS berhasil dihapus.');
     }
 }

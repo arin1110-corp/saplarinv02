@@ -303,6 +303,8 @@ Route::middleware(['admin'])
 
     Route::post('/laporan-shs/{uid}/bpkad', [AdminLaporanSHSController::class, 'ajukanBPKAD'])->name('admin.laporan-shs.bpkad');
 
+    Route::post('/laporan-shs/{uid}/minta-perbaikan', [AdminLaporanSHSController::class, 'mintaPerbaikan'])->name('admin.laporan-shs.minta-perbaikan');
+
     /*
         |--------------------------------------------------------------------------
         | Master Kelompok Barang SHS

@@ -190,6 +190,15 @@
                                             Ajukan ke BPKAD
                                         </button>
                                     @endif
+
+                                    @if ($status === 'Diajukan ke BPKAD')
+                                        <button type="button"
+                                            onclick='mintaPerbaikanSHS(@json($item->shs_uid), @json($item->shs_barang), @json($item->shs_catatan_admin))'
+                                            class="inline-flex items-center gap-2 rounded-lg bg-orange-600 hover:bg-orange-700 px-3 py-2 text-xs font-semibold text-white">
+                                            <i class="bi bi-arrow-return-left"></i>
+                                            Minta Perbaikan
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
 
@@ -553,6 +562,71 @@
             </form>
         </div>
     </div>
+
+    {{-- MODAL MINTA PERBAIKAN --}}
+    <div id="modalPerbaikan"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+        <div
+            class="w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-5">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+                        Minta Perbaikan SHS
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                        Catatan ini akan disampaikan kepada operator pengusul.
+                    </p>
+                </div>
+
+                <button type="button" onclick="closePerbaikanSHS()"
+                    class="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form id="formPerbaikanSHS" method="POST">
+                @csrf
+
+                <div class="p-6 space-y-5">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                            Barang / Jasa
+                        </label>
+                        <input id="p_barang" type="text" readonly
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                            Catatan Perbaikan <span class="text-red-500">*</span>
+                        </label>
+                        <textarea id="p_catatan" name="shs_catatan_admin" rows="5" required maxlength="5000"
+                            class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white"
+                            placeholder="Jelaskan bagian yang perlu diperbaiki oleh operator..."></textarea>
+                        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            Status usulan akan dikembalikan menjadi Draft.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-5">
+                    <button type="button" onclick="closePerbaikanSHS()"
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 px-5 py-2.5 text-slate-700 dark:text-slate-200">
+                        Batal
+                    </button>
+
+                    <button type="submit"
+                        onclick="return confirm('Kirim catatan perbaikan dan kembalikan status usulan menjadi Draft?')"
+                        class="rounded-xl bg-orange-600 hover:bg-orange-700 px-5 py-2.5 font-semibold text-white">
+                        <i class="bi bi-send me-2"></i>
+                        Kirim Catatan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -638,8 +712,7 @@
                 d_tipe: item.shs_tipe ?? '-',
                 d_satuan: item.shs_satuan ?? '-',
                 d_tkdn: item.shs_tkdn !== null && item.shs_tkdn !== undefined && item.shs_tkdn !== '' ?
-                    item.shs_tkdn + ' %' :
-                    '-',
+                    item.shs_tkdn + ' %' : '-',
                 d_harga: formatRupiah(item.shs_harga),
                 d_dasar_usulan: item.shs_dasar_usulan ?? '-',
                 d_spesifikasi: item.shs_spesifikasi ?? '-',
@@ -796,6 +869,32 @@
                 }
             });
         });
+
+        function mintaPerbaikanSHS(uid, barang, catatan) {
+            const form = document.getElementById('formPerbaikanSHS');
+            const inputBarang = document.getElementById('p_barang');
+            const inputCatatan = document.getElementById('p_catatan');
+
+            if (form) {
+                form.action = @json(url('/admin/laporan-shs')) +
+                    '/' + encodeURIComponent(uid) +
+                    '/minta-perbaikan';
+            }
+
+            if (inputBarang) {
+                inputBarang.value = barang || '';
+            }
+
+            if (inputCatatan) {
+                inputCatatan.value = catatan || '';
+            }
+
+            showModal('modalPerbaikan');
+        }
+
+        function closePerbaikanSHS() {
+            hideModal('modalPerbaikan');
+        }
     </script>
 @endpush
 
