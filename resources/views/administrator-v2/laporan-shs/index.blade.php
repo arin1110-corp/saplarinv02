@@ -577,6 +577,7 @@
                             <option value="Diajukan" @selected(request('status') === 'Diajukan')>Diajukan</option>
                             <option value="Diverifikasi" @selected(request('status') === 'Diverifikasi')>Diverifikasi</option>
                             <option value="Diajukan ke BPKAD" @selected(request('status') === 'Diajukan ke BPKAD')>Diajukan ke BPKAD</option>
+                            <option value="Sudah Ada di SIPD" @selected(request('status') === 'Sudah Ada di SIPD')>Sudah Ada di SIPD</option>
                             <option value="Tidak Diajukan" @selected(request('status') === 'Tidak Diajukan')>Tidak Diajukan</option>
                         </select>
                     </div>
