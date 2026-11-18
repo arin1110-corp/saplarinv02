@@ -192,12 +192,45 @@
                                     @endif
 
                                     @if ($status === 'Diajukan ke BPKAD')
-                                        <button type="button"
-                                            onclick='mintaPerbaikanSHS(@json($item->shs_uid), @json($item->shs_barang), @json($item->shs_catatan_admin))'
-                                            class="inline-flex items-center gap-2 rounded-lg bg-orange-600 hover:bg-orange-700 px-3 py-2 text-xs font-semibold text-white">
-                                            <i class="bi bi-arrow-return-left"></i>
-                                            Minta Perbaikan
-                                        </button>
+                                        <div class="flex flex-wrap items-center gap-2">
+
+                                            {{-- SUDAH ADA DI SIPD --}}
+                                            <form action="{{ route('admin.laporan-shs.sudah-sipd', $item->shs_uid) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Yakin usulan ini sudah ada di SIPD? Email pemberitahuan akan dikirim ke operator.')">
+                                                @csrf
+
+                                                <button type="submit"
+                                                    class="inline-flex items-center gap-2 rounded-lg
+                       bg-emerald-600 px-3.5 py-2.5
+                       text-xs font-semibold text-white
+                       shadow-sm transition-all duration-200
+                       hover:bg-emerald-700 hover:shadow-md
+                       active:scale-95">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    Sudah Ada di SIPD
+                                                </button>
+                                            </form>
+
+                                            {{-- MINTA PERBAIKAN --}}
+                                            <button type="button"
+                                                onclick='mintaPerbaikanSHS(
+                @json($item->shs_uid),
+                @json($item->shs_barang),
+                @json($item->shs_catatan_admin)
+            )'
+                                                class="inline-flex items-center gap-2 rounded-lg
+                   border border-orange-200 bg-orange-50
+                   px-3.5 py-2.5 text-xs font-semibold
+                   text-orange-700 shadow-sm
+                   transition-all duration-200
+                   hover:border-orange-300 hover:bg-orange-100
+                   hover:shadow-md active:scale-95">
+                                                <i class="bi bi-arrow-return-left"></i>
+                                                Minta Perbaikan
+                                            </button>
+
+                                        </div>
                                     @endif
                                 </div>
                             </td>

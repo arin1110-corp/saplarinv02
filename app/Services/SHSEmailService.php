@@ -118,4 +118,47 @@ class SHSEmailService
             return null;
         }
     }
+    public function kirimStatusSIPD(ModelSHS $shs): bool
+    {
+        $email = $this->getEmailOperator($shs);
+
+        if (!$email) {
+            Log::warning('Email operator SHS tidak ditemukan.', [
+                'shs_uid' => $shs->shs_uid,
+                'operator_id' => $shs->shs_operator_id,
+            ]);
+
+            return false;
+        }
+
+        try {
+            $html = View::make('emails.shs.sudah-sipd', [
+                'namaOperator' => $shs->shs_operator_nama,
+                'tahun' => $shs->shs_tahun,
+                'unit' => $shs->shs_unit_nama,
+                'barang' => $shs->shs_barang,
+                'merek' => $shs->shs_merek,
+                'tipe' => $shs->shs_tipe,
+                'spesifikasi' => $shs->shs_spesifikasi,
+                'satuan' => $shs->shs_satuan,
+                'harga' => $shs->shs_harga,
+                'urlAplikasi' => rtrim(config('app.url'), '/'),
+                'urlSaweria' => config('services.saweria.url'),
+            ])->render();
+
+            Mail::html($html, function ($message) use ($email) {
+                $message->to($email)->subject('Pemberitahuan SHS - Sudah Tercatat di SIPD');
+            });
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email pemberitahuan SIPD.', [
+                'shs_uid' => $shs->shs_uid,
+                'email' => $email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
 }

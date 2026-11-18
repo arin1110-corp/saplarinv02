@@ -33,5 +33,8 @@ return [
     'sadarin' => [
         'url' => env('SADARIN_API'),
     ],
+    'saweria' => [
+        'url' => env('SAWERIA_URL'),
+    ],
 
 ];

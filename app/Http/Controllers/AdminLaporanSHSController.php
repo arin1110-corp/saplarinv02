@@ -206,4 +206,28 @@ class AdminLaporanSHSController extends Controller
 
         return back()->with('success', 'Usulan SHS berhasil diajukan ke BPKAD.');
     }
+
+    public function sudahAdaDiSIPD(Request $request, string $uid, SHSEmailService $emailService)
+    {
+        $shs = DB::transaction(function () use ($uid) {
+            $item = ModelSHS::where('shs_uid', $uid)->lockForUpdate()->firstOrFail();
+
+            if ($item->shs_status !== 'Diajukan ke BPKAD') {
+                abort(422, 'Status SHS tidak sesuai untuk diproses ke SIPD.');
+            }
+
+            $item->shs_status = 'Sudah Ada di SIPD';
+            $item->save();
+
+            return $item;
+        });
+
+        $emailTerkirim = $emailService->kirimStatusSIPD($shs);
+
+        if ($emailTerkirim) {
+            return redirect()->back()->with('success', 'Status berhasil diperbarui menjadi Sudah Ada di SIPD. Email pemberitahuan berhasil dikirim ke operator.');
+        }
+
+        return redirect()->back()->with('warning', 'Status berhasil diperbarui menjadi Sudah Ada di SIPD, tetapi email pemberitahuan gagal dikirim. Silakan periksa email operator dan konfigurasi email.');
+    }
 }

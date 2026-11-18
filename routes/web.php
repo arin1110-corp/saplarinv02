@@ -305,6 +305,8 @@ Route::middleware(['admin'])
 
     Route::post('/laporan-shs/{uid}/minta-perbaikan', [AdminLaporanSHSController::class, 'mintaPerbaikan'])->name('admin.laporan-shs.minta-perbaikan');
 
+    Route::post('/laporan-shs/{uid}/sudah-sipd', [AdminLaporanSHSController::class, 'sudahAdaDiSIPD'])->name('admin.laporan-shs.sudah-sipd');
+
     /*
         |--------------------------------------------------------------------------
         | Master Kelompok Barang SHS
